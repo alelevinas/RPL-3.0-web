@@ -16,7 +16,7 @@ exports.createSubmission = (courseId: number, activityId: number, code: { [strin
   });
 
   return request({
-    url: `${producer.base_url}/api/courses/${courseId}/activities/${activityId}/submissions`,
+    url: `${producer.base_url}/courses/${courseId}/activities/${activityId}/submissions`,
     body: formData,
     method: "POST",
     headers: new Headers(),
@@ -25,11 +25,11 @@ exports.createSubmission = (courseId: number, activityId: number, code: { [strin
 
 exports.getSubmissionResult = (submissionId: number): Promise<SubmissionResult> =>
   request({
-    url: `${producer.base_url}/api/submissions/${submissionId}/result`,
+    url: `${producer.base_url}/submissions/${submissionId}/result`,
     method: "GET",
   }).then(submission => {
     return fetch(
-      `${producer.base_url}/api/getFileForStudent/${submission.submission_file_id}`
+      `${producer.base_url}/extractedRPLFileForStudent/${submission.submission_file_id}`
     ).then(response => {
       return response.json().then(code => {
         const completeSubmission = submission;
@@ -44,7 +44,7 @@ exports.getAllSubmissions = (
   activityId: number
 ): Promise<Array<SubmissionResult>> =>
   request({
-    url: `${producer.base_url}/api/courses/${courseId}/activities/${activityId}/submissions`,
+    url: `${producer.base_url}/courses/${courseId}/activities/${activityId}/submissions`,
     method: "GET",
   });
 
@@ -54,19 +54,19 @@ exports.getAllSubmissionsFromStudent = (
   studentId: number
 ): Promise<Array<SubmissionResult>> =>
   request({
-    url: `${producer.base_url}/api/courses/${courseId}/activities/${activityId}/students/${studentId}/submissions`,
+    url: `${producer.base_url}/courses/${courseId}/activities/${activityId}/students/${studentId}/submissions`,
     method: "GET",
   });
 
 exports.getStats = (courseId: number): Promise<> =>
   request({
-    url: `${producer.base_url}/api/courses/${courseId}/submissions/stats`,
+    url: `${producer.base_url}/courses/${courseId}/submissions/stats`,
     method: "GET",
   });
 
 exports.getFinalSolution = (courseId: number, activityId: number): Promise<SubmissionResult> =>
   request({
-    url: `${producer.base_url}/api/courses/${courseId}/activities/${activityId}/finalSubmission`,
+    url: `${producer.base_url}/courses/${courseId}/activities/${activityId}/finalSubmission`,
     method: "GET",
   });
 
@@ -75,11 +75,11 @@ exports.getFinalSolutionWithFileForStudent = (
   activityId: number
 ): Promise<SubmissionResult> =>
   request({
-    url: `${producer.base_url}/api/courses/${courseId}/activities/${activityId}/finalSubmission`,
+    url: `${producer.base_url}/courses/${courseId}/activities/${activityId}/finalSubmission`,
     method: "GET",
   }).then(submission => {
     return fetch(
-      `${producer.base_url}/api/getFileForStudent/${submission.submission_file_id}`
+      `${producer.base_url}/extractedRPLFileForStudent/${submission.submission_file_id}`
     ).then(response => {
       return response.json().then(code => {
         const completeSubmission = submission;
@@ -95,7 +95,7 @@ exports.getAllFinalSolutionsFilesForStudent = (
   exceptFileId: ?number
 ): Promise<Array<{ [string]: string }>> =>
   request({
-    url: `${producer.base_url}/api/courses/${courseId}/activities/${activityId}/allFinalSubmissions`,
+    url: `${producer.base_url}/courses/${courseId}/activities/${activityId}/allFinalSubmissions`,
     method: "GET",
   }).then(response => {
     const filesQuery =
@@ -106,7 +106,7 @@ exports.getAllFinalSolutionsFilesForStudent = (
       return Promise.resolve([]);
     }
     return request({
-      url: `${producer.base_url}/api/getFilesForStudent/${filesQuery}`,
+      url: `${producer.base_url}/extractedRPLFilesForStudent/${filesQuery}`,
       method: "GET",
     });
   });
@@ -116,11 +116,11 @@ exports.getAllFinalSolutionsFiles = (
   activityId: number
 ): Promise<Array<{ [string]: string }>> =>
   request({
-    url: `${producer.base_url}/api/courses/${courseId}/activities/${activityId}/allFinalSubmissions`,
+    url: `${producer.base_url}/courses/${courseId}/activities/${activityId}/allFinalSubmissions`,
     method: "GET",
   }).then(response =>
     request({
-      url: `${producer.base_url}/api/getExtractedFiles/${response.submission_file_ids}`,
+      url: `${producer.base_url}/extractedRPLFiles/${response.submission_file_ids}`,
       method: "GET",
     })
   );
@@ -131,6 +131,6 @@ exports.putSolutionAsFinal = (
   submissionId: number
 ): Promise<SubmissionResult> =>
   request({
-    url: `${producer.base_url}/api/courses/${courseId}/activities/${activityId}/submissions/${submissionId}/final`,
+    url: `${producer.base_url}/courses/${courseId}/activities/${activityId}/submissions/${submissionId}/final`,
     method: "PUT",
   });

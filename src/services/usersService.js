@@ -8,6 +8,6 @@ const producer = {
 
 exports.findUsers = query =>
   request({
-    url: `${producer.base_url}/api/users?query=${query}`,
+    url: `${producer.base_url}/users?query=${query}`,
     method: "GET",
   });
