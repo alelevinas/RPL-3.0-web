@@ -1,25 +1,25 @@
 // @flow
 const { request } = require("../utils/Request");
 
-const producer = {
-  base_url: process.env.API_BASE_URL || "http://localhost:8080",
+const activities_api = {
+  base_url: process.env.ACTIVITIES_API_BASE_URL || "http://localhost:8001/api/v3",
 };
 
 exports.getMySubmissionsStats = (courseId: number): Promise<any> =>
   request({
-    url: `${producer.base_url}/stats/courses/${courseId}/submissions/me`,
+    url: `${activities_api.base_url}/stats/courses/${courseId}/submissions/me`,
     method: "GET",
   });
 
 exports.getMyActivitiesStats = (courseId: number): Promise<any> =>
   request({
-    url: `${producer.base_url}/stats/courses/${courseId}/activities/me`,
+    url: `${activities_api.base_url}/stats/courses/${courseId}/activities/me`,
     method: "GET",
   });
 
 exports.getSubmissionStatsByDate = (courseId: number): Promise<Object> =>
   request({
-    url: `${producer.base_url}/stats/courses/${courseId}/submissions?groupBy=date`,
+    url: `${activities_api.base_url}/stats/courses/${courseId}/submissions?groupBy=date`,
     method: "GET",
   });
 
@@ -31,14 +31,14 @@ exports.getSubmissionStatsByActivity = (
   const categoryIdParam = (categoryId && `&categoryId=${categoryId}`) || "";
   const studentIdParam = (studentId && `&userId=${studentId}`) || "";
   return request({
-    url: `${producer.base_url}/stats/courses/${courseId}/submissions?groupBy=activity${studentIdParam}${categoryIdParam}`,
+    url: `${activities_api.base_url}/stats/courses/${courseId}/submissions?groupBy=activity${studentIdParam}${categoryIdParam}`,
     method: "GET",
   });
 };
 
 exports.getSubmissionStatsByStudent = (courseId: number, date: ?string): Promise<Object> =>
   request({
-    url: `${producer.base_url}/stats/courses/${courseId}/submissions?groupBy=user${
+    url: `${activities_api.base_url}/stats/courses/${courseId}/submissions?groupBy=user${
       date ? `&date=${date}` : ""
     }`,
     method: "GET",
@@ -46,6 +46,6 @@ exports.getSubmissionStatsByStudent = (courseId: number, date: ?string): Promise
 
 exports.getActivityStatsByStudent = (courseId: number, activityId: number): Promise<Object> =>
   request({
-    url: `${producer.base_url}/stats/courses/${courseId}/submissions?groupBy=user&activityId=${activityId}`,
+    url: `${activities_api.base_url}/stats/courses/${courseId}/submissions?groupBy=user&activityId=${activityId}`,
     method: "GET",
   });

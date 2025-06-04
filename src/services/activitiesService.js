@@ -8,8 +8,8 @@ const { request } = require("../utils/Request");
 //   workerUrl: "libarchive.js/dist/worker-bundle.js",
 // });
 
-const producer = {
-  base_url: process.env.API_BASE_URL || "http://localhost:8080",
+const activities_api = {
+  base_url: process.env.ACTIVITIES_API_BASE_URL || "http://localhost:8001/api/v3",
 };
 
 exports.createActivity = ({
@@ -38,7 +38,7 @@ exports.createActivity = ({
   });
 
   return request({
-    url: `${producer.base_url}/courses/${courseId}/activities`,
+    url: `${activities_api.base_url}/courses/${courseId}/activities`,
     body: formData,
     method: "POST",
     headers: new Headers(),
@@ -73,7 +73,7 @@ exports.updateActivity = ({
   }
 
   return request({
-    url: `${producer.base_url}/courses/${courseId}/activities/${activityId}`,
+    url: `${activities_api.base_url}/courses/${courseId}/activities/${activityId}`,
     body: formData,
     method: "PATCH",
     headers: new Headers(),
@@ -82,7 +82,7 @@ exports.updateActivity = ({
 
 exports.getActivityCategories = (courseId: number): Promise<Array<Category>> =>
   request({
-    url: `${producer.base_url}/courses/${courseId}/activityCategories`,
+    url: `${activities_api.base_url}/courses/${courseId}/activityCategories`,
     method: "GET",
   });
 
@@ -92,7 +92,7 @@ exports.createActivityCategory = (
   description: string
 ): Promise<Category> =>
   request({
-    url: `${producer.base_url}/courses/${courseId}/activityCategories`,
+    url: `${activities_api.base_url}/courses/${courseId}/activityCategories`,
     method: "POST",
     body: JSON.stringify({ name, description }),
   });
@@ -105,23 +105,23 @@ exports.updateActivityCategory = (
   description: string
 ): Promise<Category> =>
   request({
-    url: `${producer.base_url}/courses/${courseId}/activityCategories/${categoryId}`,
+    url: `${activities_api.base_url}/courses/${courseId}/activityCategories/${categoryId}`,
     method: "PATCH",
     body: JSON.stringify({ name, description }),
   });
 
 exports.getAllActivities = (courseId: number): Promise<Array<Activity>> =>
   request({
-    url: `${producer.base_url}/courses/${courseId}/activities`,
+    url: `${activities_api.base_url}/courses/${courseId}/activities`,
     method: "GET",
   });
 
 exports.getActivity = (courseId: number, activityId: number): Promise<Activity> =>
   request({
-    url: `${producer.base_url}/courses/${courseId}/activities/${activityId}`,
+    url: `${activities_api.base_url}/courses/${courseId}/activities/${activityId}`,
     method: "GET",
   }).then(activity => {
-    return fetch(`${producer.base_url}/extractedRPLFile/${activity.file_id}`).then(response => {
+    return fetch(`${activities_api.base_url}/extractedRPLFile/${activity.file_id}`).then(response => {
       return response.json().then(code => {
         const completeActivity = activity;
         completeActivity.initial_code = code;
@@ -132,10 +132,10 @@ exports.getActivity = (courseId: number, activityId: number): Promise<Activity> 
 
 exports.getActivityForStudent = (courseId: number, activityId: number): Promise<Activity> =>
   request({
-    url: `${producer.base_url}/courses/${courseId}/activities/${activityId}`,
+    url: `${activities_api.base_url}/courses/${courseId}/activities/${activityId}`,
     method: "GET",
   }).then(activity => {
-    return fetch(`${producer.base_url}/extractedRPLFileForStudent/${activity.file_id}`).then(
+    return fetch(`${activities_api.base_url}/extractedRPLFileForStudent/${activity.file_id}`).then(
       response => {
         return response.json().then(code => {
           const completeActivity = activity;
@@ -148,7 +148,7 @@ exports.getActivityForStudent = (courseId: number, activityId: number): Promise<
 
 exports.deleteActivity = (courseId: number, activityId: number): Promise<Activity> =>
   request({
-    url: `${producer.base_url}/courses/${courseId}/activities/${activityId}`,
+    url: `${activities_api.base_url}/courses/${courseId}/activities/${activityId}`,
     method: "DELETE",
   });
 

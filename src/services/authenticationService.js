@@ -3,13 +3,13 @@ import type { Student } from "../types";
 
 const { request } = require("../utils/Request");
 
-const producer = {
-  base_url: process.env.API_BASE_URL || "http://localhost:8080",
+const users_api = {
+  base_url: process.env.USERS_API_BASE_URL || "http://localhost:8000/api/v3",
 };
 
 exports.login = credentials =>
   request({
-    url: `${producer.base_url}/auth/login`,
+    url: `${users_api.base_url}/auth/login`,
     body: JSON.stringify(credentials),
     method: "POST",
   });
@@ -17,60 +17,60 @@ exports.login = credentials =>
 
 exports.signup = user =>
   request({
-    url: `${producer.base_url}/auth/signup`,
+    url: `${users_api.base_url}/auth/signup`,
     body: JSON.stringify(user),
     method: "POST",
   });
 
 exports.getProfile = () =>
   request({
-    url: `${producer.base_url}/auth/profile`,
+    url: `${users_api.base_url}/auth/profile`,
     method: "GET",
   });
 
 exports.updateProfile = profileData =>
   request({
-    url: `${producer.base_url}/auth/profile`,
+    url: `${users_api.base_url}/auth/profile`,
     body: JSON.stringify(profileData),
     method: "PATCH",
   });
 
 exports.forgotPassword = (email: string): Promise<string> =>
   request({
-    url: `${producer.base_url}/auth/forgotPassword`,
+    url: `${users_api.base_url}/auth/forgotPassword`,
     body: JSON.stringify({ email }),
     method: "POST",
   });
 
 exports.resetPassword = (token: string, password: string): Promise<Student> =>
   request({
-    url: `${producer.base_url}/auth/resetPassword`,
+    url: `${users_api.base_url}/auth/resetPassword`,
     body: JSON.stringify({ password_token: token, new_password: password }),
     method: "POST",
   });
 
 exports.validateEmailToken = (token: string): Promise<Student> =>
   request({
-    url: `${producer.base_url}/auth/validateEmail`,
+    url: `${users_api.base_url}/auth/validateEmail`,
     body: JSON.stringify({ validate_email_token: token }),
     method: "POST",
   });
 
 exports.resendEmailToken = (user: string): Promise<Student> =>
   request({
-    url: `${producer.base_url}/auth/resendValidationEmail`,
+    url: `${users_api.base_url}/auth/resendValidationEmail`,
     body: JSON.stringify({ username_or_email: user }),
     method: "POST",
   });
 
 exports.getRoles = (): Promise<any> =>
   request({
-    url: `${producer.base_url}/auth/roles`,
+    url: `${users_api.base_url}/auth/roles`,
     method: "GET",
   });
 
 exports.getUniversities = (): Promise<Array<any>> =>
   request({
-    url: `${producer.base_url}/auth/universities`,
+    url: `${users_api.base_url}/auth/universities`,
     method: "GET",
   });

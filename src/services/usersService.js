@@ -2,12 +2,12 @@
 
 const { request } = require("../utils/Request");
 
-const producer = {
-  base_url: process.env.API_BASE_URL || "http://localhost:8080",
+const users_api = {
+  base_url: process.env.USERS_API_BASE_URL || "http://localhost:8000/api/v3"
 };
 
 exports.findUsers = query =>
   request({
-    url: `${producer.base_url}/users?query=${query}`,
+    url: `${users_api.base_url}/users?query=${query}`,
     method: "GET",
   });

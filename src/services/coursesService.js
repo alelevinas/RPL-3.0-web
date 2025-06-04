@@ -4,8 +4,8 @@ import type { Course, Student } from "../types";
 const _ = require("lodash");
 const { request } = require("../utils/Request");
 
-const producer = {
-  base_url: process.env.API_BASE_URL || "http://localhost:8080",
+const users_api = {
+  base_url: process.env.USERS_API_BASE_URL || "http://localhost:8000/api/v3",
 };
 
 exports.create = (
@@ -20,7 +20,7 @@ exports.create = (
   imgUri: string
 ) =>
   request({
-    url: `${producer.base_url}/courses`,
+    url: `${users_api.base_url}/courses`,
     body: JSON.stringify({
       name,
       university,
@@ -47,7 +47,7 @@ exports.edit = (
   imgUri: string
 ) =>
   request({
-    url: `${producer.base_url}/courses/${id}`,
+    url: `${users_api.base_url}/courses/${id}`,
     body: JSON.stringify({
       name,
       university,
@@ -74,7 +74,7 @@ exports.clone = (
   imgUri: string
 ) =>
   request({
-    url: `${producer.base_url}/courses`,
+    url: `${users_api.base_url}/courses`,
     body: JSON.stringify({
       id,
       name,
@@ -92,55 +92,55 @@ exports.clone = (
 
 exports.get = (courseId: number): Promise<Course> =>
   request({
-    url: `${producer.base_url}/courses/${courseId}`,
+    url: `${users_api.base_url}/courses/${courseId}`,
     method: "GET",
   });
 
 exports.getAll = (): Promise<Array<Course>> =>
   request({
-    url: `${producer.base_url}/courses`,
+    url: `${users_api.base_url}/courses`,
     method: "GET",
   });
 
 exports.getAllByUser = (userId: number): Promise<Array<Course>> =>
   request({
-    url: `${producer.base_url}/users/${userId}/courses`,
+    url: `${users_api.base_url}/users/${userId}/courses`,
     method: "GET",
   }).then(courses => courses.map(course => _.extend(course, { enrolled: true })));
 
 exports.getPermissions = (courseId: number): Promise<Array<String>> =>
   request({
-    url: `${producer.base_url}/courses/${courseId}/permissions`,
+    url: `${users_api.base_url}/courses/${courseId}/permissions`,
     method: "GET",
   });
 
 exports.enroll = (courseId: number) =>
   request({
-    url: `${producer.base_url}/courses/${courseId}/enroll`,
+    url: `${users_api.base_url}/courses/${courseId}/enroll`,
     method: "POST",
   });
 
 exports.unenroll = (courseId: number) =>
   request({
-    url: `${producer.base_url}/courses/${courseId}/unenroll`,
+    url: `${users_api.base_url}/courses/${courseId}/unenroll`,
     method: "POST",
   });
 
 exports.getAllStudentsByCourseId = (courseId: number): Promise<Array<Student>> =>
   request({
-    url: `${producer.base_url}/courses/${courseId}/users?roleName=student`,
+    url: `${users_api.base_url}/courses/${courseId}/users?roleName=student`,
     method: "GET",
   });
 
 exports.getAllStudentsAndTeachersByCourseId = (courseId: number): Promise<Array<Student>> =>
   request({
-    url: `${producer.base_url}/courses/${courseId}/users`,
+    url: `${users_api.base_url}/courses/${courseId}/users`,
     method: "GET",
   });
 
 const patchCourseUser = (courseId: Number, userId: number, courseUserDetails: any) =>
   request({
-    url: `${producer.base_url}/courses/${courseId}/users/${userId}`,
+    url: `${users_api.base_url}/courses/${courseId}/users/${userId}`,
     body: JSON.stringify(courseUserDetails),
     method: "PATCH",
   });
@@ -157,12 +157,12 @@ exports.changeStudentRole = (courseId: number, userId: number, roleName: string)
 
 exports.deleteStudent = (courseId: Number, userId: number) =>
   request({
-    url: `${producer.base_url}/courses/${courseId}/users/${userId}`,
+    url: `${users_api.base_url}/courses/${courseId}/users/${userId}`,
     method: "DELETE",
   });
 
 exports.getScoreboard = (courseId: Number) =>
   request({
-    url: `${producer.base_url}/courses/${courseId}/scoreboard`,
+    url: `${users_api.base_url}/courses/${courseId}/scoreboard`,
     method: "GET",
   });
