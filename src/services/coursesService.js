@@ -11,11 +11,11 @@ const users_api = {
 exports.create = (
   name: string,
   university: string,
-  universityCourseId: string,
+  SubjectId: string,
   semester: string,
   semesterStartDate: string,
   semesterEndDate: string,
-  courseAdminId: string,
+  courseAdminUserId: string,
   description: string,
   imgUri: string
 ) =>
@@ -24,11 +24,11 @@ exports.create = (
     body: JSON.stringify({
       name,
       university,
-      university_course_id: universityCourseId,
+      subject_id: SubjectId,
       semester,
       semester_start_date: semesterStartDate,
       semester_end_date: semesterEndDate,
-      course_admin_id: courseAdminId,
+      course_admin_user_id: courseAdminUserId,
       description,
       img_uri: imgUri,
     }),
@@ -39,7 +39,7 @@ exports.edit = (
   id: string,
   name: string,
   university: string,
-  universityCourseId: string,
+  SubjectId: string,
   semester: string,
   semesterStartDate: string,
   semesterEndDate: string,
@@ -51,7 +51,7 @@ exports.edit = (
     body: JSON.stringify({
       name,
       university,
-      university_course_id: universityCourseId,
+      subject_id: SubjectId,
       semester,
       semester_start_date: semesterStartDate,
       semester_end_date: semesterEndDate,
@@ -65,11 +65,11 @@ exports.clone = (
   id: number,
   name: string,
   university: string,
-  universityCourseId: string,
+  SubjectId: string,
   semester: string,
   semesterStartDate: string,
   semesterEndDate: string,
-  courseAdminId: string,
+  courseAdminUserId: string,
   description: string,
   imgUri: string
 ) =>
@@ -79,11 +79,11 @@ exports.clone = (
       id,
       name,
       university,
-      university_course_id: universityCourseId,
+      subject_id: SubjectId,
       semester,
       semester_start_date: semesterStartDate,
       semester_end_date: semesterEndDate,
-      course_admin_id: courseAdminId,
+      course_admin_user_id: courseAdminUserId,
       description,
       img_uri: imgUri,
     }),
@@ -138,7 +138,7 @@ exports.getAllStudentsAndTeachersByCourseId = (courseId: number): Promise<Array<
     method: "GET",
   });
 
-const patchCourseUser = (courseId: Number, userId: number, courseUserDetails: any) =>
+const patchCourseUser = (courseId: number, userId: number, courseUserDetails: any) =>
   request({
     url: `${users_api.base_url}/courses/${courseId}/users/${userId}`,
     body: JSON.stringify(courseUserDetails),
@@ -155,13 +155,13 @@ exports.changeStudentRole = (courseId: number, userId: number, roleName: string)
     role: roleName,
   });
 
-exports.deleteStudent = (courseId: Number, userId: number) =>
+exports.deleteStudent = (courseId: number, userId: number) =>
   request({
     url: `${users_api.base_url}/courses/${courseId}/users/${userId}`,
     method: "DELETE",
   });
 
-exports.getScoreboard = (courseId: Number) =>
+exports.getScoreboard = (courseId: number) =>
   request({
     url: `${users_api.base_url}/courses/${courseId}/scoreboard`,
     method: "GET",

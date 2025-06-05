@@ -61,7 +61,7 @@ const styles = theme => ({
 type Props = {
   classes: any,
   courseId: number,
-  universityCourseId: string,
+  subjectId: string,
   name: string,
   description: string,
   imgUri: string,
@@ -175,7 +175,7 @@ class CourseCard extends React.Component<Props, State> {
   render() {
     const {
       classes,
-      universityCourseId,
+      subjectId,
       name,
       description,
       enrolled,
@@ -187,7 +187,7 @@ class CourseCard extends React.Component<Props, State> {
     return (
       <Card className={classes.card}>
         <CardHeader
-          avatar={<Avatar className={classes.avatar}>{universityCourseId}</Avatar>}
+          avatar={<Avatar className={classes.avatar}>{subjectId}</Avatar>}
           classes={{
             root: classes.cardHeaderRoot,
             content: classes.cardHeaderContent,

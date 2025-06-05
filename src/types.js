@@ -55,7 +55,7 @@ export type Category = {
 export type Course = {
   id: number,
   name: string,
-  university_course_id: string,
+  subject_id: string,
   description: string,
   active: boolean,
   semester: string,

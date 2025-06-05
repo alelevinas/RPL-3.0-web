@@ -142,7 +142,7 @@ class CoursesPage extends React.Component<Props, State> {
               <Grid item xs={12} sm={6} md={6} lg={4} xl={2} id={course.id} key={course.id}>
                 <CourseCard
                   courseId={course.id}
-                  universityCourseId={course.university_course_id}
+                  subjectId={course.subject_id}
                   name={course.name}
                   description={course.description}
                   imgUri={course.img_uri}
