@@ -13,7 +13,7 @@ const styles = theme => ({
     height: "100vh",
   },
   paper: {
-    margin: theme.spacing(8, 4),
+    margin: theme.spacing(4, 4),
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
@@ -45,7 +45,7 @@ const styles = theme => ({
     marginRight: theme.spacing(2),
   },
   logo: {
-    marginBottom: theme.spacing(10),
+    marginBottom: theme.spacing(3),
   },
 });
 
@@ -70,11 +70,13 @@ class HomePage extends React.Component {
               color="textPrimary"
               component="body1"
             >
-              <span> RPL 2.0: Trabajo Profesional de Cano, Matías José y Levinas, Alejandro </span>
+              <span> RPL 3.0: Trabajo Profesional de Vasquez Miguel, Gamberale Luciano y Martinez Erick </span>
               <br/>
-              <span> Tutor: Dr. Mendez, Mariano - Co-tutor: Lic. Camejo, Manuel </span>
+              <span> Tutor: Dr. Mendez Mariano </span>
               <br/>
-              <span> Facultad de Ingeniería de la Universidad de Buenos Aires </span>
+              <span> Co-tutores y desarrolladores RPL 2.0: Lic. Camejo Manuel, Cano Matías José y Levinas Alejandro</span>
+              <br/>
+              <span> Facultad de Ingeniería, Universidad de Buenos Aires </span>
             </Typography>
           </div>
         </Grid>

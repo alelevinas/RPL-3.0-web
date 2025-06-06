@@ -75,7 +75,8 @@ class LoginForm extends React.Component<Props, State> {
       })
       .catch(err => {
         console.log(err);
-        if (err.status === 401 && err.err.error === "email_not_validated_error") {
+        const detail = err && err.err && err.err.detail
+        if (err.status === 401 && detail && detail.includes("Email not validated")) {
           this.props.history.push(`/user/validateEmail?user=${username}`);
           return;
         }
@@ -105,7 +106,7 @@ class LoginForm extends React.Component<Props, State> {
             required
             fullWidth
             id="username"
-            label="Nombre de usuario"
+            label="Nombre de usuario o Email"
             name="username"
             autoComplete="username"
             autoFocus

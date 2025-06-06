@@ -45,14 +45,14 @@ exports.forgotPassword = (email: string): Promise<string> =>
 exports.resetPassword = (token: string, password: string): Promise<Student> =>
   request({
     url: `${users_api.base_url}/auth/resetPassword`,
-    body: JSON.stringify({ password_token: token, new_password: password }),
+    body: JSON.stringify({ token: token, new_password: password }),
     method: "POST",
   });
 
 exports.validateEmailToken = (token: string): Promise<Student> =>
   request({
     url: `${users_api.base_url}/auth/validateEmail`,
-    body: JSON.stringify({ validate_email_token: token }),
+    body: JSON.stringify({ token: token }),
     method: "POST",
   });
 
