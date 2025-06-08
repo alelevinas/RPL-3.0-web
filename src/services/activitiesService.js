@@ -27,14 +27,14 @@ exports.createActivity = ({
   formData.append("name", name);
   formData.append("points", points);
   formData.append("language", language);
-  formData.append("activityCategoryId", `${categoryId}`);
+  formData.append("category_id", `${categoryId}`);
   formData.append("description", description);
   // Optional arguments
-  if (compilationFlags !== undefined) formData.append("compilationFlags", compilationFlags);
+  if (compilationFlags !== undefined) formData.append("compilation_flags", compilationFlags);
   if (active !== undefined) formData.append("active", active);
 
   Object.keys(code).forEach(fileName => {
-    formData.append("startingFile", new File([code[fileName]], fileName));
+    formData.append("starting_files", new File([code[fileName]], fileName));
   });
 
   return request({
@@ -61,14 +61,14 @@ exports.updateActivity = ({
   if (name !== undefined) formData.append("name", name);
   if (points !== undefined) formData.append("points", points);
   if (language !== undefined) formData.append("language", language);
-  if (categoryId !== undefined) formData.append("activityCategoryId", `${categoryId}`);
+  if (categoryId !== undefined) formData.append("category_id", `${categoryId}`);
   if (description !== undefined) formData.append("description", description);
-  if (compilationFlags !== undefined) formData.append("compilationFlags", compilationFlags);
+  if (compilationFlags !== undefined) formData.append("compilation_flags", compilationFlags);
   if (active !== undefined) formData.append("active", active);
 
   if (code) {
     Object.keys(code).forEach(fileName => {
-      formData.append("startingFile", new File([code[fileName]], fileName));
+      formData.append("starting_files", new File([code[fileName]], fileName));
     });
   }
 
@@ -121,7 +121,7 @@ exports.getActivity = (courseId: number, activityId: number): Promise<Activity> 
     url: `${activities_api.base_url}/courses/${courseId}/activities/${activityId}`,
     method: "GET",
   }).then(activity => {
-    return fetch(`${activities_api.base_url}/extractedRPLFile/${activity.file_id}`).then(response => {
+    return fetch(`${activities_api.base_url}/extractedRPLFile/${activity.starting_rplfile_id}`).then(response => {
       return response.json().then(code => {
         const completeActivity = activity;
         completeActivity.initial_code = code;
@@ -135,7 +135,7 @@ exports.getActivityForStudent = (courseId: number, activityId: number): Promise<
     url: `${activities_api.base_url}/courses/${courseId}/activities/${activityId}`,
     method: "GET",
   }).then(activity => {
-    return fetch(`${activities_api.base_url}/extractedRPLFileForStudent/${activity.file_id}`).then(
+    return fetch(`${activities_api.base_url}/extractedRPLFileForStudent/${activity.starting_rplfile_id}`).then(
       response => {
         return response.json().then(code => {
           const completeActivity = activity;

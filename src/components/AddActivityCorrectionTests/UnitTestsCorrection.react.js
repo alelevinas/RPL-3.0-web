@@ -61,7 +61,7 @@ class UnitTestsCorrection extends React.Component<Props, State> {
         this.setState({
           activity: response,
           unitTestCode:
-            response.activity_unit_tests || constants.languages[response.language].testCode,
+            response.activity_unit_tests_content || constants.languages[response.language].testCode,
         });
       })
       .catch(err => {

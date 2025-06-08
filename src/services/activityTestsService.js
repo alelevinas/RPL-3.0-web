@@ -16,7 +16,7 @@ exports.createIOTest = (
 ): Promise<IOTest> =>
   request({
     url: `${activities_api.base_url}/courses/${courseId}/activities/${activityId}/iotests`,
-    body: JSON.stringify({ name: testName, text_in: textIn, text_out: textOut }),
+    body: JSON.stringify({ name: testName, test_in: textIn, test_out: textOut }),
     method: "POST",
   });
 
@@ -30,7 +30,7 @@ exports.updateIOTest = (
 ): Promise<IOTest> =>
   request({
     url: `${activities_api.base_url}/courses/${courseId}/activities/${activityId}/iotests/${ioTestId}`,
-    body: JSON.stringify({ name: testName, text_in: textIn, text_out: textOut }),
+    body: JSON.stringify({ name: testName, test_in: textIn, test_out: textOut }),
     method: "PUT",
   });
 
@@ -51,7 +51,7 @@ exports.createUnitTest = (
 ): Promise<Activity> =>
   request({
     url: `${activities_api.base_url}/courses/${courseId}/activities/${activityId}/unittests`,
-    body: JSON.stringify({ unit_test_code: unitTestCode }),
+    body: JSON.stringify({ unit_tests_code: unitTestCode }),
     method: "POST",
   });
 
@@ -62,6 +62,6 @@ exports.updateUnitTest = (
 ): Promise<Activity> =>
   request({
     url: `${activities_api.base_url}/courses/${courseId}/activities/${activityId}/unittests`,
-    body: JSON.stringify({ unit_test_code: unitTestCode }),
+    body: JSON.stringify({ unit_tests_code: unitTestCode }),
     method: "PUT",
   });

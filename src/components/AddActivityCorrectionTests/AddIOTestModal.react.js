@@ -51,9 +51,9 @@ class AddIOTestModal extends React.Component<Props, State> {
     // eslint-disable-next-line react/destructuring-assignment
     testName: this.props.ioTest ? this.props.ioTest.name : "",
     // eslint-disable-next-line react/destructuring-assignment
-    textIn: this.props.ioTest ? this.props.ioTest.in : "",
+    textIn: this.props.ioTest ? this.props.ioTest.test_in : "",
     // eslint-disable-next-line react/destructuring-assignment
-    textOut: this.props.ioTest ? this.props.ioTest.out : "",
+    textOut: this.props.ioTest ? this.props.ioTest.test_out : "",
     testNameError: null,
     textInError: null,
     textOutError: null,

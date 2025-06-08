@@ -123,9 +123,9 @@ class StudentStats extends React.Component<Props, State> {
       datasets: [
         {
           data: activitiesStats && [
-            activitiesStats.started,
-            activitiesStats.not_started,
-            activitiesStats.solved,
+            activitiesStats.amount_of_activities_started,
+            activitiesStats.amount_of_activities_not_started,
+            activitiesStats.amount_of_activities_solved,
           ],
           backgroundColor: palette("sequential", 3).map(hex => `#${hex}`),
         },
@@ -142,10 +142,10 @@ class StudentStats extends React.Component<Props, State> {
       datasets: [
         {
           data: submissionsStats && [
-            submissionsStats.success,
-            submissionsStats.runtime_error,
-            submissionsStats.build_error,
-            submissionsStats.failure,
+            submissionsStats.successful_submissions,
+            submissionsStats.submissions_with_runtime_errors,
+            submissionsStats.submissions_with_build_errors,
+            submissionsStats.submissions_with_failures,
           ],
           backgroundColor: palette("sequential", 4).map(hex => `#${hex}`),
         },
@@ -157,8 +157,8 @@ class StudentStats extends React.Component<Props, State> {
       datasets: [
         {
           data: activitiesStats && [
-            activitiesStats.obtained_points,
-            activitiesStats.total_points - activitiesStats.obtained_points,
+            activitiesStats.points_obtained,
+            activitiesStats.total_possible_points - activitiesStats.points_obtained,
           ],
           backgroundColor: palette("sequential", 2).map(hex => `#${hex}`),
         },

@@ -124,10 +124,10 @@ class Scoreboard extends React.Component<Props, State> {
         {`${student.name} ${student.surname}`}
       </TableCell>,
       <TableCell key={4} align="right">
-        {student.score}
+        {student.total_score}
       </TableCell>,
       <TableCell key={5} align="right">
-        {student.activities_count}
+        {student.successful_activities_count}
       </TableCell>,
     ];
 

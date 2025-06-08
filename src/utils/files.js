@@ -30,7 +30,7 @@ export function getFilesMetadata(files: { [string]: string }): FilesMetadata {
 export function prepareInitialCode(activity: Activity) {
   const code = activity.initial_code;
   const metadata = getFilesMetadata(activity.initial_code);
-  if (activity.language === "python" && activity.is_iotested) {
+  if (activity.language === "python" && activity.is_io_tested) {
     code["assignment_main.py"] = code["assignment_main.py"] || "# tu codigo";
     metadata["assignment_main.py"] = {
       display: FILE_DISPLAY_MODE.WRITE_CANT_DELETE,

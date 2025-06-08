@@ -11,7 +11,7 @@ exports.createSubmission = (courseId: number, activityId: number, code: { [strin
   const formData = new FormData();
 
   Object.keys(code).forEach(filename => {
-    formData.append("file", new File([code[filename]], filename));
+    formData.append("submission_files", new File([code[filename]], filename));
     formData.append("description", "La descriptionnnnnn");
   });
 
@@ -29,7 +29,7 @@ exports.getSubmissionResult = (submissionId: number): Promise<SubmissionResult> 
     method: "GET",
   }).then(submission => {
     return fetch(
-      `${activities_api.base_url}/extractedRPLFileForStudent/${submission.submission_file_id}`
+      `${activities_api.base_url}/extractedRPLFileForStudent/${submission.submission_rplfile_id}`
     ).then(response => {
       return response.json().then(code => {
         const completeSubmission = submission;
@@ -79,7 +79,7 @@ exports.getFinalSolutionWithFileForStudent = (
     method: "GET",
   }).then(submission => {
     return fetch(
-      `${activities_api.base_url}/extractedRPLFileForStudent/${submission.submission_file_id}`
+      `${activities_api.base_url}/extractedRPLFileForStudent/${submission.submission_rplfile_id}`
     ).then(response => {
       return response.json().then(code => {
         const completeSubmission = submission;
@@ -100,8 +100,8 @@ exports.getAllFinalSolutionsFilesForStudent = (
   }).then(response => {
     const filesQuery =
       exceptFileId !== null
-        ? response.submission_file_ids.filter(id => id !== exceptFileId)
-        : response.submission_file_ids;
+        ? response.submission_rplfile_ids.filter(id => id !== exceptFileId)
+        : response.submission_rplfile_ids;
     if (filesQuery.length === 0) {
       return Promise.resolve([]);
     }
@@ -120,7 +120,7 @@ exports.getAllFinalSolutionsFiles = (
     method: "GET",
   }).then(response =>
     request({
-      url: `${activities_api.base_url}/extractedRPLFiles/${response.submission_file_ids}`,
+      url: `${activities_api.base_url}/extractedRPLFiles/${response.submission_rplfile_ids}`,
       method: "GET",
     })
   );
