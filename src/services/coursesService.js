@@ -128,7 +128,7 @@ exports.unenroll = (courseId: number) =>
 
 exports.getAllStudentsByCourseId = (courseId: number): Promise<Array<Student>> =>
   request({
-    url: `${users_api.base_url}/courses/${courseId}/users?roleName=student`,
+    url: `${users_api.base_url}/courses/${courseId}/users?role_name=student`,
     method: "GET",
   });
 

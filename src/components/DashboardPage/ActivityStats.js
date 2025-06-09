@@ -9,6 +9,7 @@ import Autocomplete from "@material-ui/lab/Autocomplete";
 import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
+import CircularProgress from "@material-ui/core/CircularProgress";
 import TableBody from "@material-ui/core/TableBody";
 import Table from "@material-ui/core/Table";
 import TableCell from "@material-ui/core/TableCell";
@@ -92,6 +93,11 @@ const styles = theme => ({
   inactiveStatus: {
     backgroundColor: theme.palette.error.main,
   },
+  circularProgress: {
+    position: "absolute",
+    left: "50%",
+    top: "50%",
+  },
 });
 
 type Props = {
@@ -107,6 +113,7 @@ type State = {
   allActivities: any,
   activityId: any,
   activitiesStats: any,
+  loadingData: boolean,
 };
 
 class ActivityStats extends React.Component<Props, State> {
@@ -117,6 +124,7 @@ class ActivityStats extends React.Component<Props, State> {
     activities: [],
     activityId: undefined,
     activitiesStats: undefined,
+    loadingData: false,
   };
 
   componentDidMount() {
@@ -146,8 +154,10 @@ class ActivityStats extends React.Component<Props, State> {
     if (!activityId) {
       return Promise.resolve();
     }
+    this.setState({ loadingData: true });
     return statsService.getActivityStatsByStudent(courseId, activityId).then(response => {
       this.setState({ activitiesStats: response });
+      this.setState({ loadingData: false });
     });
   }
 
@@ -161,7 +171,7 @@ class ActivityStats extends React.Component<Props, State> {
       ...meta,
     }));
 
-    const dataOrderedByQuantityDesc = data.sort((a, b) => (a.total < b.total ? 1 : -1));
+    const dataOrderedByQuantityDesc = data.sort((a, b) => (a.total_submissions < b.total_submissions ? 1 : -1));
 
     return (
       <TableContainer component={Paper} className={classes.tableContainer}>
@@ -184,12 +194,12 @@ class ActivityStats extends React.Component<Props, State> {
                 <TableCell key={2}>{student.name}</TableCell>
                 <TableCell key={3}>{student.surname}</TableCell>
                 <TableCell key={4}>{student.student_id}</TableCell>
-                <TableCell key={5}>{student.success}</TableCell>
-                <TableCell key={6}>{student.total}</TableCell>
+                <TableCell key={5}>{student.successful_submissions}</TableCell>
+                <TableCell key={6}>{student.total_submissions}</TableCell>
                 <TableCell key={7} align="center">
                   <span
                     className={`${classes.status} ${
-                      student.success ? classes.activeStatus : classes.inactiveStatus
+                      student.successful_submissions ? classes.activeStatus : classes.inactiveStatus
                     }`}
                   />
                 </TableCell>
@@ -203,7 +213,7 @@ class ActivityStats extends React.Component<Props, State> {
 
   render() {
     const { classes } = this.props;
-    const { error } = this.state;
+    const { error, loadingData } = this.state;
 
     return (
       <div>
@@ -245,7 +255,10 @@ class ActivityStats extends React.Component<Props, State> {
             </Button>
           </Grid>
           <Grid item xs={12}>
-            {this.state.activitiesStats && this.renderActivities()}
+            {loadingData && <CircularProgress className={classes.circularProgress} />}
+            {!loadingData && this.state.activitiesStats && (
+              this.renderActivities()
+            )}
           </Grid>
         </Grid>
       </div>

@@ -62,6 +62,11 @@ const styles = theme => ({
   calendarHeatmap: {
     marginTop: theme.spacing(2),
     fontFamily: "sans-serif",
+    height: "250px",
+    "& svg": {
+      width: "100%",
+      height: "100%",
+    },
   },
   container: {
     width: "100%",
@@ -93,12 +98,13 @@ class StudentStats extends React.Component<Props, State> {
     selectedDate: null,
     submissionsByDate: null,
     submissionsByStudent: null,
-    loadingData: false,
+    loadingData: true,
   };
 
   componentDidMount() {
     const { courseId } = this.props;
     let submissionsByDate;
+    this.setState({ loadingData: true });
     return statsService
       .getSubmissionStatsByDate(courseId)
       .then(response => {
@@ -110,6 +116,7 @@ class StudentStats extends React.Component<Props, State> {
           submissionsByDate,
           submissionsByStudent,
         });
+        this.setState({ loadingData: false });
       });
   }
 
@@ -144,7 +151,7 @@ class StudentStats extends React.Component<Props, State> {
       ...meta,
     }));
 
-    const dataOrderedByQuantityDesc = data.sort((a, b) => (a.total < b.total ? 1 : -1));
+    const dataOrderedByQuantityDesc = data.sort((a, b) => (a.total_submissions < b.total_submissions ? 1 : -1));
 
     return (
       <TableContainer component={Paper} className={classes.tableContainer}>
@@ -166,8 +173,8 @@ class StudentStats extends React.Component<Props, State> {
                 <TableCell key={2}>{student.name}</TableCell>
                 <TableCell key={3}>{student.surname}</TableCell>
                 <TableCell key={4}>{student.username}</TableCell>
-                <TableCell key={5}>{student.success}</TableCell>
-                <TableCell key={6}>{student.total}</TableCell>
+                <TableCell key={5}>{student.successful_submissions}</TableCell>
+                <TableCell key={6}>{student.total_submissions}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -181,6 +188,14 @@ class StudentStats extends React.Component<Props, State> {
     const { error, submissionsByDate, selectedDate, loadingData } = this.state;
     const { course } = context;
 
+    if (loadingData) {
+      return (
+        <div>
+          <CircularProgress className={classes.circularProgress} />
+        </div>
+      );
+    }
+
     if (!submissionsByDate) {
       return <div />;
     }
@@ -188,7 +203,7 @@ class StudentStats extends React.Component<Props, State> {
     const { metadata, submissions_stats } = submissionsByDate;
 
     const data = _.zipWith(submissions_stats, metadata, (stat, meta) => ({
-      count: stat.total,
+      count: stat.total_submissions,
       date: meta.date,
     }));
 
@@ -197,27 +212,25 @@ class StudentStats extends React.Component<Props, State> {
         {error.open && <ErrorNotification open={error.open} message={error.message} />}
         <br />
         <Grid container xs={12}>
-          <Grid item xs={4} />
-          <Grid item xs={4}>
+          <Grid item xs={12}>
             <Typography>Totales</Typography>
-            <div className={classes.calendarHeatmap}>
-              <CalendarHeatmap
-                startDate={new Date(course.semester_start_date)}
-                endDate={new Date(course.semester_end_date)}
-                onClick={value => this.handleDateClick(value)}
-                showWeekdayLabels
-                values={data}
-                firstWeekdayMonday
-                classForValue={value => {
-                  if (!value) {
-                    return "color-empty";
-                  }
-                  return `color-github-${Math.min(Math.floor(value.count / 50), 4) + 1}`; // <50 solved activities in a day is color 0 (we have 0->5 colors)
-                }}
-              />
-            </div>
+              <div className={classes.calendarHeatmap}>
+                <CalendarHeatmap
+                  startDate={new Date(course.semester_start_date)}
+                  endDate={new Date(course.semester_end_date)}
+                  onClick={value => this.handleDateClick(value)}
+                  showWeekdayLabels
+                  values={data}
+                  firstWeekdayMonday
+                  classForValue={value => {
+                    if (!value) {
+                      return "color-empty";
+                    }
+                    return `color-github-${Math.min(Math.floor(value.count / 50), 4) + 1}`; // <50 solved activities in a day is color 0 (we have 0->5 colors)
+                  }}
+                />
+              </div>
           </Grid>
-          <Grid item xs={4} />
           <Grid item xs={12}>
             <Typography>{selectedDate || "Envios totales"}</Typography>
             {loadingData && <CircularProgress className={classes.circularProgress} />}

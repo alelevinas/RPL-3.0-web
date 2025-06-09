@@ -182,7 +182,7 @@ class SubmissionResultModal extends React.Component<Props, State> {
     const { results, error } = this.state;
 
     const title = results
-      ? `Resultado de la corrida: ${getText(results.submission_status).toUpperCase()}`
+      ? `Resultado de la ejecución: ${getText(results.submission_status).toUpperCase()}`
       : "Corriendo pruebas";
 
     const getStderrColor = (item: string) => {

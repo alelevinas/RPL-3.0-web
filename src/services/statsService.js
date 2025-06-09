@@ -19,7 +19,7 @@ exports.getMyActivitiesStats = (courseId: number): Promise<any> =>
 
 exports.getSubmissionStatsByDate = (courseId: number): Promise<Object> =>
   request({
-    url: `${activities_api.base_url}/stats/courses/${courseId}/submissions?groupBy=date`,
+    url: `${activities_api.base_url}/stats/courses/${courseId}/submissions?group_by=date`,
     method: "GET",
   });
 
@@ -28,17 +28,17 @@ exports.getSubmissionStatsByActivity = (
   categoryId: ?number,
   studentId: ?number
 ): Promise<any> => {
-  const categoryIdParam = (categoryId && `&categoryId=${categoryId}`) || "";
-  const studentIdParam = (studentId && `&userId=${studentId}`) || "";
+  const categoryIdParam = (categoryId && `&category_id=${categoryId}`) || "";
+  const studentIdParam = (studentId && `&user_id=${studentId}`) || "";
   return request({
-    url: `${activities_api.base_url}/stats/courses/${courseId}/submissions?groupBy=activity${studentIdParam}${categoryIdParam}`,
+    url: `${activities_api.base_url}/stats/courses/${courseId}/submissions?group_by=activity${studentIdParam}${categoryIdParam}`,
     method: "GET",
   });
 };
 
 exports.getSubmissionStatsByStudent = (courseId: number, date: ?string): Promise<Object> =>
   request({
-    url: `${activities_api.base_url}/stats/courses/${courseId}/submissions?groupBy=user${
+    url: `${activities_api.base_url}/stats/courses/${courseId}/submissions?group_by=user${
       date ? `&date=${date}` : ""
     }`,
     method: "GET",
@@ -46,6 +46,6 @@ exports.getSubmissionStatsByStudent = (courseId: number, date: ?string): Promise
 
 exports.getActivityStatsByStudent = (courseId: number, activityId: number): Promise<Object> =>
   request({
-    url: `${activities_api.base_url}/stats/courses/${courseId}/submissions?groupBy=user&activityId=${activityId}`,
+    url: `${activities_api.base_url}/stats/courses/${courseId}/submissions?group_by=user&activity_id=${activityId}`,
     method: "GET",
   });

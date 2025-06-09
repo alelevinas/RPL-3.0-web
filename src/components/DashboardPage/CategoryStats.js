@@ -11,6 +11,7 @@ import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import TableBody from "@material-ui/core/TableBody";
 import Table from "@material-ui/core/Table";
+import CircularProgress from "@material-ui/core/CircularProgress";
 import TableCell from "@material-ui/core/TableCell";
 import Paper from "@material-ui/core/Paper";
 
@@ -92,6 +93,11 @@ const styles = theme => ({
   inactiveStatus: {
     backgroundColor: theme.palette.error.main,
   },
+  circularProgress: {
+    position: "absolute",
+    left: "50%",
+    top: "50%",
+  },
 });
 
 const legendOpts = {
@@ -115,6 +121,7 @@ type State = {
   categories: any,
   categoryId: any,
   activitiesStats: any,
+  loadingData: boolean,
 };
 
 class CategoryStats extends React.Component<Props, State> {
@@ -123,15 +130,18 @@ class CategoryStats extends React.Component<Props, State> {
     categories: [],
     categoryId: undefined,
     activitiesStats: undefined,
+    loadingData: false,
   };
 
   componentDidMount() {
     const { courseId } = this.props;
+    this.setState({ loadingData: true });
     return activitiesService
       .getActivityCategories(courseId)
-      .then(categories =>
-        this.setState({ categories: categories.sort((a, b) => (a.name > b.name ? 1 : -1)) })
-      );
+      .then(categories =>{
+        this.setState({ categories: categories.sort((a, b) => (a.name > b.name ? 1 : -1)) });
+        this.setState({ loadingData: false });
+      });
   }
 
   searchCategoryStats() {
@@ -140,8 +150,10 @@ class CategoryStats extends React.Component<Props, State> {
     if (!categoryId) {
       return Promise.resolve();
     }
+    this.setState({ loadingData: true });
     return statsService.getSubmissionStatsByActivity(courseId, categoryId).then(response => {
       this.setState({ activitiesStats: response });
+      this.setState({ loadingData: false });
     });
   }
 
@@ -175,8 +187,8 @@ class CategoryStats extends React.Component<Props, State> {
                 <TableCell key={2}>{activity.category_name}</TableCell>
                 <TableCell key={3}>{activity.name}</TableCell>
                 <TableCell key={4}>{activity.points}</TableCell>
-                <TableCell key={5}>{activity.total_students_error}</TableCell>
-                <TableCell key={6}>{activity.total_students_success}</TableCell>
+                <TableCell key={5}>{activity.total_submitters_without_successful_submissions}</TableCell>
+                <TableCell key={6}>{activity.total_submitters_with_at_least_one_successful_submission}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -187,7 +199,7 @@ class CategoryStats extends React.Component<Props, State> {
 
   render() {
     const { classes } = this.props;
-    const { error, activitiesStats } = this.state;
+    const { error, activitiesStats, loadingData } = this.state;
 
     const colors = palette("sequential", 2).map(hex => `#${hex}`);
     const data =
@@ -254,19 +266,28 @@ class CategoryStats extends React.Component<Props, State> {
             </Button>
           </Grid>
           <Grid item xs={12}>
-            {this.state.activitiesStats && (
-              <Bar
-                data={dataScore}
-                legend={legendOpts}
-                options={{
-                  maintainAspectRatio: false,
-                  scales,
-                }}
-              />
-            )}
+          {loadingData && <CircularProgress className={classes.circularProgress} />}
+          {!loadingData && (
+            <div>
+              {this.state.activitiesStats && (
+                <Bar
+                  data={dataScore}
+                  legend={legendOpts}
+                  options={{
+                    maintainAspectRatio: false,
+                    scales,
+                  }}
+                />
+              )}
+            </div>
+          )}
           </Grid>
           <Grid item xs={12}>
-            {this.state.activitiesStats && this.renderActivities()}
+            {!loadingData && (
+              <div>
+                {this.state.activitiesStats && this.renderActivities()}
+              </div>
+            )}
           </Grid>
         </Grid>
       </div>
