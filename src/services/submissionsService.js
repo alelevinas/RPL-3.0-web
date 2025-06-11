@@ -23,13 +23,13 @@ exports.createSubmission = (courseId: number, activityId: number, code: { [strin
   });
 };
 
-exports.getSubmissionResult = (submissionId: number): Promise<SubmissionResult> =>
+exports.getSubmissionResult = (courseId: number, submissionId: number): Promise<SubmissionResult> =>
   request({
     url: `${activities_api.base_url}/submissions/${submissionId}/result`,
     method: "GET",
   }).then(submission => {
     return fetch(
-      `${activities_api.base_url}/extractedRPLFileForStudent/${submission.submission_rplfile_id}`
+      `${activities_api.base_url}/courses/${courseId}/extractedRPLFileForStudent/${submission.submission_rplfile_id}`
     ).then(response => {
       return response.json().then(code => {
         const completeSubmission = submission;
@@ -79,7 +79,7 @@ exports.getFinalSolutionWithFileForStudent = (
     method: "GET",
   }).then(submission => {
     return fetch(
-      `${activities_api.base_url}/extractedRPLFileForStudent/${submission.submission_rplfile_id}`
+      `${activities_api.base_url}/courses/${courseId}/extractedRPLFileForStudent/${submission.submission_rplfile_id}`
     ).then(response => {
       return response.json().then(code => {
         const completeSubmission = submission;
@@ -106,24 +106,10 @@ exports.getAllFinalSolutionsFilesForStudent = (
       return Promise.resolve([]);
     }
     return request({
-      url: `${activities_api.base_url}/extractedRPLFilesForStudent/${filesQuery}`,
+      url: `${activities_api.base_url}/courses/${courseId}/extractedRPLFilesForStudent/${filesQuery}`,
       method: "GET",
     });
   });
-
-exports.getAllFinalSolutionsFiles = (
-  courseId: number,
-  activityId: number
-): Promise<Array<{ [string]: string }>> =>
-  request({
-    url: `${activities_api.base_url}/courses/${courseId}/activities/${activityId}/allFinalSubmissions`,
-    method: "GET",
-  }).then(response =>
-    request({
-      url: `${activities_api.base_url}/extractedRPLFiles/${response.submission_rplfile_ids}`,
-      method: "GET",
-    })
-  );
 
 exports.putSolutionAsFinal = (
   courseId: number,

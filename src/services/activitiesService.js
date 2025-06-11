@@ -121,7 +121,7 @@ exports.getActivity = (courseId: number, activityId: number): Promise<Activity> 
     url: `${activities_api.base_url}/courses/${courseId}/activities/${activityId}`,
     method: "GET",
   }).then(activity => {
-    return fetch(`${activities_api.base_url}/extractedRPLFile/${activity.starting_rplfile_id}`).then(response => {
+    return fetch(`${activities_api.base_url}/courses/${courseId}/extractedRPLFile/${activity.starting_rplfile_id}`).then(response => {
       return response.json().then(code => {
         const completeActivity = activity;
         completeActivity.initial_code = code;
@@ -135,7 +135,7 @@ exports.getActivityForStudent = (courseId: number, activityId: number): Promise<
     url: `${activities_api.base_url}/courses/${courseId}/activities/${activityId}`,
     method: "GET",
   }).then(activity => {
-    return fetch(`${activities_api.base_url}/extractedRPLFileForStudent/${activity.starting_rplfile_id}`).then(
+    return fetch(`${activities_api.base_url}/courses/${courseId}/extractedRPLFileForStudent/${activity.starting_rplfile_id}`).then(
       response => {
         return response.json().then(code => {
           const completeActivity = activity;
