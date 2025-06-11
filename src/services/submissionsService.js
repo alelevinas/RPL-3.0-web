@@ -25,17 +25,16 @@ exports.createSubmission = (courseId: number, activityId: number, code: { [strin
 
 exports.getSubmissionResult = (courseId: number, submissionId: number): Promise<SubmissionResult> =>
   request({
-    url: `${activities_api.base_url}/submissions/${submissionId}/result`,
+    url: `${activities_api.base_url}/courses/${courseId}/submissions/${submissionId}/result`,
     method: "GET",
   }).then(submission => {
-    return fetch(
-      `${activities_api.base_url}/courses/${courseId}/extractedRPLFileForStudent/${submission.submission_rplfile_id}`
-    ).then(response => {
-      return response.json().then(code => {
-        const completeSubmission = submission;
-        completeSubmission.submited_code = code;
-        return completeSubmission;
-      });
+    return request({
+      url: `${activities_api.base_url}/courses/${courseId}/extractedRPLFileForStudent/${submission.submission_rplfile_id}`,
+      method: "GET",
+    }).then(code => {
+      const completeSubmission = submission;
+      completeSubmission.submited_code = code;
+      return completeSubmission;
     });
   });
 
@@ -78,14 +77,13 @@ exports.getFinalSolutionWithFileForStudent = (
     url: `${activities_api.base_url}/courses/${courseId}/activities/${activityId}/finalSubmission`,
     method: "GET",
   }).then(submission => {
-    return fetch(
-      `${activities_api.base_url}/courses/${courseId}/extractedRPLFileForStudent/${submission.submission_rplfile_id}`
-    ).then(response => {
-      return response.json().then(code => {
-        const completeSubmission = submission;
-        completeSubmission.submited_code = code;
-        return completeSubmission;
-      });
+    return request({
+      url: `${activities_api.base_url}/courses/${courseId}/extractedRPLFileForStudent/${submission.submission_rplfile_id}`,
+      method: "GET",
+    }).then(code => {
+      const completeSubmission = submission;
+      completeSubmission.submited_code = code;
+      return completeSubmission;
     });
   });
 

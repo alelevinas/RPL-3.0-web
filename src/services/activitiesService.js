@@ -121,12 +121,13 @@ exports.getActivity = (courseId: number, activityId: number): Promise<Activity> 
     url: `${activities_api.base_url}/courses/${courseId}/activities/${activityId}`,
     method: "GET",
   }).then(activity => {
-    return fetch(`${activities_api.base_url}/courses/${courseId}/extractedRPLFile/${activity.starting_rplfile_id}`).then(response => {
-      return response.json().then(code => {
-        const completeActivity = activity;
-        completeActivity.initial_code = code;
-        return completeActivity;
-      });
+    return request({
+      url: `${activities_api.base_url}/courses/${courseId}/extractedRPLFile/${activity.starting_rplfile_id}`,
+      method: "GET",
+    }).then(code => {
+      const completeActivity = activity;
+      completeActivity.initial_code = code;
+      return completeActivity;
     });
   });
 
@@ -135,16 +136,16 @@ exports.getActivityForStudent = (courseId: number, activityId: number): Promise<
     url: `${activities_api.base_url}/courses/${courseId}/activities/${activityId}`,
     method: "GET",
   }).then(activity => {
-    return fetch(`${activities_api.base_url}/courses/${courseId}/extractedRPLFileForStudent/${activity.starting_rplfile_id}`).then(
-      response => {
-        return response.json().then(code => {
-          const completeActivity = activity;
-          completeActivity.initial_code = code;
-          return completeActivity;
-        });
-      }
-    );
+    return request({
+      url: `${activities_api.base_url}/courses/${courseId}/extractedRPLFileForStudent/${activity.starting_rplfile_id}`,
+      method: "GET"
+    }).then(code => {
+      const completeActivity = activity;
+      completeActivity.initial_code = code;
+      return completeActivity;
+    });
   });
+
 
 exports.deleteActivity = (courseId: number, activityId: number): Promise<Activity> =>
   request({
