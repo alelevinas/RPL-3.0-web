@@ -4,11 +4,10 @@
     - [Coding](#coding)
     - [Deploying](#deploying)
 * [How to run it in DEV](#how-to-run-it-in-dev)
-* [How to run it in PROD local with minikube](#how-to-run-it-in-prod-local-with-minikube)
+* [How to run it in PROD local via minikube](#how-to-run-it-in-prod-local-via-minikube)
     - [Configuration](#configuration)
     - [Starting minikube](#starting-minikube)
     - [Running the webapp service](#running-the-webapp-service)
-* [How to run it in PROD local with a Docker Image](#how-to-run-it-in-prod-local-with-a-docker-image)
 
 ## How to contribute
 
@@ -24,42 +23,37 @@
 
 ### Deploying
 
-The repo has Continuous Deployment, so everything merged to `master` is deployed to prod. Please, when you merge to master, follow the GitHub action to make sure that the deployment was successful.
+The repo has Continuous Deployment, so everything merged to `main` is deployed to prod. Please follow the GitHub action to make sure that the deployment was successful.
 
-If you want to test a branch in prod env, you can create a `test/*` branch, this will trigger a deployment to prod. It's important to be careful while using test branches because that code will go to prod :smile:.
+If you want to test a branch in prod env, you can create a `test/*` branch, this will trigger a deployment to prod. It's extremely important to be careful while using test branches since that code will go to prod :smile:.
 
 ## How to run it in DEV
 
-For installing all dependencies, you shouzld run:
+For installing all dependencies, you should run:
 
-```
+```shell script
 nvm use
 npm i
 ```
 
-It's possible to run the frontend against a prod environment or a local environment. In both cases, you need to set the backend URL in a `.env.development` file (create this file at root of the project if you don't have it). 
+Set the backend URLs in a `.env.development` file (create this file at root of the project if you don't have it). 
 
-For running RPL-2.0-web against prod you should set the prod url:
+For running RPL-2.0-web against a local environment you should set the local URLs where you have the backends APIs running:
 
-```
-API_BASE_URL=http://www.rpl.codes
-```
-
-For running RPL-2.0-web against a local environment you should set the local URL where you have the backend running:
-
-```
-API_BASE_URL=http://localhost:8080
+```shell script
+USERS_API_BASE_URL=http://localhost:8000/api/v3
+ACTIVITIES_API_BASE_URL=http://localhost:8001/api/v3
 ```
 
 Once you have this set, you could start the service running:
 
-```
+```shell script
 npm run start
 ```
 
 Note: For testing image upload features locally, you will need to also set the `CLOUDINARY_UPLOAD_PRESET` and `CLOUDINARY_URL` env variables in `.env.development` file. Ask these values to another contributor.
 
-## How to run it in PROD local with minikube
+## How to run it in PROD local via minikube
 
 ### Configuration
 
@@ -68,9 +62,9 @@ Note: For testing image upload features locally, you will need to also set the `
 
 ### Starting minikube
 
-Run the following command for starting the cluster:
+- Run the following command for starting the cluster:
 
-```
+```shell script
 minikube start \
   --memory 8096 \
   --extra-config=controller-manager.horizontal-pod-autoscaler-upscale-delay=1m \
@@ -80,49 +74,20 @@ minikube start \
 
 Note: If you are running on mac you will need the flag `--vm-driver hyperkit`.
 
-After that, you should get something like this:
-
-```
-😄  minikube v1.12.1 on Darwin 10.14.6
-    ▪ MINIKUBE_ACTIVE_DOCKERD=minikube
-✨  Using the hyperkit driver based on user configuration
-👍  Starting control plane node minikube in cluster minikube
-🔥  Creating hyperkit VM (CPUs=2, Memory=8096MB, Disk=20000MB) ...
-🐳  Preparing Kubernetes v1.18.3 on Docker 19.03.12 ...
-    ▪ controller-manager.horizontal-pod-autoscaler-upscale-delay=1m
-    ▪ controller-manager.horizontal-pod-autoscaler-downscale-delay=2m
-    ▪ controller-manager.horizontal-pod-autoscaler-sync-period=10s
-🔎  Verifying Kubernetes components...
-🌟  Enabled addons: default-storageclass, storage-provisioner
-🏄  Done! kubectl is now configured to use "minikube"
-```
-
-After creating the cluster with minikube, it is necessary to run the following command to set the `task=core` label to the `minikube` node:
-
-```
-kubectl label nodes minikube task=core
-```
 
 ### Running the webapp service
 
-- **First of all, you have to run the backend service `producer` before starting the frontend.** Instructions in [rpl-2.0-backend](https://github.com/alelevinas/RPL-2.0).
+- **First of all, you have to run the backend services before starting the frontend.** Instructions in [rpl-3.0-backend](https://github.com/MiguelV5/RPL-3.0).
 
-- If you don't have the queue up and running in the cluster, you will have to comment some lines in the `nginx.conf`:
-  - https://github.com/reinvent-fiuba/RPL-2.0-web/blob/9ca141f0108b48d4bd2e2297b7bfa4d3c5b10e3a/nginx.conf#L29..L32
-  - https://github.com/reinvent-fiuba/RPL-2.0-web/blob/9ca141f0108b48d4bd2e2297b7bfa4d3c5b10e3a/nginx.conf#L72..L91
-
-
-- Get the ip address of the cluster:
+- Set the backend cluster url in the `.env.development`
 
 ```shell script
-minikube ip
+# redirection (and thus v3) already set in nginx path configs
+USERS_API_BASE_URL=/users_api
+ACTIVITIES_API_BASE_URL=/activities_api
 ```
 
-- Set the backend cluster url in the `.env.development`,
 
-```
-API_BASE_URL=http://<cluster_ip>:30020
-```
 
 - Build the minified static html and js in the `dist` folder (then we have to serve `dist/index.html` it with our prefered static server (node serve, nginx, php, etc)):
 
@@ -131,86 +96,55 @@ npm i
 npm run build-dev # This command is the same as build but using the .env.development instead of the .env.production
 ```
 
-- Build the docker image in minikube's docker registry with:
+Note: if you want to test it without `nvm`, you can use a node docker image directly, e.g.:
 
 ```shell script
-eval $(minikube docker-env)
-docker build -t gcr.io/fiuba-rpl/rpl-web:latest .
+docker run --rm -v "$(pwd)":/app -w /app node:14 bash -c "npm install && npm run build-dev"
 ```
+
+- Modify `nginx.conf` with the correct configuration (see the file for more details).
+
+- Build the docker image and load it into minikube:
+
+```shell script
+docker build -t web_rpl:local .
+minikube image load web_rpl:local
+```
+
+- Temporarily set the image value in the `kubernetes/deployments/web.yaml` to `web_rpl:local`.
 
 - Create the kubernetes webapp service and deployment:
 ```shell script
-kubectl apply -f ./kubernetes/services/web.yaml
-kubectl apply -f ./kubernetes/deployments/web.yaml
+kubectl create -f ./kubernetes/services/web.yaml
+kubectl create -f ./kubernetes/deployments/web.yaml
 ```
 
 Note: If you are having issues with the Docker image in kubernetes, maybe you should add the `imagePullPolicy: IfNotPresent` to the `kubernetes/deployments/web.yaml`
 
 Now we should have RPL-2.0-web up and running with kubernetes :rocket:
 
-We are using a reverse_proxy nginx as a docker image so all requests to backend should be directed to the kubernetes cluser, webapp service.
+We are using the reverse_proxy nginx so all requests to backend should be properly directed within the kubernetes cluser.
 
-Every api call directed to `<webapp_service>/api/*` will be redirected to `<producer_service>/api/*`.
+Every api call directed to either `<minikube webapp ip>/users_api/*` or `<minikube webapp ip>/activities_api/*` will be redirected to `<respective minikube backend service ip>/api/v3/*`.
 
-For example, to get the ip address of my webapp service one should do
-
-- Get ports of each service:
+To access the webapp, get the ip address of the cluster and then the port of the service:
 ```shell script
+minikube ip
 kubectl get services
 ```
 
-> Output:
-```
-NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                                                         AGE
-consumer     NodePort    10.99.192.154   <none>        8888:31000/TCP                                                  6s
-kubernetes   ClusterIP   10.96.0.1       <none>        443/TCP                                                         27m
-producer     NodePort    10.101.10.198   <none>        80:32000/TCP                                                    29s
-queue        NodePort    10.105.128.2    <none>        15671:30000/TCP,15672:31157/TCP,5671:31353/TCP,5672:32440/TCP   27m
-webapp       NodePort    10.102.219.139   <none>       80:30022/TCP                                                    33m
-```
-
-- If you must, you should change the `API_BASE_URL` env to `<cluster_ip>:30022`.
-
-You may need to update the docker image and force a pod restart.
-
-You can restart a deployment with the following command:
+To stop the deployment or the service, you can run:
 
 ```shell script
-kubectl rollout restart deployment webapp
+kubectl delete -f ./kubernetes/deployments/web.yaml
+kubectl delete -f ./kubernetes/services/web.yaml
 ```
 
-## How to run it in PROD local with a Docker Image
+If you want to stop everything at once, you can run this:
+(WARNING: this will stop ALL deployments/services within the namespace, not just the webapp)
 
-- Be sure to have all environment variables defined in `.env.development`
-    - For the API_BASE_URL, either use localhost:80 and replace the upstream in the nginx config or use the backend URL
-- Build bundle
-
-```
-npm run install
-npm run build-dev
+```shell script
+kubectl delete --all deployments --namespace=default
+kubectl delete --all services --namespace=default
 ```
 
-- Modify `nginx.conf` with the correct upstream
-- For localhost add:
-
-```
-upstream producer {
-	      server 127.0.0.1:8080;
-	}
-```
-
-- Build docker image
-
-```
-docker build -t rpl-web  -f Dockerfile .
-```
-
-- Run image
-    - [Linux] For localhost make sure to add `--network="host"` flag so that `127.0.0.1:8080` points to the host machine where you are running the server
-    - [Mac OS] Create a docker network
-
-```
-docker run --network="host"  rpl-web:latest
-```
-
-- open localhost:80

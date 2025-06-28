@@ -85,15 +85,15 @@ class HomePage extends React.Component {
             <img width="30%" src={logo} alt="logo" className={classes.logo} />
             <Form history={history} />
           </div>
-          <div className={classes.bottomPush}>
-          <a href="https://cafecito.app/rpl" rel="noopener noreferrer" target="_blank">
-            <img
-              srcset="https://cdn.cafecito.app/imgs/buttons/button_5.png 1x, https://cdn.cafecito.app/imgs/buttons/button_5_2x.png 2x, https://cdn.cafecito.app/imgs/buttons/button_5_3.75x.png 3.75x"
-              src="https://cdn.cafecito.app/imgs/buttons/button_5.png"
-              alt="Invitame un café en cafecito.app"
-            />
-          </a>
-        </div>
+          {/* <div className={classes.bottomPush}>
+            <a href="https://cafecito.app/rpl" rel="noopener noreferrer" target="_blank">
+              <img
+                srcset="https://cdn.cafecito.app/imgs/buttons/button_5.png 1x, https://cdn.cafecito.app/imgs/buttons/button_5_2x.png 2x, https://cdn.cafecito.app/imgs/buttons/button_5_3.75x.png 3.75x"
+                src="https://cdn.cafecito.app/imgs/buttons/button_5.png"
+                alt="Invitame un café en cafecito.app"
+              />
+            </a>
+          </div> */}
 
         </Grid>
       </Grid>
