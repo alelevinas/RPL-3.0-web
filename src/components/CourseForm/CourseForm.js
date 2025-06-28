@@ -67,10 +67,10 @@ type State = {
   error: { open: boolean, message: ?string, invalidFields: any },
   name: string,
   university: any,
-  universityCourseId: string,
+  subjectId: string,
   semester: string,
   description: string,
-  courseAdminId: string,
+  courseAdminUserId: string,
   semesterEnd: Date,
   semesterStart: Date,
   users: Array<any>,
@@ -84,12 +84,12 @@ class CourseForm extends React.Component<Props, State> {
     error: { open: false, message: null, invalidFields: new Set() },
     name: "",
     university: undefined,
-    universityCourseId: "",
+    subjectId: "",
     semester: "",
     semesterStart: new Date(),
     semesterEnd: new Date(),
     description: "",
-    courseAdminId: "",
+    courseAdminUserId: "",
     courseImg: undefined,
     imgUri: "",
     users: [],
@@ -121,7 +121,7 @@ class CourseForm extends React.Component<Props, State> {
     this.setState({
       name: course.name,
       university: universities.find(university => university.name === course.university),
-      universityCourseId: course.university_course_id,
+      subjectId: course.subject_id,
       semester: course.semester,
       semesterStart: new Date(course.semester_start_date),
       semesterEnd: new Date(course.semester_end_date),
@@ -161,18 +161,18 @@ class CourseForm extends React.Component<Props, State> {
   handleCloneClick(event) {
     event.preventDefault();
     const {
-      name,
-      university,
-      universityCourseId,
-      semester,
-      semesterStart,
-      semesterEnd,
-      description,
-      courseAdminId,
-      courseImg,
-      imgUri,
-      error,
-    } = this.state;
+  name,
+  university,
+  subjectId: subjectId,
+  semester,
+  semesterStart,
+  semesterEnd,
+  description,
+  courseAdminUserId,
+  courseImg,
+  imgUri,
+  error
+} = this.state;
 
     const { course } = this.props;
     const { id } = course;
@@ -198,11 +198,11 @@ class CourseForm extends React.Component<Props, State> {
           id,
           name,
           university.name,
-          universityCourseId,
+          subjectId,
           semester,
           semesterStart.toLocaleDateString("sv-SE"),
           semesterEnd.toLocaleDateString("sv-SE"),
-          courseAdminId,
+          courseAdminUserId,
           description,
           (courseImgAsset && courseImgAsset.url) || imgUri
         );
@@ -227,18 +227,18 @@ class CourseForm extends React.Component<Props, State> {
   handleCreateClick(event) {
     event.preventDefault();
     const {
-      name,
-      university,
-      universityCourseId,
-      semester,
-      semesterStart,
-      semesterEnd,
-      description,
-      courseAdminId,
-      courseImg,
-      imgUri,
-      error,
-    } = this.state;
+  name,
+  university,
+  subjectId: subjectId,
+  semester,
+  semesterStart,
+  semesterEnd,
+  description,
+  courseAdminUserId,
+  courseImg,
+  imgUri,
+  error
+} = this.state;
 
     if (error.invalidFields.size !== 0 || !university) {
       this.setState(prevState => ({
@@ -260,11 +260,11 @@ class CourseForm extends React.Component<Props, State> {
         return coursesService.create(
           name,
           university.name,
-          universityCourseId,
+          subjectId,
           semester,
           semesterStart.toLocaleDateString("sv-SE"),
           semesterEnd.toLocaleDateString("sv-SE"),
-          courseAdminId,
+          courseAdminUserId,
           description,
           (courseImgAsset && courseImgAsset.url) || imgUri
         );
@@ -288,16 +288,16 @@ class CourseForm extends React.Component<Props, State> {
   handleSaveClick(event) {
     event.preventDefault();
     const {
-      name,
-      university,
-      universityCourseId,
-      semester,
-      semesterStart,
-      semesterEnd,
-      description,
-      courseImg,
-      imgUri,
-    } = this.state;
+  name,
+  university,
+  subjectId: subjectId,
+  semester,
+  semesterStart,
+  semesterEnd,
+  description,
+  courseImg,
+  imgUri
+} = this.state;
     const { course } = this.props;
     const courseImgPromise = courseImg
       ? cloudinaryService.uploadFile(courseImg)
@@ -309,7 +309,7 @@ class CourseForm extends React.Component<Props, State> {
           course.id,
           name,
           university.name,
-          universityCourseId,
+          subjectId,
           semester,
           semesterStart.toLocaleDateString("sv-SE"),
           semesterEnd.toLocaleDateString("sv-SE"),
@@ -344,26 +344,26 @@ class CourseForm extends React.Component<Props, State> {
 
   canSaveCourse() {
     const {
-      name,
-      university,
-      universityCourseId,
-      semester,
-      semesterStart,
-      semesterEnd,
-      description,
-      courseAdminId,
-    } = this.state;
+  name,
+  university,
+  subjectId: subjectId,
+  semester,
+  semesterStart,
+  semesterEnd,
+  description,
+  courseAdminUserId
+} = this.state;
     const { course, editMode } = this.props;
 
     if (
       !name ||
       !university ||
-      !universityCourseId ||
+      !subjectId ||
       !semester ||
       !semesterStart ||
       !semesterEnd ||
       !description ||
-      (!editMode && !courseAdminId)
+      (!editMode && !courseAdminUserId)
     ) {
       return false;
     }
@@ -433,14 +433,14 @@ class CourseForm extends React.Component<Props, State> {
               margin="normal"
               required
               fullWidth
-              id="universityCourseId"
+              id="subjectId"
               label="Id del Curso"
-              name="universityCourseId"
-              autoComplete="universityCourseId"
-              value={this.state.universityCourseId}
-              error={error.invalidFields.has("universityCourseId")}
+              name="subjectId"
+              autoComplete="subjectId"
+              value={this.state.subjectId}
+              error={error.invalidFields.has("subjectId")}
               helperText={
-                error.invalidFields.has("universityCourseId") &&
+                error.invalidFields.has("subjectId") &&
                 "El Id del Curso debe estar formada por letras, numeros, guiones (_ ó -) o puntos (.)"
               }
               onChange={e =>
@@ -510,7 +510,16 @@ class CourseForm extends React.Component<Props, State> {
                 id="courseAdmin"
                 name="courseAdmin"
                 autoComplete="courseAdmin"
-                onChange={(event, newValue) => this.setState({ courseAdminId: newValue.id })}
+                onChange={(event, newValue) => {this.setState({ 
+                    courseAdminUserId: newValue.id
+                });
+                    console.log(newValue);
+                }}
+                onInputChange={(event, value, reason) => {
+                    if (reason === "input") {
+                        this.loadUsers(value);
+                    }
+                }}
                 getOptionLabel={user => `${user.name} ${user.surname} (${user.username})`}
                 renderInput={params => (
                   <TextField {...params} label="Usuario administrador" margin="normal" />

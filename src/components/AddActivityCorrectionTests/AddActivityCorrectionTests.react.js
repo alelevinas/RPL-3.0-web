@@ -132,7 +132,7 @@ class AddActivityCorrectionTests extends React.Component<Props, State> {
           activity: response,
           activityFilesMetadata: filesMetadata,
           flags: response.compilation_flags,
-          selectedTestMode: !response.is_iotested ? "Unit tests" : "IO tests",
+          selectedTestMode: !response.is_io_tested ? "Unit tests" : "IO tests",
         });
       })
       .catch(err => {
@@ -264,7 +264,7 @@ class AddActivityCorrectionTests extends React.Component<Props, State> {
     }
 
     let promise;
-    if (activity && (!activity.is_iotested || activity.activity_unit_tests)) {
+    if (activity && !activity.is_io_tested && (activity.activity_unit_tests_content.length > 0)) {
       promise = activityTestsService.updateUnitTest(courseId, activityId, unitTestCode);
     } else {
       promise = activityTestsService.createUnitTest(courseId, activityId, unitTestCode);

@@ -44,7 +44,7 @@ const IOTestSection = (props: Props) => {
           <ReactDiffViewer
             styles={allGoodStyle}
             key={id}
-            leftTitle="Resultado de la corrida"
+            leftTitle="Resultado de la ejecución"
             oldValue={separateNewLines(runOutput)}
             rightTitle="Resultado esperado"
             newValue={separateNewLines(expectedOutput)}

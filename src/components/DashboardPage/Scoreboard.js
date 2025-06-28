@@ -7,6 +7,7 @@ import Avatar from "@material-ui/core/Avatar";
 import Table from "@material-ui/core/Table";
 import Paper from "@material-ui/core/Paper";
 import TableContainer from "@material-ui/core/TableContainer";
+import CircularProgress from "@material-ui/core/CircularProgress";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import TableBody from "@material-ui/core/TableBody";
@@ -53,6 +54,11 @@ const styles = theme => ({
   currentUserRow: {
     backgroundColor: theme.palette.success.light,
   },
+  circularProgress: {
+    position: "absolute",
+    left: "50%",
+    top: "50%",
+  },
 });
 
 type Props = {
@@ -63,12 +69,14 @@ type Props = {
 
 type State = {
   error: { open: boolean, message: ?string },
+  loadingData: boolean,
 };
 
 class Scoreboard extends React.Component<Props, State> {
   state = {
     error: { open: false, message: null },
     current: 0,
+    loadingData: true,
   };
 
   componentDidMount() {
@@ -77,9 +85,13 @@ class Scoreboard extends React.Component<Props, State> {
 
   loadScoreboad() {
     const { courseId } = this.props;
+    this.setState({ loadingData: true });
     return coursesService
       .getScoreboard(courseId)
-      .then(scoreboard => this.setState({ scoreboard }))
+      .then((scoreboard) => {
+          this.setState({ scoreboard });
+          this.setState({ loadingData: false });
+      })
       .catch(() => {
         this.setState({
           error: {
@@ -124,10 +136,10 @@ class Scoreboard extends React.Component<Props, State> {
         {`${student.name} ${student.surname}`}
       </TableCell>,
       <TableCell key={4} align="right">
-        {student.score}
+        {student.total_score}
       </TableCell>,
       <TableCell key={5} align="right">
-        {student.activities_count}
+        {student.successful_activities_count}
       </TableCell>,
     ];
 
@@ -154,8 +166,16 @@ class Scoreboard extends React.Component<Props, State> {
 
   render() {
     const { classes, match, context } = this.props;
-    const { scoreboard } = this.state;
+    const { scoreboard, loadingData } = this.state;
 
+    
+    if (loadingData) {
+          return (
+            <div>
+              <CircularProgress className={classes.circularProgress} />
+            </div>
+          );
+        }
     return (
       <div>
         <br />

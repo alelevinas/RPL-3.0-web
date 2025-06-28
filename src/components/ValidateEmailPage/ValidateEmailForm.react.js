@@ -141,7 +141,7 @@ class ValidateEmailForm extends React.Component<Props, State> {
         {/* // Loging in without having validated the e-mail */}
         {!success && (
           <div>
-            <Typography variant="h3" color="textPrimary" component="h1">
+            <Typography variant="h5" color="textPrimary" component="h5">
               Parece que tu e-mail todavía no fue validado.
             </Typography>
             <br />

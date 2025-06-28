@@ -3,8 +3,8 @@ import type { Activity, IOTest } from "../types";
 
 const { request } = require("../utils/Request");
 
-const producer = {
-  base_url: process.env.API_BASE_URL || "http://localhost:8080",
+const activities_api = {
+  base_url: process.env.ACTIVITIES_API_BASE_URL || "http://localhost:8001/api/v3",
 };
 
 exports.createIOTest = (
@@ -15,8 +15,8 @@ exports.createIOTest = (
   textOut: string
 ): Promise<IOTest> =>
   request({
-    url: `${producer.base_url}/courses/${courseId}/activities/${activityId}/iotests`,
-    body: JSON.stringify({ name: testName, text_in: textIn, text_out: textOut }),
+    url: `${activities_api.base_url}/courses/${courseId}/activities/${activityId}/iotests`,
+    body: JSON.stringify({ name: testName, test_in: textIn, test_out: textOut }),
     method: "POST",
   });
 
@@ -29,8 +29,8 @@ exports.updateIOTest = (
   textOut: string
 ): Promise<IOTest> =>
   request({
-    url: `${producer.base_url}/courses/${courseId}/activities/${activityId}/iotests/${ioTestId}`,
-    body: JSON.stringify({ name: testName, text_in: textIn, text_out: textOut }),
+    url: `${activities_api.base_url}/courses/${courseId}/activities/${activityId}/iotests/${ioTestId}`,
+    body: JSON.stringify({ name: testName, test_in: textIn, test_out: textOut }),
     method: "PUT",
   });
 
@@ -40,7 +40,7 @@ exports.deleteIOTest = (
   ioTestId: number
 ): Promise<Activity> =>
   request({
-    url: `${producer.base_url}/courses/${courseId}/activities/${activityId}/iotests/${ioTestId}`,
+    url: `${activities_api.base_url}/courses/${courseId}/activities/${activityId}/iotests/${ioTestId}`,
     method: "DELETE",
   });
 
@@ -50,8 +50,8 @@ exports.createUnitTest = (
   unitTestCode: string
 ): Promise<Activity> =>
   request({
-    url: `${producer.base_url}/courses/${courseId}/activities/${activityId}/unittests`,
-    body: JSON.stringify({ unit_test_code: unitTestCode }),
+    url: `${activities_api.base_url}/courses/${courseId}/activities/${activityId}/unittests`,
+    body: JSON.stringify({ unit_tests_code: unitTestCode }),
     method: "POST",
   });
 
@@ -61,7 +61,7 @@ exports.updateUnitTest = (
   unitTestCode: string
 ): Promise<Activity> =>
   request({
-    url: `${producer.base_url}/courses/${courseId}/activities/${activityId}/unittests`,
-    body: JSON.stringify({ unit_test_code: unitTestCode }),
+    url: `${activities_api.base_url}/courses/${courseId}/activities/${activityId}/unittests`,
+    body: JSON.stringify({ unit_tests_code: unitTestCode }),
     method: "PUT",
   });

@@ -121,7 +121,7 @@ class StudentsTeachersPage extends React.Component<Props, State> {
       .getAllStudentsAndTeachersByCourseId(match.params.courseId)
       .then(response => {
         const students = response.filter(user => user.role === "student");
-        const teachers = response.filter(user => user.role === "admin");
+        const teachers = response.filter(user => user.role === "course_admin");
         this.setState({ students, teachers });
       })
       .catch(() => {

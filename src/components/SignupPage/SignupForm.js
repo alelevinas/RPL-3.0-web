@@ -19,13 +19,13 @@ import { validate } from "../../utils/inputValidator";
 
 const styles = theme => ({
   avatar: {
-    margin: theme.spacing(1),
+    margin: theme.spacing(0),
     backgroundColor: theme.palette.secondary.main,
   },
   form: {
     width: "100%", // Fix IE 11 issue.
     marginTop: theme.spacing(1),
-    padding: `0px ${theme.spacing(4)}px`,
+    padding: `0px ${theme.spacing(2)}px`,
   },
   submit: {
     margin: theme.spacing(3, 0, 2),
@@ -42,6 +42,7 @@ type State = {
   username: string,
   password: string,
   email: string,
+  confirmEmail: string,
   name: string,
   surname: string,
   degree: string,
@@ -56,6 +57,7 @@ class Signup extends React.Component<Props, State> {
     error: { open: false, message: null, invalidFields: new Set() },
     username: "",
     email: "",
+    confirmEmail: "",
     password: "",
     name: "",
     surname: "",
@@ -63,7 +65,7 @@ class Signup extends React.Component<Props, State> {
     university: undefined,
     success: false,
     universities: [],
-    studentId: "",
+    studentId: ""
   };
 
   componentDidMount() {
@@ -94,6 +96,7 @@ class Signup extends React.Component<Props, State> {
     const {
       username,
       email,
+      confirmEmail,
       password,
       name,
       surname,
@@ -128,11 +131,21 @@ class Signup extends React.Component<Props, State> {
       .then(() => {
         this.setState({ success: true });
       })
-      .catch(() => {
+      .catch(err => {
+        let message = "Hubo un error en el registro, revisa que los datos ingresados sean validos.";
+        console.log(err);
+        const detail = err && err.err && err.err.detail;
+        if (err && err.status === 400 && detail && detail.includes("already exists")) {
+          if (detail.includes("Email")) {
+            message = "Este email ya está en uso";
+          } else if (detail.includes("Username")) {
+            message = "Este nombre de usuario ya existe";
+          }
+        }
         this.setState({
-          error: {
+            error: {
             open: true,
-            message: "Hubo un error de sign up, revisa que los datos ingresados sean validos.",
+            message,
             invalidFields: new Set(),
           },
         });
@@ -143,6 +156,7 @@ class Signup extends React.Component<Props, State> {
     const {
       username,
       email,
+      confirmEmail,
       password,
       name,
       surname,
@@ -155,13 +169,15 @@ class Signup extends React.Component<Props, State> {
     if (
       !username ||
       !email ||
+      !confirmEmail ||
       !password ||
       !name ||
       !surname ||
       !degree ||
       !university ||
       !studentId ||
-      (error.invalidFields && error.invalidFields.size !== 0)
+      (error.invalidFields && error.invalidFields.size !== 0) ||
+      email !== confirmEmail
     ) {
       return false;
     }
@@ -199,7 +215,7 @@ class Signup extends React.Component<Props, State> {
         </Dialog>
 
         <Typography component="h1" variant="h5">
-          Sign Up
+          Registrarse
         </Typography>
         <form noValidate className={classes.form}>
           <TextField
@@ -320,6 +336,27 @@ class Signup extends React.Component<Props, State> {
             margin="normal"
             required
             fullWidth
+            id="confirmEmail"
+            label="Confirmar Email"
+            name="Confirmar Email"
+            autoComplete="email"
+            error={
+              this.state.confirmEmail !== "" &&
+              this.state.confirmEmail !== this.state.email
+            }
+            helperText={
+              this.state.confirmEmail !== "" &&
+              this.state.confirmEmail !== this.state.email &&
+              "Los emails no coinciden"
+            }
+            onChange={e =>
+              this.handleChange(e, validate(e.target.value, /^\S+@\S+\.\S+$/, "string"))
+            }
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
             name="password"
             label="Contraseña"
             type="password"
@@ -342,7 +379,7 @@ class Signup extends React.Component<Props, State> {
             onClick={e => this.handleSignUpClick(e)}
             disabled={!this.canSignUp()}
           >
-            Sign Up
+            Registrarse
           </Button>
         </form>
         <Grid container>
@@ -353,7 +390,7 @@ class Signup extends React.Component<Props, State> {
           </Grid>
           <Grid item>
             <Link href="/login" variant="body2">
-              Ya estás registrado. Iniciá sesión
+              Ya me registré, Iniciar sesión
             </Link>
           </Grid>
         </Grid>

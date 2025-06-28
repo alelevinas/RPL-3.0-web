@@ -26,8 +26,8 @@ const TestAccordion = (props: Props) => {
 
   const renderContent = () => {
     const {
-      io_test_run_results: ioTestResults,
-      unit_test_run_results: unitTestResults,
+      io_tests_run_results: ioTestResults,
+      unit_tests_run_results: unitTestResults,
       submission_status: status,
       exit_message: exitMessage,
     } = results;

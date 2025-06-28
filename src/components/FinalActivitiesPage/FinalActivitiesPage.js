@@ -147,7 +147,7 @@ class FinalActivitiesPage extends React.Component<Props, State> {
               .getAllFinalSolutionsFilesForStudent(
                 courseId,
                 activityId,
-                finalSolution.submission_file_id
+                finalSolution.submission_rplfile_id
               )
               .then(files =>
                 this.setState({

@@ -6,6 +6,7 @@ import { withStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import Autocomplete from "@material-ui/lab/Autocomplete";
+import CircularProgress from "@material-ui/core/CircularProgress";
 import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
@@ -91,6 +92,11 @@ const styles = theme => ({
   tableRow: {
     cursor: "pointer",
   },
+  circularProgress: {
+    position: "absolute",
+    left: "50%",
+    top: "50%",
+  },
 });
 
 const legendOpts = {
@@ -117,6 +123,7 @@ type State = {
   categoryId: ?number,
   submissionsPanel: { isOpen: boolean, activityId: ?number },
   selectedSubmissionId: ?number,
+  loadingData: boolean,
 };
 
 class StudentCategoryStats extends React.Component<Props, State> {
@@ -128,6 +135,7 @@ class StudentCategoryStats extends React.Component<Props, State> {
     categoryId: undefined,
     submissionsPanel: { isOpen: false, activityId: null },
     selectedSubmissionId: null,
+    loadingData: false,
   };
 
   componentDidMount() {
@@ -149,13 +157,15 @@ class StudentCategoryStats extends React.Component<Props, State> {
 
   searchStudentCategoryStats() {
     const { courseId } = this.props;
-    const { studentId, categoryId } = this.state;
+    const { studentId, categoryId, loadingData } = this.state;
     if (!studentId) {
       return Promise.resolve();
     }
+    this.setState({ loadingData: true });
     return statsService
       .getSubmissionStatsByActivity(courseId, categoryId, studentId)
       .then(response => {
+        this.setState({ loadingData: false });
         this.setState({ activitiesStats: response });
       });
   }
@@ -237,11 +247,11 @@ class StudentCategoryStats extends React.Component<Props, State> {
                 <TableCell key={2}>{activity.category_name}</TableCell>
                 <TableCell key={3}>{activity.name}</TableCell>
                 <TableCell key={4}>{activity.points}</TableCell>
-                <TableCell key={5}>{activity.total}</TableCell>
+                <TableCell key={5}>{activity.total_submissions}</TableCell>
                 <TableCell key={6} align="center">
                   <span
                     className={`${classes.status} ${
-                      activity.success ? classes.activeStatus : classes.inactiveStatus
+                      activity.successful_submissions ? classes.activeStatus : classes.inactiveStatus
                     }`}
                   />
                 </TableCell>
@@ -262,11 +272,12 @@ class StudentCategoryStats extends React.Component<Props, State> {
       submissionsPanel,
       selectedSubmissionId,
       studentId,
+      loadingData,
     } = this.state;
 
     const colors = palette("sequential", 2).map(hex => `#${hex}`);
     const data =
-      activitiesStats && activitiesStats.submissions_stats.map(activity => activity.total);
+      activitiesStats && activitiesStats.submissions_stats.map(activity => activity.total_submissions);
     const dataScore = {
       labels: activitiesStats && activitiesStats.metadata.map(activity => activity.name),
       datasets: [
@@ -360,19 +371,28 @@ class StudentCategoryStats extends React.Component<Props, State> {
             </Button>
           </Grid>
           <Grid item xs={12}>
-            {activitiesStats && (
-              <Bar
-                data={dataScore}
-                legend={legendOpts}
-                options={{
-                  maintainAspectRatio: false,
-                  scales,
-                }}
-              />
+            {loadingData && <CircularProgress className={classes.circularProgress} />}
+            {!loadingData && (
+              <div>
+                {activitiesStats && (
+                  <Bar
+                  data={dataScore}
+                  legend={legendOpts}
+                  options={{
+                    maintainAspectRatio: false,
+                    scales,
+                  }}
+                  />
+                )}
+              </div>
             )}
           </Grid>
           <Grid item xs={12}>
-            {activitiesStats && this.renderActivities(activitiesStats)}
+            {!loadingData && (
+              <div>
+                {activitiesStats && this.renderActivities(activitiesStats)}
+              </div>
+            )}
           </Grid>
         </Grid>
       </div>

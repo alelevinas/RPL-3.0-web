@@ -153,7 +153,7 @@ class SideBar extends React.PureComponent<Props> {
             <ListItemText primary="Cerrar Sesión" />
           </ListItem>
         </List>
-        <div className={classes.bottomPush}>
+        {/* <div className={classes.bottomPush}>
           <a href="https://cafecito.app/rpl" rel="noopener noreferrer" target="_blank">
             <img
               srcset="https://cdn.cafecito.app/imgs/buttons/button_5.png 1x, https://cdn.cafecito.app/imgs/buttons/button_5_2x.png 2x, https://cdn.cafecito.app/imgs/buttons/button_5_3.75x.png 3.75x"
@@ -161,7 +161,7 @@ class SideBar extends React.PureComponent<Props> {
               alt="Invitame un café en cafecito.app"
             />
           </a>
-        </div>
+        </div> */}
       </Drawer>
     );
   }

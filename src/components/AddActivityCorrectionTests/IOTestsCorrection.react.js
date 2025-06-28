@@ -133,7 +133,7 @@ class IOCorrectionTests extends React.Component<Props, State> {
         <div className={classes.listContainer}>
           <List className={classes.list}>
             {activity &&
-              activity.activity_iotests.map((ioTest, idx) => (
+              activity.activity_io_tests.map((ioTest, idx) => (
                 <ListItem
                   button
                   key={ioTest.id}

@@ -87,11 +87,11 @@ class SubmissionResultModal extends React.Component<Props, State> {
   };
 
   componentDidMount() {
-    const { activitySubmissionId } = this.props;
+    const { activitySubmissionId, courseId } = this.props;
     const { getResultsTimerId } = this.state;
     if (activitySubmissionId !== null) {
       submissionsService
-        .getSubmissionResult(activitySubmissionId)
+        .getSubmissionResult(courseId, activitySubmissionId)
         .then(submissionResult => {
           clearInterval(getResultsTimerId);
           this.setState({ getResultsTimerId: null, results: submissionResult });
@@ -100,7 +100,7 @@ class SubmissionResultModal extends React.Component<Props, State> {
           console.log(err);
           if (status === 404) {
             this.setState({
-              getResultsTimerId: setInterval(() => this.pullForResults(activitySubmissionId), 3000),
+              getResultsTimerId: setInterval(() => this.pullForResults(courseId, activitySubmissionId), 3000),
             });
             return;
           }
@@ -114,12 +114,12 @@ class SubmissionResultModal extends React.Component<Props, State> {
     }
   }
 
-  pullForResults(submissionId: number) {
+  pullForResults(courseId: number, submissionId: number) {
     console.log("Pidiendo resultado");
     const { getResultsTimerId } = this.state;
 
     submissionsService
-      .getSubmissionResult(submissionId)
+      .getSubmissionResult(courseId, submissionId)
       .then(submissionResult => {
         clearInterval(getResultsTimerId);
         this.setState({ getResultsTimerId: null, results: submissionResult });
@@ -182,7 +182,7 @@ class SubmissionResultModal extends React.Component<Props, State> {
     const { results, error } = this.state;
 
     const title = results
-      ? `Resultado de la corrida: ${getText(results.submission_status).toUpperCase()}`
+      ? `Resultado de la ejecución: ${getText(results.submission_status).toUpperCase()}`
       : "Corriendo pruebas";
 
     const getStderrColor = (item: string) => {

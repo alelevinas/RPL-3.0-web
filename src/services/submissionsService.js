@@ -3,39 +3,38 @@ import type { SubmissionResult } from "../types";
 
 const { request } = require("../utils/Request");
 
-const producer = {
-  base_url: process.env.API_BASE_URL || "http://localhost:8080",
+const activities_api = {
+  base_url: process.env.ACTIVITIES_API_BASE_URL || "http://localhost:8001/api/v3",
 };
 
 exports.createSubmission = (courseId: number, activityId: number, code: { [string]: string }) => {
   const formData = new FormData();
 
   Object.keys(code).forEach(filename => {
-    formData.append("file", new File([code[filename]], filename));
+    formData.append("submission_files", new File([code[filename]], filename));
     formData.append("description", "La descriptionnnnnn");
   });
 
   return request({
-    url: `${producer.base_url}/courses/${courseId}/activities/${activityId}/submissions`,
+    url: `${activities_api.base_url}/courses/${courseId}/activities/${activityId}/submissions`,
     body: formData,
     method: "POST",
     headers: new Headers(),
   });
 };
 
-exports.getSubmissionResult = (submissionId: number): Promise<SubmissionResult> =>
+exports.getSubmissionResult = (courseId: number, submissionId: number): Promise<SubmissionResult> =>
   request({
-    url: `${producer.base_url}/submissions/${submissionId}/result`,
+    url: `${activities_api.base_url}/courses/${courseId}/submissions/${submissionId}/result`,
     method: "GET",
   }).then(submission => {
-    return fetch(
-      `${producer.base_url}/extractedRPLFileForStudent/${submission.submission_file_id}`
-    ).then(response => {
-      return response.json().then(code => {
-        const completeSubmission = submission;
-        completeSubmission.submited_code = code;
-        return completeSubmission;
-      });
+    return request({
+      url: `${activities_api.base_url}/courses/${courseId}/extractedRPLFileForStudent/${submission.submission_rplfile_id}`,
+      method: "GET",
+    }).then(code => {
+      const completeSubmission = submission;
+      completeSubmission.submited_code = code;
+      return completeSubmission;
     });
   });
 
@@ -44,7 +43,7 @@ exports.getAllSubmissions = (
   activityId: number
 ): Promise<Array<SubmissionResult>> =>
   request({
-    url: `${producer.base_url}/courses/${courseId}/activities/${activityId}/submissions`,
+    url: `${activities_api.base_url}/courses/${courseId}/activities/${activityId}/submissions`,
     method: "GET",
   });
 
@@ -54,19 +53,19 @@ exports.getAllSubmissionsFromStudent = (
   studentId: number
 ): Promise<Array<SubmissionResult>> =>
   request({
-    url: `${producer.base_url}/courses/${courseId}/activities/${activityId}/students/${studentId}/submissions`,
+    url: `${activities_api.base_url}/courses/${courseId}/activities/${activityId}/students/${studentId}/submissions`,
     method: "GET",
   });
 
 exports.getStats = (courseId: number): Promise<> =>
   request({
-    url: `${producer.base_url}/courses/${courseId}/submissions/stats`,
+    url: `${activities_api.base_url}/courses/${courseId}/submissions/stats`,
     method: "GET",
   });
 
 exports.getFinalSolution = (courseId: number, activityId: number): Promise<SubmissionResult> =>
   request({
-    url: `${producer.base_url}/courses/${courseId}/activities/${activityId}/finalSubmission`,
+    url: `${activities_api.base_url}/courses/${courseId}/activities/${activityId}/finalSubmission`,
     method: "GET",
   });
 
@@ -75,17 +74,16 @@ exports.getFinalSolutionWithFileForStudent = (
   activityId: number
 ): Promise<SubmissionResult> =>
   request({
-    url: `${producer.base_url}/courses/${courseId}/activities/${activityId}/finalSubmission`,
+    url: `${activities_api.base_url}/courses/${courseId}/activities/${activityId}/finalSubmission`,
     method: "GET",
   }).then(submission => {
-    return fetch(
-      `${producer.base_url}/extractedRPLFileForStudent/${submission.submission_file_id}`
-    ).then(response => {
-      return response.json().then(code => {
-        const completeSubmission = submission;
-        completeSubmission.submited_code = code;
-        return completeSubmission;
-      });
+    return request({
+      url: `${activities_api.base_url}/courses/${courseId}/extractedRPLFileForStudent/${submission.submission_rplfile_id}`,
+      method: "GET",
+    }).then(code => {
+      const completeSubmission = submission;
+      completeSubmission.submited_code = code;
+      return completeSubmission;
     });
   });
 
@@ -95,35 +93,21 @@ exports.getAllFinalSolutionsFilesForStudent = (
   exceptFileId: ?number
 ): Promise<Array<{ [string]: string }>> =>
   request({
-    url: `${producer.base_url}/courses/${courseId}/activities/${activityId}/allFinalSubmissions`,
+    url: `${activities_api.base_url}/courses/${courseId}/activities/${activityId}/allFinalSubmissions`,
     method: "GET",
   }).then(response => {
     const filesQuery =
       exceptFileId !== null
-        ? response.submission_file_ids.filter(id => id !== exceptFileId)
-        : response.submission_file_ids;
+        ? response.submission_rplfile_ids.filter(id => id !== exceptFileId)
+        : response.submission_rplfile_ids;
     if (filesQuery.length === 0) {
       return Promise.resolve([]);
     }
     return request({
-      url: `${producer.base_url}/extractedRPLFilesForStudent/${filesQuery}`,
+      url: `${activities_api.base_url}/courses/${courseId}/extractedRPLFilesForStudent/${filesQuery}`,
       method: "GET",
     });
   });
-
-exports.getAllFinalSolutionsFiles = (
-  courseId: number,
-  activityId: number
-): Promise<Array<{ [string]: string }>> =>
-  request({
-    url: `${producer.base_url}/courses/${courseId}/activities/${activityId}/allFinalSubmissions`,
-    method: "GET",
-  }).then(response =>
-    request({
-      url: `${producer.base_url}/extractedRPLFiles/${response.submission_file_ids}`,
-      method: "GET",
-    })
-  );
 
 exports.putSolutionAsFinal = (
   courseId: number,
@@ -131,6 +115,6 @@ exports.putSolutionAsFinal = (
   submissionId: number
 ): Promise<SubmissionResult> =>
   request({
-    url: `${producer.base_url}/courses/${courseId}/activities/${activityId}/submissions/${submissionId}/final`,
+    url: `${activities_api.base_url}/courses/${courseId}/activities/${activityId}/submissions/${submissionId}/final`,
     method: "PUT",
   });

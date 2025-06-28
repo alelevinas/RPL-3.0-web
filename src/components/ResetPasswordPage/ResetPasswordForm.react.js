@@ -89,17 +89,30 @@ class ResetPasswordForm extends React.Component<Props, State> {
     authenticationService
       .resetPassword(token, newPassword)
       .then(response => {
-        console.log(response);
+        // console.log(response);
         this.setState({ success: true });
       })
       .catch(err => {
         console.log(err);
-        this.setState({
-          error: {
-            open: true,
-            message: "Hubo un error, revisa que los datos ingresados sean validos.",
-          },
-        });
+        if (err && err.status === 422 && err.err?.detail[0]?.type.includes("too_short")) {
+          if (this.state.error.open) {
+            this.setState({ error: { open: false, message: null } });
+          }
+          this.setState({
+            error: {
+              open: true,
+              message: "La contraseña debe tener al menos 5 caracteres",
+            },
+          });
+        }
+        else {
+          this.setState({
+            error: {
+              open: true,
+              message: "Hubo un error, revisa que los datos ingresados sean validos.",
+            },
+          });
+        }
       });
   }
 
