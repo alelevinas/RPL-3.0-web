@@ -40,6 +40,8 @@ const styles = () => ({
   dialogTitleText: {
     alignSelf: "center",
     marginRight: "10px",
+    color: "black",
+    fontWeight: "bold",
   },
   markAsDefinitiveButton: {
     alignSelf: "flex-end",
@@ -186,7 +188,7 @@ class SubmissionResultModal extends React.Component<Props, State> {
       : "Corriendo pruebas";
 
     const getStderrColor = (item: string) => {
-      if (item.includes("main") || item.includes("end_BUILD")) {
+      if (item.includes("main") || item.includes("src/") || item.includes("end_BUILD")) {
         return "secondary";
       }
       return "textSecondary";

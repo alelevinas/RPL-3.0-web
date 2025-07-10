@@ -31,7 +31,7 @@ const styles = theme => ({
     bottom: "5%",
     left: "50%",
     transform: "translate(-50%, -5%)",
-    background: "rgba(0,0,0,0.4)",
+    background: "rgba(0,0,0,0.6)",
   },
   footerText: {
     fontSize: theme.typography.pxToRem(12),

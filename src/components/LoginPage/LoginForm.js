@@ -44,6 +44,31 @@ class LoginForm extends React.Component<Props, State> {
     password: "",
   };
 
+  componentDidMount() {
+    const { history } = this.props;
+    // Check for sessionExpired in history.state or localStorage
+    const sessionExpired =
+      (history &&
+        history.location &&
+        history.location.state &&
+        history.location.state.sessionExpired) ||
+      window.localStorage.getItem("sessionExpired") === "1";
+
+    if (sessionExpired) {
+      this.setState({
+        error: {
+          open: true,
+          message: "Tu sesión expiró. Por favor, inicia sesión nuevamente.",
+        },
+      });
+      // clear the flag so it doesn't show again
+      if (history && history.location && history.location.state && history.location.state.sessionExpired) {
+        history.replace({ ...history.location, state: { ...history.location.state, sessionExpired: false } });
+      }
+      window.localStorage.removeItem("sessionExpired");
+    }
+  }
+
   handleChange(event) {
     event.persist();
     // Close error message

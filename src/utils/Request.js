@@ -27,9 +27,10 @@ exports.request = (options, config) => {
     }
     return response.json().then(json => {
       if (!response.ok) {
-        if (response.status === 401 && json && json.detail !== "Email not validated") {
+        if (response.status === 401 && json.detail && (json.detail !== "Email not validated" && json.detail !== "Invalid credentials")) {
           logout();
-          window.location.assign(window.location); // then PrivateRoute will redirect you to the login page
+          window.localStorage.setItem("sessionExpired", "1");
+          window.location.assign("/login");
           return Promise.reject();
         }
 

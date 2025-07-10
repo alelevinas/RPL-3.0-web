@@ -57,13 +57,26 @@ const TestAccordion = (props: Props) => {
   };
 
   return (
-    <Accordion expanded={expanded} onChange={handleExpanded}>
+    <Accordion
+      expanded={expanded}
+      onChange={handleExpanded}
+      style={{
+        border: "1px solid #000",
+      }}
+    >
       <AccordionSummary
         id="test-header"
         aria-controls="test-content"
-        expandIcon={<ExpandMoreIcon />}
+        expandIcon={
+          <ExpandMoreIcon style={{ color: "#000" }} />
+        }
       >
-        <Typography variant="h5" color="black" component="p">
+        <Typography
+          variant="h5"
+          color="black"
+          component="p"
+          style={{ fontWeight: "bold" }}
+        >
           Resultados
         </Typography>
       </AccordionSummary>

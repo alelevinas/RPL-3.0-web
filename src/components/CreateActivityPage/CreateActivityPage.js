@@ -209,7 +209,7 @@ class CreateActivityPage extends React.Component<Props, State> {
 
   canSaveActivity() {
     const { name, points, language, categoryId, code, mdText, activity } = this.state;
-    if (!name || !points || !language || categoryId === -1 || !mdText) {
+    if (!name || points==="" || !language || categoryId === -1 || !mdText) {
       return false;
     }
     return true;

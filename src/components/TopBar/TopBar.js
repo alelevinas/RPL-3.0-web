@@ -43,6 +43,9 @@ const styles = theme => ({
   },
   title: {
     flexGrow: 1,
+    marginTop: theme.spacing(0.8),
+    marginLeft: theme.spacing(2),
+    fontWeight: "bold",
   },
   user: {
     marginRight: theme.spacing(2),

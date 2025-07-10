@@ -17,7 +17,10 @@ function PrivateRoute({ component: Component, layout: Layout, title, context, ..
             <Redirect
               to={{
                 pathname: "/login",
-                state: { goTo: routeProps.location.pathname },
+                state: { 
+                  goTo: routeProps.location.pathname,
+                  sessionExpired: location.state && location.state.sessionExpired,
+                },
               }}
             />
           );
