@@ -64,7 +64,8 @@ module.exports = (env, argv) => {
       new Dotenv({ path: envPath, systemvars: true }),
       new MonacoWebpackPlugin({
         // available options are documented at https://github.com/Microsoft/monaco-editor-webpack-plugin#options
-        languages: ["cpp", "javascript", "python", "java", "go"],
+        // ^ that link is outdated. The options can be seen here: https://microsoft.github.io/monaco-editor/
+        languages: ["cpp", "javascript", "python", "java", "go", "rust"],
       }),
       new BundleAnalyzerPlugin({ openAnalyzer: true, analyzerMode: "json" }),
       new CompressionPlugin(), // https://medium.com/@selvaganesh93/how-to-serve-webpack-gzipped-file-in-production-using-nginx-692eadbb9f1c
