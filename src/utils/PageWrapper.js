@@ -10,6 +10,10 @@ const drawerWidth = 240;
 const barHeight = 64;
 
 const styles = theme => ({
+  root: {
+    minHeight: "100vh",
+    backgroundColor: theme.palette.background.default,
+  },
   content: {
     flexGrow: 1,
     padding: theme.spacing(3),
@@ -20,14 +24,6 @@ const styles = theme => ({
     marginLeft: 0,
     marginTop: barHeight,
   },
-  contentShift: {
-    transition: theme.transitions.create("margin", {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-    marginLeft: drawerWidth,
-    marginTop: barHeight,
-  },
 });
 
 const PageWrapper = ({ classes, match, title, children }) => {
@@ -36,7 +32,7 @@ const PageWrapper = ({ classes, match, title, children }) => {
   const courseId = _.get(match, "params.courseId");
 
   return (
-    <div>
+    <div className={classes.root}>
       <TopBar
         handleDrawerOpen={() => setIsSideBarOpen(!isSideBarOpen)}
         open={isSideBarOpen}
@@ -47,7 +43,7 @@ const PageWrapper = ({ classes, match, title, children }) => {
         open={isSideBarOpen}
         courseId={courseId}
       />
-      <main className={`${classes.content} ${isSideBarOpen ? classes.contentShift : ""}`}>
+      <main className={`${classes.content}`}>
         {children}
       </main>
     </div>

@@ -248,7 +248,7 @@ class CoursesPage extends React.Component<Props, State> {
               value={this.state.currentTab}
               onChange={(event, newValue) => this.handleChange(event, newValue)}
               indicatorColor="primary"
-              textColor="primary"
+              textColor="text.primary"
               variant="scrollable"
             >
               <Tab label="Mis cursos" />

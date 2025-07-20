@@ -12,23 +12,15 @@ import type { Activity } from "../../types";
 import constants from "../../utils/constants";
 
 const styles = theme => ({
-  divider: {
-    margin: 20,
-  },
-  list: {
-    margin: 20,
-    backgroundColor: "#f5f5f5",
-    maxWidth: "500px",
-  },
   addTestCaseButton: {
     display: "flex",
     marginLeft: "auto",
   },
-  titleButton: {
-    display: "inline-flex",
-    justifyContent: "space-between",
-    width: "100%",
-    marginBottom: 20,
+  externalLink: {
+    color: theme.palette.primary.light,
+    "&:hover": {
+      color: theme.palette.text.primary,
+    },
   },
 });
 
@@ -98,13 +90,14 @@ class UnitTestsCorrection extends React.Component<Props, State> {
               className={classes.title}
             >
               {`Utiliza las funciones que desarrollaron los alumnos para comprobar que funcionan
-          correctamente. Documentación de la `}
+          correctamente. `}
               <a
                 href={constants.languages[activity.language].testDocs}
                 target="_blank"
                 rel="noopener noreferrer"
+                className={classes.externalLink}
               >
-                librería de test unitarios
+                Ver la documentación de la librería de test unitarios
               </a>
             </Typography>
             <Typography

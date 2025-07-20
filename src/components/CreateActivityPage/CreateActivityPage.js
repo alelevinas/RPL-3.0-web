@@ -68,9 +68,42 @@ const styles = theme => ({
     },
   },
   mdEditor: {
+    "& .mde-header, & .mde-tabs, & .mde-toolbar": {
+      backgroundColor: theme.palette.background.paper,
+      color: theme.palette.text.primary,
+    },
+    // Header and tab text
+    "& .mde-header, & .mde-tabs, & .mde-tabs button, & .mde-tabs span, & .mde-header span": {
+      color: theme.palette.text.primary,
+      fill: theme.palette.text.primary,
+
+    },
+    // Toolbar buttons (icons)
+    "& .mde-header ul.mde-header-group li.mde-header-item button": {
+      color: theme.palette.text.primary,
+      fill: theme.palette.text.primary,
+    },
+    // Toolbar header dropdown
+    "& .mde-header ul.mde-header-group li.mde-header-item ul.react-mde-dropdown": {
+      backgroundColor: theme.palette.background.paper,
+    },
+    "& .mde-toolbar button:hover, & .mde-toolbar button:focus": {
+      backgroundColor: theme.palette.action.hover,
+    },
+    // Editor background and text
+    "& .mde-text": {
+      backgroundColor: theme.palette.background.default,
+      color: theme.palette.text.primary,
+      border: `1px solid ${theme.palette.divider}`,
+    },
     "& .mde-preview": {
       height: "53vh",
       overflow: "scroll",
+      backgroundColor: theme.palette.background.default,
+      color: theme.palette.text.primary,
+    },
+    "& .mde-selected": {
+      backgroundColor: theme.palette.action.selected,
     },
     "& .grip": {
       display: "none",
@@ -132,6 +165,7 @@ type State = {
   editor: any,
   isCreateCategoryModalOpen: boolean,
   isAddMainFileModalActive: boolean,
+  isSavingActivity: boolean,
 };
 
 class CreateActivityPage extends React.Component<Props, State> {
@@ -149,6 +183,7 @@ class CreateActivityPage extends React.Component<Props, State> {
     editor: null,
     isCreateCategoryModalOpen: false,
     isAddMainFileModalActive: false,
+    isSavingActivity: false,
   };
 
   componentDidMount() {
@@ -208,8 +243,11 @@ class CreateActivityPage extends React.Component<Props, State> {
   }
 
   canSaveActivity() {
-    const { name, points, language, categoryId, code, mdText, activity } = this.state;
+    const { name, points, language, categoryId, code, mdText, activity, isSavingActivity } = this.state;
     if (!name || points==="" || !language || categoryId === -1 || !mdText) {
+      return false;
+    }
+    if (isSavingActivity) {
       return false;
     }
     return true;
@@ -233,11 +271,17 @@ class CreateActivityPage extends React.Component<Props, State> {
       description: mdText,
       ...(!activity ? {} : { activityId: activity.id }),
     };
+    
+    this.setState({ isSavingActivity: true });
 
     return serviceToCall(data)
       .then(response => {
         context.invalidateByKeys("activities");
         this.setState({ activity: response });
+        this.setState({
+          error: { open: false, message: "", invalidFields: new Set() },
+          isSavingActivity: false,
+        });
         return response;
       })
       .catch(() => {
@@ -250,6 +294,7 @@ class CreateActivityPage extends React.Component<Props, State> {
             },
           };
         });
+        this.setState({ isSavingActivity: false });
       });
   }
 

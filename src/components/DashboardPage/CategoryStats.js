@@ -3,6 +3,7 @@ import React from "react";
 import palette from "google-palette";
 import { Bar } from "react-chartjs-2";
 import { withStyles } from "@material-ui/core/styles";
+import { withTheme } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import Autocomplete from "@material-ui/lab/Autocomplete";
@@ -100,16 +101,6 @@ const styles = theme => ({
   },
 });
 
-const legendOpts = {
-  display: true,
-  fullWidth: false,
-  position: "left",
-  reverse: false,
-  labels: {
-    fontSize: 10,
-  },
-};
-
 type Props = {
   courseId: number,
   match: any,
@@ -122,6 +113,7 @@ type State = {
   categoryId: any,
   activitiesStats: any,
   loadingData: boolean,
+  hasSearched: boolean,
 };
 
 class CategoryStats extends React.Component<Props, State> {
@@ -131,6 +123,7 @@ class CategoryStats extends React.Component<Props, State> {
     categoryId: undefined,
     activitiesStats: undefined,
     loadingData: false,
+    hasSearched: false,
   };
 
   componentDidMount() {
@@ -153,7 +146,7 @@ class CategoryStats extends React.Component<Props, State> {
     this.setState({ loadingData: true });
     return statsService.getSubmissionStatsByActivity(courseId, categoryId).then(response => {
       this.setState({ activitiesStats: response });
-      this.setState({ loadingData: false });
+      this.setState({ loadingData: false , hasSearched: true });
     });
   }
 
@@ -199,7 +192,8 @@ class CategoryStats extends React.Component<Props, State> {
 
   render() {
     const { classes } = this.props;
-    const { error, activitiesStats, loadingData } = this.state;
+    const { error, activitiesStats, loadingData, hasSearched } = this.state;
+    const { theme } = this.props;
 
     const colors = palette("sequential", 2).map(hex => `#${hex}`);
     const data =
@@ -217,26 +211,40 @@ class CategoryStats extends React.Component<Props, State> {
       ],
     };
 
-    const scales = {
-      yAxes: [
-        {
-          ticks: {
-            beginAtZero: true,
-            min: 0,
-            max: Math.max(...(data || [])) + 1,
+    const barChartOpts = {
+      legend: {
+        display: false,
+      },
+      maintainAspectRatio: false,
+      layout: {
+        padding: {
+          top: 32,
+        },
+      },
+      scales: {
+        yAxes: [
+          {
+            ticks: {
+              beginAtZero: true,
+              min: 0,
+              max: Math.max(...(data || [])) + 1,
+              fontColor: theme.palette.text.primary,
+            },
+            gridLines: {
+              color: theme.palette.text.secondary,
+              borderDash: [4, 4],
+              zeroLineColor: theme.palette.text.secondary,
+            },
+          }
+        ],
+        xAxes: [
+          {
+            display: false,
           },
-        },
-      ],
-      xAxes: [
-        {
-          display: false,
-        },
-      ],
-    };
+        ],
+      },
+    }
 
-    const legendOpts = {
-      display: false,
-    };
 
     return (
       <div>
@@ -250,7 +258,7 @@ class CategoryStats extends React.Component<Props, State> {
               id="category"
               name="category"
               autoComplete="category"
-              onChange={(event, newValue) => this.setState({ categoryId: newValue.id })}
+              onChange={(event, newValue) => this.setState({ categoryId: newValue ? newValue.id : undefined })}
               getOptionLabel={category => `${category.name}`}
               renderInput={params => <TextField {...params} label="Categoria" margin="normal" />}
             />
@@ -258,7 +266,6 @@ class CategoryStats extends React.Component<Props, State> {
           <Grid item xs={2}>
             <Button
               className={classes.search}
-              variant="outlined"
               color="primary"
               onClick={() => this.searchCategoryStats()}
             >
@@ -269,25 +276,29 @@ class CategoryStats extends React.Component<Props, State> {
           {loadingData && <CircularProgress className={classes.circularProgress} />}
           {!loadingData && (
             <div>
-              {this.state.activitiesStats && (
+              {activitiesStats && activitiesStats.submissions_stats && activitiesStats.submissions_stats.length > 0 ? (
                 <Bar
                   data={dataScore}
-                  legend={legendOpts}
-                  options={{
-                    maintainAspectRatio: false,
-                    scales,
-                  }}
+                  options={barChartOpts}
                 />
+              ) : (
+                hasSearched && (
+                  <Paper style={{ padding: 24, textAlign: "center" }}>
+                    No hay datos para los filtros seleccionados.
+                  </Paper>
+                )
               )}
             </div>
           )}
           </Grid>
           <Grid item xs={12}>
-            {!loadingData && (
-              <div>
-                {this.state.activitiesStats && this.renderActivities()}
-              </div>
-            )}
+            {!loadingData &&
+              (
+                activitiesStats && activitiesStats.submissions_stats && activitiesStats.submissions_stats.length > 0
+                ? this.renderActivities()
+                : <></>
+              )
+            }
           </Grid>
         </Grid>
       </div>
@@ -295,4 +306,4 @@ class CategoryStats extends React.Component<Props, State> {
   }
 }
 
-export default withState(withStyles(styles)(CategoryStats));
+export default withState(withStyles(styles)(withTheme(CategoryStats)));

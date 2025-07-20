@@ -53,7 +53,8 @@ type Props = {
 
 type State = {
   activityMenu: { isOpen: boolean, anchorEl: ?string },
-  activityOptions: Array<Activity>
+  activityOptions: Array<Activity>,
+  submitDisabled: boolean
 };
 
 function getLeftTitle(
@@ -75,7 +76,6 @@ function getLeftTitle(
   return (
     <Button
       type="submit"
-      variant="contained"
       className={classes.rightButton}
       disabled={!canShowOtherSolutions}
       onClick={() => history.push(`${history.location.pathname}/definitives`)}
@@ -88,7 +88,8 @@ function getLeftTitle(
 class SolvePageHeader extends React.Component<Props, State> {
   state = {
     activityMenu: { isOpen: false, anchorEl: null },
-    activityOptions: []
+    activityOptions: [],
+    submitDisabled: false,
   };
 
   componentDidMount() {
@@ -119,20 +120,33 @@ class SolvePageHeader extends React.Component<Props, State> {
     this.setState({ activityMenu: { isOpen: false, anchorEl: null } });
   }
 
+  handleSubmitWithDelay = (e) => {
+    e.preventDefault();
+    if (this.state.submitDisabled) {
+      return;
+    }
+    this.setState({ submitDisabled: true });
+    this.props.handleSubmitActivity(e);
+    setTimeout(() => {
+      this.setState({ submitDisabled: false });
+    }, 5000);
+  };
+
   render() {
     const { course } = this.props.context;
     const { activityMenu, activityOptions } = this.state;
     const { activity } = this.props;
+
     return (
       <div style={this.props.style} className={this.props.classes.secondHeader}>
         <Breadcrumbs aria-label="breadcrumb">
-          <LinkRouter color="inherit" to={`/courses/${course.id}/dashboard`}>
+          <LinkRouter color="text.primary" to={`/courses/${course.id}/dashboard`}>
             {this.props.context.course.name}
           </LinkRouter>
-          <LinkRouter color="inherit" to={`/courses/${course.id}/activities`}>
+          <LinkRouter color="text.primary" to={`/courses/${course.id}/activities`}>
             Actividades
           </LinkRouter>
-          <LinkRouter color="inherit" to={this.props.history.location.pathname}>
+          <LinkRouter color="text.primary" to={this.props.history.location.pathname}>
             <Button
               color="inherit"
               aria-haspopup="true"
@@ -180,7 +194,8 @@ class SolvePageHeader extends React.Component<Props, State> {
               type="submit"
               variant="contained"
               color="secondary"
-              onClick={e => this.props.handleSubmitActivity(e)}
+              disabled={this.state.submitDisabled}
+              onClick={e => this.handleSubmitWithDelay(e)}
             >
               Entregar
             </Button>

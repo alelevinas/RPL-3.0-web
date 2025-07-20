@@ -34,10 +34,11 @@ import (
 const testCodeRust = `use student_package::*; // No borrar!
 
 // IMPORTANTE: 
-// los assert reportan fallas de la forma assertion left == right failed
+// Los assert reportan fallas de la forma "assertion left == right failed".
 // Nunca se muestran los nombres de las funciones/variables que tengan. 
-// Es altamente recomendable que se usen mensajes descriptivos en los mismos para que el alumno pueda identificar la falla. 
-// Los mensajes de los assert solo se mostraran si la aserción falla.
+// Los mensajes de los assert solo se muestran si la aserción falla.
+// Es altamente recomendable que se usen mensajes 
+// en los mismos para que el alumno pueda identificar la falla. 
 // Este es un archivo de ejemplo.
 
 #[test]

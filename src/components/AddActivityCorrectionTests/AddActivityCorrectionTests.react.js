@@ -32,21 +32,6 @@ import ActivityTemplateCodeModal from "./ActivityTemplateCodeModal.react";
 const _ = require("lodash");
 
 const styles = theme => ({
-  divider: {
-    margin: 20,
-  },
-  list: {
-    margin: 20,
-    backgroundColor: "#f5f5f5",
-    maxWidth: "500px",
-  },
-  addTestCaseButton: {
-    margin: "20px 0 0 20px",
-  },
-  heading: {
-    fontSize: theme.typography.pxToRem(15),
-    fontWeight: theme.typography.fontWeightRegular,
-  },
   flagsField: {
     width: "100%",
   },
@@ -510,7 +495,7 @@ class AddActivityCorrectionTests extends React.Component<Props, State> {
             </Accordion>
             <Grid container className={classes.buttons}>
               <div>
-                <Grid itemclassName={classes.initialCodeButton}>
+                <Grid item className={classes.initialCodeButton}>
                   <Button
                     type="submit"
                     variant="contained"

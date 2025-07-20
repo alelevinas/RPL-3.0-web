@@ -168,6 +168,7 @@ class SolveActivityPage extends React.Component<Props, State> {
       pastSubmissionsPanel,
       finalSolutionId,
     } = this.state;
+
     return (
       <div>
         {error.open && <ErrorNotification open={error.open} message={error.message} />}
@@ -218,7 +219,7 @@ class SolveActivityPage extends React.Component<Props, State> {
                 flex: "1 1 0%",
                 // For now, we set height to 86vh to manage text overflow caused by the header.
                 height: "86vh",
-                "flex-direction": "row",
+                flexDirection: "row",
                 position: "fixed",
                 overflow: "visible",
                 left: "0px",

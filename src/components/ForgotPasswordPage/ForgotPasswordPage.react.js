@@ -3,12 +3,19 @@ import React from "react";
 import ForgotPasswordForm from "./ForgotPasswordForm.react";
 import HomePage from "../HomePage/HomePage";
 import { withState } from "../../utils/State";
+import { useThemeContext } from "../../theme/ThemeContextProvider";
 
-class ForgotPasswordPage extends React.PureComponent<{ history: any }> {
-  render() {
-    const { history } = this.props;
-    return <HomePage Form={ForgotPasswordForm} history={history} />;
-  }
+function ForgotPasswordPage({ history, context }) {
+  const { darkMode, setDarkMode } = useThemeContext();
+  return (
+    <HomePage
+      Form={ForgotPasswordForm}
+      history={history}
+      context={context}
+      darkMode={darkMode}
+      setDarkMode={setDarkMode}
+    />
+  );
 }
 
 export default withState(ForgotPasswordPage);

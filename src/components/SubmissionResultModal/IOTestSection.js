@@ -5,6 +5,7 @@ import DialogContentText from "@material-ui/core/DialogContentText";
 import { Alert } from "@material-ui/lab";
 import ReactDiffViewer from "react-diff-viewer";
 import type { IOTestRunResult } from "../../types";
+import { useThemeContext } from "../../theme/ThemeContextProvider";
 
 type Props = {
   ioTestResults: Array<IOTestRunResult>,
@@ -12,6 +13,7 @@ type Props = {
 
 const IOTestSection = (props: Props) => {
   const { ioTestResults } = props;
+  const { darkMode }  = useThemeContext();
 
   const renderContent = () => {
     return ioTestResults.map((ioResult, idx) => {
@@ -24,16 +26,19 @@ const IOTestSection = (props: Props) => {
 
       const result = expectedOutput === runOutput ? "success" : "error";
 
-      const allGoodStyle =
-        result === "success"
-          ? {
-              variables: {
-                light: {
-                  diffViewerBackground: "#fff",
-                },
-              },
-            }
-          : {};
+      const diffViewerStyle = {
+        variables: {
+          light: {
+            diffViewerTitleBackground: '#fafbfc',
+            diffViewerTitleColor: '#212529',
+          },
+          dark: {
+            diffViewerTitleBackground: '#2f323e',
+            diffViewerTitleColor: '#f8f9fa',
+          },
+        },
+      };
+
 
       const separateNewLines = str => str.replace(/(\n)\1+/g, str => str.split("").join(" "));
       // Hack to fix issue #97 where '\n\n' is not displayed in diff viewer correctly but '\n \n' does
@@ -42,7 +47,7 @@ const IOTestSection = (props: Props) => {
         <DialogContentText key={idx} id="scroll-dialog-description" tabIndex={-1} component="div">
           <Alert severity={result}>{name}</Alert>
           <ReactDiffViewer
-            styles={allGoodStyle}
+            styles={diffViewerStyle}
             key={id}
             leftTitle="Resultado de la ejecución"
             oldValue={separateNewLines(runOutput)}
@@ -50,6 +55,7 @@ const IOTestSection = (props: Props) => {
             newValue={separateNewLines(expectedOutput)}
             showDiffOnly={false}
             splitView
+            useDarkTheme={darkMode}
           />
         </DialogContentText>
       );

@@ -23,6 +23,7 @@ import { withState } from "../../utils/State";
 import coursesService from "../../services/coursesService";
 import authenticationService from "../../services/authenticationService";
 import ErrorNotification from "../../utils/ErrorNotification";
+import ConfirmDeleteStudentModal from "./ConfirmDeleteStudentModal.react";
 
 import type { Student } from "../../types";
 
@@ -96,6 +97,7 @@ type State = {
   students: Array<Student>,
   teachers: Array<Student>,
   refreshStudentsNotification: boolean,
+  deleteModal: { open: boolean, studentId: ?number },
 };
 
 class StudentsTeachersPage extends React.Component<Props, State> {
@@ -108,6 +110,7 @@ class StudentsTeachersPage extends React.Component<Props, State> {
     currentUserId: "",
     currentUserRole: undefined,
     roles: [],
+    deleteModal: { open: false, studentId: null },
   };
 
   componentDidMount() {
@@ -128,7 +131,7 @@ class StudentsTeachersPage extends React.Component<Props, State> {
         this.setState({
           error: {
             open: true,
-            message: "Hubo un error al obtener las actividades, Por favor reintenta",
+            message: "Hubo un error al obtener la lista de usuarios, Por favor reintenta",
           },
         });
       });
@@ -151,15 +154,33 @@ class StudentsTeachersPage extends React.Component<Props, State> {
       );
   }
 
-  handleDeleteStudent(courseId: Number, userId: number, event: any) {
+  handleClickDeleteStudent(studentId: number) {
+    this.setState({ deleteModal: { open: true, studentId } });
+  }
+
+  handleDeleteStudentConfirmed() {
+    const { deleteModal } = this.state;
+    const prevStudentId = deleteModal.studentId;
+    if (!prevStudentId) {
+      this.setState({ deleteModal: { open: false, studentId: null } });
+      return;
+    }
+    this.setState({ deleteModal: { open: false, studentId: prevStudentId } });
+    const { match } = this.props;
     coursesService
-      .deleteStudent(courseId, userId)
+      .deleteStudent(match.params.courseId, prevStudentId)
       .then(() => this.loadStudents())
-      .then(() =>
-        this.setState(prevState => ({
-          refreshStudentsNotification: !prevState.refreshStudentsNotification,
-        }))
+      .then(() => {
+          this.setState(prevState => ({
+            refreshStudentsNotification: !prevState.refreshStudentsNotification,
+          }));
+          this.setState({ deleteModal: { open: false, studentId: null } });
+        }
       );
+  }
+
+  handleCancelDeleteStudent() {
+    this.setState({ deleteModal: { open: false, studentId: null } });
   }
 
   handleEditStudent(courseId: Number, userId: number, event: any) {
@@ -212,7 +233,7 @@ class StudentsTeachersPage extends React.Component<Props, State> {
         Email
       </TableCell>,
       <TableCell key={4} align="right">
-        Id
+        Padron
       </TableCell>,
       <TableCell key={5} align="right">
         Rol
@@ -223,7 +244,7 @@ class StudentsTeachersPage extends React.Component<Props, State> {
     if (context.permissions && context.permissions.includes("user_manage")) {
       const extraCells = [
         <TableCell key={6} align="right">
-          Activo
+          Aceptado
         </TableCell>,
         <TableCell key={7} className={classes.tableIconsColumn} />,
       ];
@@ -299,7 +320,7 @@ class StudentsTeachersPage extends React.Component<Props, State> {
           </IconButton>
           <IconButton
             component="span"
-            onClick={event => this.handleDeleteStudent(courseId, student.id, event)}
+            onClick={event => this.handleClickDeleteStudent(student.id)}
           >
             <DeleteIcon />
           </IconButton>
@@ -361,6 +382,11 @@ class StudentsTeachersPage extends React.Component<Props, State> {
     return (
       <div>
         {error.open && <ErrorNotification open={error.open} message={error.message} />}
+        <ConfirmDeleteStudentModal
+          open={this.state.deleteModal.open}
+          onDeleteClicked={() => this.handleDeleteStudentConfirmed()}
+          onCancelClicked={() => this.handleCancelDeleteStudent()}
+        />
         <div className={classes.tableContainerDiv}>
           {students && this.renderUsers("Alumnos", students, classes)}
         </div>

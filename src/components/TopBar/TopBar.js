@@ -11,6 +11,7 @@ import { withRouter } from "react-router-dom";
 import { withState } from "../../utils/State";
 import NotificationsButton from "../SideBar/NotificationsButton";
 import logo from "../../logo_white_large.png";
+import DarkModeToggle from "../ThemeToggler/DarkModeToggle";
 
 const drawerWidth = 240;
 const barHeight = 64;
@@ -100,6 +101,7 @@ class TopBar extends React.PureComponent {
           <Typography variant="h6" className={classes.title} noWrap>
             {courseId && courseName ? `${title} - ${courseName}` : title}
           </Typography>
+          <DarkModeToggle />
           <NotificationsButton
             open={isNotificationModalOpen}
             refresh={refreshNotifications}

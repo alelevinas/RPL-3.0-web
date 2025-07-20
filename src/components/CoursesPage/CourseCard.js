@@ -8,7 +8,7 @@ import CardActions from "@material-ui/core/CardActions";
 import Avatar from "@material-ui/core/Avatar";
 import Typography from "@material-ui/core/Typography";
 import Tooltip from "@material-ui/core/Tooltip";
-import { red } from "@material-ui/core/colors";
+import { grey, red } from "@material-ui/core/colors";
 import { withStyles } from "@material-ui/core/styles";
 import { Button } from "@material-ui/core";
 import { getPalette } from "react-palette";
@@ -37,8 +37,13 @@ const styles = theme => ({
     margin: "auto",
   },
   avatar: {
-    backgroundColor: red[500],
-    fontSize: 14,
+    backgroundColor: grey[800],
+    fontSize: 12,
+    color: "white",
+    width: 75,
+    borderRadius: 5,
+    textAlign: "center",
+    wordBreak: "break-word",
   },
   description: {
     textOverflow: "ellipsis",
@@ -81,7 +86,7 @@ class CourseCard extends React.Component<Props, State> {
 
   componentDidMount() {
     getPalette(
-      this.props.imgUri || "https://www.materialui.co/materialIcons/social/school_black_192x192.png"
+      this.props.imgUri || "https://icons.iconarchive.com/icons/ionic/ionicons/128/school-icon.png"
     ).then(palette => {
       this.setState({ palette });
     });
@@ -200,7 +205,7 @@ class CourseCard extends React.Component<Props, State> {
             backgroundColor: palette.lightVibrant,
           }}
           image={
-            imgUri || "https://www.materialui.co/materialIcons/social/school_black_192x192.png"
+            imgUri || "https://icons.iconarchive.com/icons/ionic/ionicons/128/school-icon.png"
           }
           title={name}
         />

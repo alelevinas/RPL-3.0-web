@@ -5,6 +5,7 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogActions from "@material-ui/core/DialogActions";
 import Button from "@material-ui/core/Button";
+import WarningIcon from '@material-ui/icons/Warning';
 
 type Props = {
   open: boolean,
@@ -12,9 +13,6 @@ type Props = {
   onCancelClicked: void => void,
 };
 
-/**
- * Dialog to show if someone attemps to see all the final solutions but hasn't finished its own first
- */
 export default function ConfirmDeleteActivityModal(props: Props) {
   const { open, onDeleteClicked, onCancelClicked } = props;
   return (
@@ -26,13 +24,22 @@ export default function ConfirmDeleteActivityModal(props: Props) {
       aria-describedby="scroll-dialog-description"
       maxWidth="sm"
     >
-      <DialogTitle id="scroll-dialog-title">¿Seguro que querés eliminar la actividad?</DialogTitle>
+      <DialogTitle id="scroll-dialog-title">
+        ¿Seguro que querés eliminar la actividad?
+      </DialogTitle>
       <DialogContent>
         <DialogActions>
           <Button onClick={() => onCancelClicked()} color="primary">
             Cancelar
           </Button>
-          <Button onClick={() => onDeleteClicked()}>Eliminar</Button>
+          <Button
+            onClick={() => onDeleteClicked()}
+            variant="contained"
+            color="secondary"
+            startIcon={<WarningIcon />}
+          >
+            Si, Eliminar
+          </Button>
         </DialogActions>
       </DialogContent>
     </Dialog>

@@ -1,4 +1,3 @@
-// @flow
 import React, { useState } from "react";
 import Typography from "@material-ui/core/Typography";
 import Accordion from "@material-ui/core/Accordion";
@@ -6,18 +5,29 @@ import AccordionSummary from "@material-ui/core/AccordionSummary";
 import AccordionDetails from "@material-ui/core/AccordionDetails";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import Box from "@material-ui/core/Box";
+import { withStyles } from "@material-ui/core/styles";
 import IOTestSection from "./IOTestSection";
 import UnitTestSection from "./UnitTestSection";
 import ErrorMessageSection from "./ErrorMessageSection";
 import type { SubmissionResult } from "../../types";
 
+const styles = theme => ({
+  borderPrimary: {
+    border: `1px solid ${theme.palette.text.primary}`,
+  },
+  summaryText: {
+    color: theme.palette.text.primary,
+    fontWeight: "bold",
+  },
+});
+
 type Props = {
   results: SubmissionResult,
+  classes: any,
 };
 
 const TestAccordion = (props: Props) => {
-  const { results } = props;
-
+  const { results, classes } = props;
   const [expanded, setExpanded] = useState(true);
 
   const handleExpanded = (event: Event, isExpanded: boolean) => {
@@ -34,19 +44,16 @@ const TestAccordion = (props: Props) => {
 
     return (
       <>
-        {/* IO test results (if any) */}
         {ioTestResults && ioTestResults.length > 0 && (
           <Box mb={3}>
             <IOTestSection ioTestResults={ioTestResults} />
           </Box>
         )}
-        {/* Unit test results (if any) */}
         {unitTestResults && unitTestResults.length > 0 && (
           <Box mb={3}>
             <UnitTestSection unitTestResults={unitTestResults} />
           </Box>
         )}
-        {/* Error message */}
         {status.includes("ERROR") && (
           <Box mb={3}>
             <ErrorMessageSection exitMessage={exitMessage} />
@@ -60,23 +67,14 @@ const TestAccordion = (props: Props) => {
     <Accordion
       expanded={expanded}
       onChange={handleExpanded}
-      style={{
-        border: "1px solid #000",
-      }}
+      className={classes.borderPrimary}
     >
       <AccordionSummary
         id="test-header"
         aria-controls="test-content"
-        expandIcon={
-          <ExpandMoreIcon style={{ color: "#000" }} />
-        }
+        expandIcon={<ExpandMoreIcon />}
       >
-        <Typography
-          variant="h5"
-          color="black"
-          component="p"
-          style={{ fontWeight: "bold" }}
-        >
+        <Typography variant="h5" component="p" className={classes.summaryText}>
           Resultados
         </Typography>
       </AccordionSummary>
@@ -85,4 +83,4 @@ const TestAccordion = (props: Props) => {
   );
 };
 
-export default TestAccordion;
+export default withStyles(styles)(TestAccordion);

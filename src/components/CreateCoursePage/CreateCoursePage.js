@@ -7,6 +7,12 @@ class CreateCoursePage extends React.Component {
     this.state = {};
   }
 
+  componentDidMount() {
+    if (this.props.context) {
+      this.props.context.invalidateByKeys("course", "permissions", "activities");
+    }
+  }
+
   render() {
     const { history } = this.props;
     return (

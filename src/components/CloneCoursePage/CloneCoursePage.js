@@ -39,6 +39,9 @@ class CloneCoursePage extends React.Component<Props, State> {
   };
 
   componentDidMount() {
+    if (this.props.context) {
+      this.props.context.invalidateByKeys("course", "permissions", "activities");
+    }
     this.loadCourses();
   }
 

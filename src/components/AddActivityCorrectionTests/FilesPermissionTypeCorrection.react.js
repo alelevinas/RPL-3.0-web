@@ -45,16 +45,23 @@ const styles = theme => ({
   },
 });
 
-const FilePermissionTypeButton = withStyles({
+const customStyleForPermissionTypeButton = theme => ({
   root: {
-    backgroundColor: "#5f9caf",
+    backgroundColor: theme.palette.primary.main,
     color: "#fff",
+    "&:hover": {
+      color: "#fff",
+      backgroundColor: theme.palette.primary.dark,
+    },
   },
   outlined: {
-    color: "#5f9caf",
-    backgroundColor: "#fff",
+    backgroundColor: theme.palette.background.default,
+    color: theme.palette.text.primary,
   },
-})(Button);
+});    
+
+
+const FilePermissionTypeButton = withStyles(customStyleForPermissionTypeButton)(Button);
 
 type Props = {
   classes: any,

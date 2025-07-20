@@ -10,9 +10,6 @@ type Props = {
   handleCloseModal: void => void,
 };
 
-/**
- * Dialog to show if someone attemps to see all the final solutions but hasn't finished its own first
- */
 export default function EnrollInformationModal(props: Props) {
   const { open, handleCloseModal } = props;
   return (

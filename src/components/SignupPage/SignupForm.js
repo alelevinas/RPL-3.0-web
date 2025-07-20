@@ -18,10 +18,6 @@ import authenticationService from "../../services/authenticationService";
 import { validate } from "../../utils/inputValidator";
 
 const styles = theme => ({
-  avatar: {
-    margin: theme.spacing(0),
-    backgroundColor: theme.palette.secondary.main,
-  },
   form: {
     width: "100%", // Fix IE 11 issue.
     marginTop: theme.spacing(1),
@@ -384,7 +380,7 @@ class Signup extends React.Component<Props, State> {
         </form>
         <Grid container>
           <Grid item xs>
-            <Link href="#" variant="body2">
+            <Link href="/forgotPassword" variant="body2">
               Olvidé mi contraseña
             </Link>
           </Grid>

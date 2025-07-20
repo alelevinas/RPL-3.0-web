@@ -131,7 +131,7 @@ class FinalActivitiesPage extends React.Component<Props, State> {
     const { courseId, activityId } = this.props.match.params;
     // Obtener todas las soluciones
     activitiesService
-      .getActivity(courseId, activityId)
+      .getActivityForStudent(courseId, activityId)
       .then(activityResponse => {
         this.setState({
           activity: activityResponse,

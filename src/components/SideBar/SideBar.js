@@ -38,13 +38,13 @@ const styles = theme => ({
     ...theme.mixins.toolbar,
     justifyContent: "flex-end",
   },
-  bottomPush: {
-    position: "fixed",
-    bottom: 0,
-    textAlign: "center",
-    paddingBottom: 10,
-    marginLeft: theme.spacing(2),
-  },
+  // bottomPush: {
+  //   position: "fixed",
+  //   bottom: 0,
+  //   textAlign: "center",
+  //   paddingBottom: 10,
+  //   marginLeft: theme.spacing(2),
+  // },
 });
 
 const actionIcons = {
@@ -81,12 +81,14 @@ class SideBar extends React.PureComponent<Props> {
   render() {
     const { open, classes, courseId, context, handleDrawerClose } = this.props;
 
-    const itemsLinks = {};
-
+    const adminItemLinks = {};
     if (context.profile && context.profile.is_admin) {
-      itemsLinks.Usuarios = `/users`;
-      itemsLinks["Clonar Curso"] = `/courses/clone`;
+      adminItemLinks.Usuarios = `/users`;
+      adminItemLinks["Clonar Curso"] = `/courses/clone`;
     }
+
+    // Course-specific links
+    const itemsLinks = {};
 
     if (courseId) {
       itemsLinks.Dashboard = `/courses/${courseId}/dashboard`;
@@ -105,9 +107,10 @@ class SideBar extends React.PureComponent<Props> {
     return (
       <Drawer
         className={classes.drawer}
-        variant="persistent"
+        variant="temporary"
         anchor="left"
         open={open}
+        onClose={() => handleDrawerClose()}
         classes={{
           paper: classes.drawerPaper,
         }}
@@ -118,6 +121,26 @@ class SideBar extends React.PureComponent<Props> {
           </IconButton>
         </div>
         <Divider />
+        {/* Admin links */}
+        {Object.keys(adminItemLinks).length > 0 && (
+          <>
+            <List>
+              {Object.keys(adminItemLinks).map(text => {
+                const Icon = actionIcons[text];
+                return (
+                  <ListItem button key={text} component={Link} to={adminItemLinks[text]}>
+                    <ListItemIcon>
+                      <Icon />
+                    </ListItemIcon>
+                    <ListItemText primary={text} />
+                  </ListItem>
+                );
+              })}
+            </List>
+            <Divider />
+          </>
+        )}
+        {/* Course links */}
         <List>
           {Object.keys(itemsLinks).map(text => {
             const Icon = actionIcons[text];

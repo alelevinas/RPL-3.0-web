@@ -9,18 +9,23 @@ import IconButton from "@material-ui/core/IconButton";
 const styles = theme => ({
   error: {
     backgroundColor: theme.palette.error.dark,
+    color: theme.palette.error.contrastText,
   },
   icon: {
     fontSize: 20,
+    color: theme.palette.error.contrastText,
   },
   iconVariant: {
     opacity: 0.9,
     marginRight: theme.spacing(1),
+    color: theme.palette.error.contrastText,
   },
   message: {
     display: "flex",
     alignItems: "center",
+    color: theme.palette.error.contrastText,
   },
+
 });
 
 class ErrorNotifier extends React.Component {

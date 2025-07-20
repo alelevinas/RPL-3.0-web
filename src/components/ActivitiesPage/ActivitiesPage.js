@@ -8,7 +8,6 @@ import { withState } from "../../utils/State";
 import activitiesService from "../../services/activitiesService";
 import ErrorNotification from "../../utils/ErrorNotification";
 import type { Activity } from "../../types";
-import "./ActivitiesPage.css";
 import SubmissionsSidePanel from "./SubmissionsSidePanel.react";
 import ActivitiesTable from "./ActivitiesTable.react";
 import SubmissionResultModal from "../SubmissionResultModal/TestResultsModal.react";

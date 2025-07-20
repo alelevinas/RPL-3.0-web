@@ -4,6 +4,7 @@ import { withStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
+import Typography from "@material-ui/core/Typography";
 import coursesService from "../../services/coursesService";
 import StudentStats from "./StudentStats";
 import TeacherStats from "./TeacherStats";
@@ -145,7 +146,8 @@ class ActivitiesPage extends React.Component<Props, State> {
                   value={this.state.current}
                   onChange={(event, newValue) => this.handleChange(event, newValue)}
                   indicatorColor="primary"
-                  textColor="primary"
+                  textColor="text.primary"
+                  variant="scrollable"
                 >
                   <Tab label="Ranking" />
                   <Tab label="Envios por Fecha" />
@@ -165,7 +167,13 @@ class ActivitiesPage extends React.Component<Props, State> {
             </div>
           ) : (
             <div>
+              <Typography variant="h5">
+                Mis estadísticas
+              </Typography>
               <StudentStats courseId={match.params.courseId} />
+              <Typography variant="h5">
+                Ranking
+              </Typography>
               <Scoreboard courseId={match.params.courseId} />
             </div>
           )}
