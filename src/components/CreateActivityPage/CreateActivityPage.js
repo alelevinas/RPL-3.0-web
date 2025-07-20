@@ -87,7 +87,7 @@ const styles = theme => ({
     "& .mde-header ul.mde-header-group li.mde-header-item ul.react-mde-dropdown": {
       backgroundColor: theme.palette.background.paper,
     },
-    "& .mde-toolbar button:hover, & .mde-toolbar button:focus": {
+    "& .mde-toolbar button:hover & .mde-toolbar button:focus": {
       backgroundColor: theme.palette.action.hover,
     },
     // Editor background and text
@@ -107,6 +107,10 @@ const styles = theme => ({
     },
     "& .grip": {
       display: "none",
+    },
+    "& .markdown-body pre": {
+      backgroundColor: theme.palette.action.hover,
+      color: theme.palette.text.primary,
     },
   },
   buttons: {

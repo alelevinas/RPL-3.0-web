@@ -33,6 +33,10 @@ const styles = theme => ({
   mdDescription: {
     height: "100%",
     overflow: "scroll",
+    "& .markdown-body pre": {
+      backgroundColor: theme.palette.action.hover,
+      color: theme.palette.text.primary,
+    },
   },
 });
 
