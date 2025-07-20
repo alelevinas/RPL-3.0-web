@@ -95,6 +95,7 @@ class HomePage extends React.Component {
       fading: false,
     };
     this.imageInterval = null;
+    this.preloadedImages = [];
   }
 
   getImages(darkMode) {
@@ -103,8 +104,19 @@ class HomePage extends React.Component {
       : [Fiuba, Fiuba1, Fiuba2, Fiuba3, Fiuba4, Fiuba5, Fiuba6];
   }
 
+  preloadImages(images) {
+    images.forEach(imageSrc => {
+      if (!this.preloadedImages.includes(imageSrc)) {
+        const img = new window.Image();
+        img.src = imageSrc;
+        this.preloadedImages.push(imageSrc);
+      }
+    });
+  }
+
   startImageRotation(darkMode) {
     const images = this.getImages(darkMode);
+    this.preloadImages(images);
     this.setState({ imageIndex: 0, selectedImage: images[0] });
 
     if (this.imageInterval) clearInterval(this.imageInterval);
