@@ -14,6 +14,7 @@ import ReactMde from "react-mde";
 import * as Showdown from "showdown";
 import ReactResizeDetector from "react-resize-detector";
 import ErrorNotification from "../../utils/ErrorNotification";
+import CustomSnackbar from "../../utils/CustomSnackbar.react";
 import { withState } from "../../utils/State";
 import ActivityCategoryModal from "../ActivityCategoryModal/ActivityCategoryModal";
 import activitiesService from "../../services/activitiesService";
@@ -170,6 +171,7 @@ type State = {
   isCreateCategoryModalOpen: boolean,
   isAddMainFileModalActive: boolean,
   isSavingActivity: boolean,
+  successSave: boolean,
 };
 
 class CreateActivityPage extends React.Component<Props, State> {
@@ -188,6 +190,7 @@ class CreateActivityPage extends React.Component<Props, State> {
     isCreateCategoryModalOpen: false,
     isAddMainFileModalActive: false,
     isSavingActivity: false,
+    successSave: false,
   };
 
   componentDidMount() {
@@ -285,7 +288,9 @@ class CreateActivityPage extends React.Component<Props, State> {
         this.setState({
           error: { open: false, message: "", invalidFields: new Set() },
           isSavingActivity: false,
+          successSave: true,
         });
+        setTimeout(() => this.setState({ successSave: false }), 3000);
         return response;
       })
       .catch(() => {
@@ -296,9 +301,9 @@ class CreateActivityPage extends React.Component<Props, State> {
               message: `Hubo un error al guardar la actividad, revisa que los datos ingresados sean validos.`,
               invalidFields: prevState.error.invalidFields,
             },
+            isSavingActivity: false,
           };
         });
-        this.setState({ isSavingActivity: false });
       });
   }
 
@@ -323,7 +328,7 @@ class CreateActivityPage extends React.Component<Props, State> {
   }
 
   handleGoToStudentPreview(event) {
-    this.handleCreateClick(event, true);
+    this.handleCreateClick(event);
   }
 
   renderCategoriesDropdown() {
@@ -389,11 +394,18 @@ class CreateActivityPage extends React.Component<Props, State> {
       isCreateCategoryModalOpen,
       activity,
       isAddMainFileModalActive,
+      successSave,
     } = this.state;
 
     return (
       <div>
         {error.open && <ErrorNotification open={error.open} message={error.message} />}
+        {successSave && (
+          <CustomSnackbar
+            open={successSave}
+            message="Actividad guardada correctamente"
+          />
+        )}
         <AddMainFileModal
           open={isAddMainFileModalActive}
           mainFileByLanguage={constants.languages}

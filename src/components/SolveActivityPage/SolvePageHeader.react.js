@@ -140,13 +140,13 @@ class SolvePageHeader extends React.Component<Props, State> {
     return (
       <div style={this.props.style} className={this.props.classes.secondHeader}>
         <Breadcrumbs aria-label="breadcrumb">
-          <LinkRouter color="text.primary" to={`/courses/${course.id}/dashboard`}>
+          <LinkRouter color="textPrimary" to={`/courses/${course.id}/dashboard`}>
             {this.props.context.course.name}
           </LinkRouter>
-          <LinkRouter color="text.primary" to={`/courses/${course.id}/activities`}>
+          <LinkRouter color="textPrimary" to={`/courses/${course.id}/activities`}>
             Actividades
           </LinkRouter>
-          <LinkRouter color="text.primary" to={this.props.history.location.pathname}>
+          <LinkRouter color="textPrimary" to={this.props.history.location.pathname}>
             <Button
               color="inherit"
               aria-haspopup="true"

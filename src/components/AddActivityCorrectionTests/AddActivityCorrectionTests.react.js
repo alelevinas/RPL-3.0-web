@@ -197,6 +197,9 @@ class AddActivityCorrectionTests extends React.Component<Props, State> {
 
     const newFiles = _.cloneDeep(activity.initial_code);
     newFiles.files_metadata = JSON.stringify(activityFilesMetadata);
+    
+    // reset in case there was a previous error
+    this.setState({ error: { open: false, message: "" } });
 
     activitiesService
       .updateActivity({
@@ -208,7 +211,6 @@ class AddActivityCorrectionTests extends React.Component<Props, State> {
         const newActivity = updatedActivity;
         newActivity.initial_code = newFiles;
         this.setState({ activity: newActivity, successSave: true });
-        setTimeout(() => this.setState({ successSave: false }), 2000);
       })
       .catch(err => {
         console.log(err);
@@ -255,6 +257,9 @@ class AddActivityCorrectionTests extends React.Component<Props, State> {
       promise = activityTestsService.createUnitTest(courseId, activityId, unitTestCode);
     }
 
+    // reset in case there was a previous error
+    this.setState({ error: { open: false, message: "" } });
+
     promise
       .then(updatedActivity => {
         this.setState(prevState => {
@@ -262,7 +267,6 @@ class AddActivityCorrectionTests extends React.Component<Props, State> {
           newActivity.initial_code = prevState.activity.initial_code;
           return { activity: newActivity, successSave: true };
         });
-        setTimeout(() => this.setState({ successSave: false }), 2000);
       })
       .catch(err => {
         console.log(err);

@@ -82,6 +82,9 @@ class ResetPasswordForm extends React.Component<Props, State> {
       return;
     }
 
+    // reset in case there was a previous error
+    this.setState({ error: { open: false, message: null } });
+
     authenticationService
       .resetPassword(token, newPassword)
       .then(response => {

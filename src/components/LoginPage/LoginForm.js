@@ -50,6 +50,9 @@ class LoginForm extends React.Component<Props, State> {
         history.location.state.sessionExpired) ||
       window.localStorage.getItem("sessionExpired") === "1";
 
+    // reset in case there was a previous error
+    this.setState({ error: { open: false, message: "" } });
+
     if (sessionExpired) {
       this.setState({
         error: {
@@ -61,7 +64,7 @@ class LoginForm extends React.Component<Props, State> {
       if (history && history.location && history.location.state && history.location.state.sessionExpired) {
         history.replace({ ...history.location, state: { ...history.location.state, sessionExpired: false } });
       }
-      window.localStorage.removeItem("sessionExpired");
+      window.localStorage.removeItem("sessionExpired");     
     }
   }
 
@@ -74,6 +77,8 @@ class LoginForm extends React.Component<Props, State> {
   handleClick(event) {
     event.preventDefault();
     const { username, password } = this.state;
+    // reset in case there was a previous error
+    this.setState({ error: { open: false, message: "" } });
 
     authenticationService
       .login({

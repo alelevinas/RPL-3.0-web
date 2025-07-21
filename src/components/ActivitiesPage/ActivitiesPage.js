@@ -87,7 +87,6 @@ class ActivitiesPage extends React.Component<Props, State> {
 
   handleClickOnActivityTitle(event: any, activityId: number) {
     const { history, match } = this.props;
-    // TODO: si es un docente que vaya a /edit
     history.push(`/courses/${match.params.courseId}/activities/${activityId}`);
   }
 

@@ -146,7 +146,7 @@ class ActivitiesPage extends React.Component<Props, State> {
                   value={this.state.current}
                   onChange={(event, newValue) => this.handleChange(event, newValue)}
                   indicatorColor="primary"
-                  textColor="text.primary"
+                  textColor="textPrimary"
                   variant="scrollable"
                 >
                   <Tab label="Ranking" />

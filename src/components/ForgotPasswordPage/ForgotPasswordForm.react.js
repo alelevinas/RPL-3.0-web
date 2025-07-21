@@ -51,6 +51,9 @@ class ForgotPasswordForm extends React.Component<Props, State> {
     event.preventDefault();
     const { email } = this.state;
 
+    // reset in case there was a previous error
+    this.setState({ error: { open: false, message: null } });
+
     authenticationService
       .forgotPassword(email)
       .then(response => {

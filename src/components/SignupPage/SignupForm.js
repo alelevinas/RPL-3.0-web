@@ -112,6 +112,9 @@ class Signup extends React.Component<Props, State> {
       }));
       return;
     }
+    
+    // reset in case there was a previous error
+    this.setState({ error: { open: false, message: "", invalidFields: new Set() } });
 
     authenticationService
       .signup({

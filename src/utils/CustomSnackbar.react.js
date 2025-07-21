@@ -1,19 +1,16 @@
-/* eslint-disable react/jsx-props-no-spreading */
 import React from "react";
 import { Snackbar } from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
 import CloseIcon from "@material-ui/icons/Close";
 import IconButton from "@material-ui/core/IconButton";
 import MuiAlert from "@material-ui/lab/Alert";
+import green from "@material-ui/core/colors/green";
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
 const styles = theme => ({
-  error: {
-    backgroundColor: theme.palette.error.dark,
-  },
   icon: {
     fontSize: 20,
   },
@@ -24,6 +21,9 @@ const styles = theme => ({
   message: {
     display: "flex",
     alignItems: "center",
+  },
+  filledSuccess: {
+    backgroundColor: green[900],
   },
 });
 
@@ -39,7 +39,6 @@ class CustomSnackbar extends React.Component {
 
   render() {
     const { classes, message, horizontalPosition } = this.props;
-
     const { open } = this.state;
 
     return (
@@ -54,6 +53,7 @@ class CustomSnackbar extends React.Component {
       >
         <Alert
           severity="success"
+          classes={{ filledSuccess: classes.filledSuccess }}
           action={[
             <IconButton
               key="close"

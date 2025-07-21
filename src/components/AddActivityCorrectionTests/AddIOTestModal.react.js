@@ -97,12 +97,14 @@ class AddIOTestModal extends React.Component<Props, State> {
       );
     }
 
+    // reset in case there was a previous error
+    this.setState({error: { open: false, message: null } });
+
     promise
       .then(() => {
         handleCloseModal(e);
       })
       .catch(() => {
-        // console.log(err);
         this.setState({
           error: {
             open: true,
