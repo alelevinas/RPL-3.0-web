@@ -273,18 +273,20 @@ class StudentsTeachersPage extends React.Component<Props, State> {
     this.setState({ [field]: value });
   }
 
-  filterUsers(users) {
+  getFilteredUserIdsByQueries(users) {
     const { searchNameQuery, searchIdQuery, searchEmailQuery } = this.state;
-    return users.filter(user => {
-      const matchesName =
-        !searchNameQuery ||
-        `${user.name} ${user.surname}`.toLowerCase().includes(searchNameQuery.toLowerCase());
-      const matchesId =
-        !searchIdQuery || (user.student_id && user.student_id.toString().includes(searchIdQuery));
-      const matchesEmail =
-        !searchEmailQuery || (user.email && user.email.toLowerCase().includes(searchEmailQuery.toLowerCase()));
-      return matchesName && matchesId && matchesEmail;
-    });
+    return users
+      .filter(user => {
+        const matchesName =
+          !searchNameQuery ||
+          `${user.name} ${user.surname}`.toLowerCase().includes(searchNameQuery.toLowerCase());
+        const matchesId =
+          !searchIdQuery || (user.student_id && user.student_id.toString().includes(searchIdQuery));
+        const matchesEmail =
+          !searchEmailQuery || (user.email && user.email.toLowerCase().includes(searchEmailQuery.toLowerCase()));
+        return matchesName && matchesId && matchesEmail;
+      })
+      .map(user => user.id);
   }
 
   renderRolesOptions() {
@@ -304,7 +306,7 @@ class StudentsTeachersPage extends React.Component<Props, State> {
         Email
       </TableCell>,
       <TableCell key={4} align="right">
-        ID
+        Id
       </TableCell>,
       <TableCell key={5} align="right">
         Rol
@@ -401,7 +403,7 @@ class StudentsTeachersPage extends React.Component<Props, State> {
     }
 
     return (
-      <TableRow hover key={student.student_id}>
+      <TableRow hover key={student.id}>
         {cells}
       </TableRow>
     );
@@ -427,20 +429,23 @@ class StudentsTeachersPage extends React.Component<Props, State> {
           }}
         />
         <TextField
-          label="Padrón"
-          value={searchIdQuery}
-          onChange={e => this.handleFilterChange("searchIdQuery", e.target.value)}
-        />
-        <TextField
           label="Email"
           value={searchEmailQuery}
           onChange={e => this.handleFilterChange("searchEmailQuery", e.target.value)}
+        />
+        <TextField
+          label="Id"
+          value={searchIdQuery}
+          onChange={e => this.handleFilterChange("searchIdQuery", e.target.value)}
         />
       </div>
     );
   }
 
   renderUsersTable(users, classes, showAcceptButton = false) {
+    const filteredIds = this.getFilteredUserIdsByQueries(users);
+    const filteredSet = new Set(filteredIds);
+
     return (
       <div className={classes.tableContainerDiv}>
         {this.renderFilters(classes)}
@@ -448,9 +453,11 @@ class StudentsTeachersPage extends React.Component<Props, State> {
           <Table className={classes.table} aria-label="simple table">
             <TableHead>{this.renderHeadRow(classes)}</TableHead>
             <TableBody>
-              {this.filterUsers(users).map(student =>
-                this.renderStudentRow(student, classes, showAcceptButton)
-              )}
+              {users
+                .filter(student => filteredSet.has(student.id))
+                .map(student =>
+                  this.renderStudentRow(student, classes, showAcceptButton)
+                )}
             </TableBody>
           </Table>
         </TableContainer>
