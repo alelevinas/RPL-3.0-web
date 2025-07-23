@@ -45,6 +45,7 @@ export type Student = {
   last_updated: string,
   role: string,
   accepted: boolean,
+  img_uri: ?string,
 };
 
 export type Category = {

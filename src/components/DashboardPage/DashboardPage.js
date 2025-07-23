@@ -93,7 +93,7 @@ type State = {
   error: { open: boolean, message: ?string },
 };
 
-class ActivitiesPage extends React.Component<Props, State> {
+class DashboardPage extends React.Component<Props, State> {
   state = {
     error: { open: false, message: null },
     current: 0,
@@ -141,7 +141,7 @@ class ActivitiesPage extends React.Component<Props, State> {
         <div className={classes.dashboardContainer}>
           {permissions.includes("user_manage") ? (
             <div>
-              <Paper className={classes.root}>
+              <Paper>
                 <Tabs
                   value={this.state.current}
                   onChange={(event, newValue) => this.handleChange(event, newValue)}
@@ -153,14 +153,7 @@ class ActivitiesPage extends React.Component<Props, State> {
                   <Tab label="Envios por Fecha" />
                   <Tab label="Envios por Alumno" />
                   <Tab label="Envios por Categoría" />
-                  <Tab
-                    label={(
-                      <div>
-                        Alumnos por Ejercicio
-                        <Tag text="New!" />
-                      </div>
-                    )}
-                  />
+                  <Tab label="Alumnos por Ejercicio"/>
                 </Tabs>
               </Paper>
               {teacherStats[this.state.current]}
@@ -183,4 +176,4 @@ class ActivitiesPage extends React.Component<Props, State> {
   }
 }
 
-export default withState(withStyles(styles)(ActivitiesPage));
+export default withState(withStyles(styles)(DashboardPage));

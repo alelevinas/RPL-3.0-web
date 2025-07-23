@@ -17,6 +17,23 @@ export const lightTheme = createMuiTheme({
       secondary: "#040316",
     },
   },
+  overrides: {
+    MuiDivider: {
+      root: {
+        backgroundColor: "#3d3d3d",
+      },
+    },
+    MuiTable: {
+      root: {
+        backgroundColor: "#e5e5f6", // same as paper background
+      },
+    },
+    MuiTableCell: {
+      root: {
+        borderBottomColor: "#3d3d3d",
+      },
+    },
+  },
 });
 
 export const darkTheme = createMuiTheme({
@@ -126,6 +143,16 @@ export const darkTheme = createMuiTheme({
         backgroundColor: "#c6c4fd", // light divider color
       },
     },
+    MuiTable: {
+      root: {
+        backgroundColor: "#141420", // same as paper background
+      },
+    },
+    MuiTableCell: {
+      root: {
+        borderBottomColor: "#c6c4fd",
+      },
+    },
     MuiInput: {
       underline: {
         "&:before": {
@@ -181,6 +208,14 @@ export const darkTheme = createMuiTheme({
       standardWarning: {
         backgroundColor: "#190f00",
         color: "#ffd599",
+      },
+    },
+    MuiCircularProgress: {
+      root: {
+        color: "#c6c4fd",
+      },
+      colorPrimary: {
+        color: "#c6c4fd",
       },
     },
   },
