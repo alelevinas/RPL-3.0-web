@@ -3,10 +3,11 @@ import { withStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import Grid from "@material-ui/core/Grid";
-import Paper from "@material-ui/core/Paper";
-import { Typography } from "@material-ui/core";
+import Card from "@material-ui/core/Card";
+import CardContent from "@material-ui/core/CardContent";
+import Typography from "@material-ui/core/Typography";
+import Button from "@material-ui/core/Button";
 import SaveIcon from "@material-ui/icons/Save";
-import Fab from "@material-ui/core/Fab";
 import { DropzoneArea } from "material-ui-dropzone";
 import { withState } from "../../utils/State";
 import cloudinaryService from "../../services/cloudinaryService";
@@ -14,32 +15,30 @@ import { validate } from "../../utils/inputValidator";
 import authenticationService from "../../services/authenticationService";
 
 const styles = theme => ({
-  avatar: {
+  root: {
+    maxWidth: "60%",
     margin: "auto",
-    width: theme.spacing(15),
-    height: theme.spacing(15),
-    fontSize: theme.spacing(7),
+    marginTop: theme.spacing(4),
+    [theme.breakpoints.down("md")]: {
+      maxWidth: "100%",
+      marginTop: theme.spacing(2),
+    },
   },
-  avatarContainer: {
-    top: "25%",
+  saveButton: {
+    display: "flex",
+    justifyContent: "flex-end",
+    marginBottom: theme.spacing(2),
   },
-  property: {
+  dropzoneContainer: {
+    marginBottom: theme.spacing(8),
     marginLeft: theme.spacing(2),
-    padding: theme.spacing(3),
-  },
-  paperContainer: {
-    width: "100%",
-    height: "100%",
+    marginRight: theme.spacing(2),
+    border: `1px dashed ${theme.palette.text.primary}`,
+    borderRadius: theme.spacing(1),
   },
   form: {
-    marginTop: theme.spacing(1),
-    padding: `0px ${theme.spacing(4)}px`,
-  },
-  rightButton: {
-    display: "flex",
-    marginLeft: "auto",
-    marginRight: theme.spacing(2),
-    marginBottom: theme.spacing(2),
+    width: "100%",
+    marginTop: theme.spacing(2),
   },
 });
 
@@ -139,34 +138,34 @@ class ProfileEdit extends React.Component {
     const { error, universities, university, degree } = this.state;
 
     return (
-      <div>
-        <Fab
-          color="primary"
-          aria-label="add"
-          className={classes.rightButton}
-          disabled={!this.canEditProfile()}
-          onClick={() => this.handleClickSave()}
-        >
-          <SaveIcon />
-        </Fab>
-        <Grid container spacing={8}>
-          <Grid align="center" justify="center" direction="column" container spacing={2} xs={4}>
-            <Grid item>
-              <DropzoneArea
-                filesLimit={1}
-                acceptedFiles={["image/*"]}
-                dropzoneText="Arrastra una imagen de perfil"
-                onChange={files => this.handleAddFile(files)}
-              />
-            </Grid>
-            <Grid item>
-              <Typography style={{ fontStyle: "italic" }} className={classes.property} variant="h6">
-                {`Usuario: ${profile.username}`}
+      <Card className={classes.root} elevation={3}>
+        <div className={classes.saveButton}>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<SaveIcon />}
+            disabled={!this.canEditProfile()}
+            onClick={() => this.handleClickSave()}
+          >
+            Guardar
+          </Button>
+        </div>
+        <CardContent>
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={4}>
+              <div className={classes.dropzoneContainer}>
+                <DropzoneArea
+                  filesLimit={1}
+                  acceptedFiles={["image/*"]}
+                  dropzoneText="Arrastra una imagen de perfil"
+                  onChange={files => this.handleAddFile(files)}
+                />
+              </div>
+              <Typography variant="h6" style={{ marginTop: 16, marginLeft: 10 }}>
+                {`Usuario:  ${profile.username}`}
               </Typography>
             </Grid>
-          </Grid>
-          <Grid item xs={8}>
-            <Paper className={classes.paperContainer}>
+            <Grid item xs={12} md={8}>
               <form className={classes.form}>
                 <TextField
                   margin="normal"
@@ -176,7 +175,6 @@ class ProfileEdit extends React.Component {
                   label="Nombre"
                   name="Nombre"
                   autoComplete="name"
-                  autoFocus
                   value={this.state.name}
                   error={error.invalidFields.has("name")}
                   helperText={
@@ -194,7 +192,6 @@ class ProfileEdit extends React.Component {
                   label="Apellido"
                   name="Apellido"
                   autoComplete="surname"
-                  autoFocus
                   value={this.state.surname}
                   error={error.invalidFields.has("surname")}
                   helperText={
@@ -213,7 +210,6 @@ class ProfileEdit extends React.Component {
                   label="Padrón"
                   name="Padrón"
                   autoComplete="studentId"
-                  autoFocus
                   value={this.state.studentId}
                   error={error.invalidFields.has("studentId")}
                   helperText={
@@ -232,7 +228,6 @@ class ProfileEdit extends React.Component {
                   label="Email"
                   name="Email"
                   autoComplete="email"
-                  autoFocus
                   value={this.state.email}
                   error={error.invalidFields.has("email")}
                   helperText={
@@ -267,10 +262,10 @@ class ProfileEdit extends React.Component {
                   renderInput={params => <TextField {...params} label="Carrera" margin="normal" />}
                 />
               </form>
-            </Paper>
+            </Grid>
           </Grid>
-        </Grid>
-      </div>
+        </CardContent>
+      </Card>
     );
   }
 }

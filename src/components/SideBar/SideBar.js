@@ -12,9 +12,7 @@ import CodeIcon from "@material-ui/icons/Code";
 import SchoolIcon from "@material-ui/icons/School";
 import PeopleIcon from "@material-ui/icons/People";
 import BarChartIcon from "@material-ui/icons/BarChart";
-import AccountCircleIcon from "@material-ui/icons/AccountCircle";
 import SettingsIcon from "@material-ui/icons/Settings";
-import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import { Link, withRouter } from "react-router-dom";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import FileCopyIcon from "@material-ui/icons/FileCopy";
@@ -52,11 +50,9 @@ const actionIcons = {
   Cursos: SchoolIcon,
   Actividades: CodeIcon,
   "Alumnos y Docentes": PeopleIcon,
-  Perfil: AccountCircleIcon,
   "Configuracion de Curso": SettingsIcon,
   Usuarios: RecentActorsIcon,
   "Clonar Curso": FileCopyIcon,
-  "Cerrar Sesión": ExitToAppIcon,
 };
 
 type Props = {
@@ -68,15 +64,6 @@ type Props = {
 
 // eslint-disable-next-line react/no-redundant-should-component-update
 class SideBar extends React.PureComponent<Props> {
-  handleSignOut() {
-    const { context, history } = this.props;
-    context.invalidate();
-    history.push({
-      pathname: "/login",
-      search: "",
-      state: { hasJustSignOut: true }, // Flag to avoid internal redirections between public and private routes
-    });
-  }
 
   render() {
     const { open, classes, courseId, context, handleDrawerClose } = this.props;
@@ -101,7 +88,6 @@ class SideBar extends React.PureComponent<Props> {
 
     const configurationLinks = {
       Cursos: "/courses",
-      Perfil: "/profile",
     };
 
     return (
@@ -141,21 +127,24 @@ class SideBar extends React.PureComponent<Props> {
           </>
         )}
         {/* Course links */}
-        <List>
-          {Object.keys(itemsLinks).map(text => {
-            const Icon = actionIcons[text];
-
-            return (
-              <ListItem button key={text} component={Link} to={itemsLinks[text]}>
-                <ListItemIcon>
-                  <Icon />
-                </ListItemIcon>
-                <ListItemText primary={text} />
-              </ListItem>
-            );
-          })}
-        </List>
-        {Object.keys(itemsLinks).length !== 0 && <Divider />}
+        {Object.keys(itemsLinks).length > 0 && (
+          <>
+            <List>
+              {Object.keys(itemsLinks).map(text => {
+                const Icon = actionIcons[text];
+                return (
+                  <ListItem button key={text} component={Link} to={itemsLinks[text]}>
+                    <ListItemIcon>
+                      <Icon />
+                    </ListItemIcon>
+                    <ListItemText primary={text} />
+                  </ListItem>
+                );
+              })}
+            </List>
+            <Divider />
+          </>
+        )}
         <List>
           {Object.keys(configurationLinks).map(text => {
             const Icon = actionIcons[text];
@@ -168,13 +157,6 @@ class SideBar extends React.PureComponent<Props> {
               </ListItem>
             );
           })}
-
-          <ListItem button key="Cerrar Sesión" onClick={() => this.handleSignOut()}>
-            <ListItemIcon>
-              <ExitToAppIcon />
-            </ListItemIcon>
-            <ListItemText primary="Cerrar Sesión" />
-          </ListItem>
         </List>
         {/* <div className={classes.bottomPush}>
           <a href="https://cafecito.app/rpl" rel="noopener noreferrer" target="_blank">

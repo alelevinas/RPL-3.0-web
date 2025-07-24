@@ -16,7 +16,7 @@ import StudentCategoryStats from "./StudentCategoryStats";
 import CategoryStats from "./CategoryStats";
 import ActivityStats from "./ActivityStats";
 import Scoreboard from "./Scoreboard";
-import CourseInfoCard from "./CourseInfoCard";
+import CourseInfoCard from "../GeneralCourseInfoCards/CourseInfoCard";
 
 import Tag from "../commons/Tag";
 

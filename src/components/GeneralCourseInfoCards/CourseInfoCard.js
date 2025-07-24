@@ -7,43 +7,43 @@ import CardMedia from "@material-ui/core/CardMedia";
 import Grid from "@material-ui/core/Grid";
 
 const styles = theme => ({
-    card: {
-        display: "flex",
-        flexDirection: "row",
-        maxWidth: "100%",
-        maxHeight: "300px",
-        borderRadius: 10,
-        marginBottom: theme.spacing(4),
-        marginTop: theme.spacing(3),
-        alignItems: "center",
-        padding: theme.spacing(2),
-        backgroundColor: theme.palette.background.paper,
-        [theme.breakpoints.down("sm")]: {
-            flexDirection: "column",
-            maxHeight: "none",
-        },
+  card: {
+    display: "flex",
+    flexDirection: "row",
+    maxWidth: "100%",
+    maxHeight: "300px",
+    borderRadius: 10,
+    marginBottom: theme.spacing(4),
+    marginTop: theme.spacing(3),
+    alignItems: "center",
+    padding: theme.spacing(2),
+    backgroundColor: theme.palette.background.paper,
+    [theme.breakpoints.down("sm")]: {
+      flexDirection: "column",
+      maxHeight: "none",
     },
-    media: {
-        width: 220,
-        height: 220,
-        borderRadius: 8,
-        marginRight: theme.spacing(4),
-        marginLeft: theme.spacing(2),
-        objectFit: "contain",
-        backgroundSize: "contain",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-        [theme.breakpoints.down("sm")]: {
-            marginRight: 0,
-            marginBottom: theme.spacing(2),
-            width: "100%",
-            maxHeight: 150,
-        },
+  },
+  media: {
+    width: 220,
+    height: 220,
+    borderRadius: 8,
+    marginRight: theme.spacing(4),
+    marginLeft: theme.spacing(2),
+    objectFit: "contain",
+    backgroundSize: "contain",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+    [theme.breakpoints.down("sm")]: {
+      marginRight: 0,
+      marginBottom: theme.spacing(2),
+      width: "100%",
+      maxHeight: 150,
     },
-    content: {
-        flex: 1,
-        width: "100%",
-    }
+  },
+  content: {
+    flex: 1,
+    width: "100%",
+  }
 });
 
 function CourseInfoCard({ course, classes }) {

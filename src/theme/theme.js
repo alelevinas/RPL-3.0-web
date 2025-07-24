@@ -218,5 +218,10 @@ export const darkTheme = createMuiTheme({
         color: "#c6c4fd",
       },
     },
+    MuiPaper: {
+      elevation1: {
+        boxShadow: "0px 2px 1px -1px rgba(255, 255, 255, 0.07), 0px 1px 1px 0px rgba(255, 255, 255, 0.14), 0px 1px 3px 0px rgba(255, 255, 255, 0.06)",
+      },
+    },
   },
 });

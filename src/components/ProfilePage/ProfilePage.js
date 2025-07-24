@@ -8,21 +8,7 @@ import ProfileEdit from "./ProfileEdit";
 const styles = theme => ({
   form: {
     marginTop: theme.spacing(1),
-    marginLeft: theme.spacing(40),
-    marginRight: theme.spacing(40),
     padding: `0px ${theme.spacing(4)}px`,
-  },
-  avatar: {
-    margin: "auto",
-    width: theme.spacing(15),
-    height: theme.spacing(15),
-    fontSize: theme.spacing(7),
-  },
-  rightButton: {
-    display: "flex",
-    marginLeft: "auto",
-    marginRight: theme.spacing(2),
-    marginBottom: theme.spacing(2),
   },
 });
 
