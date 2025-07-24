@@ -175,9 +175,14 @@ class CourseForm extends React.Component<Props, State> {
   }
 
   handleCancelClick(event) {
-    event.preventDefault();
+  event.preventDefault();
+  const { course } = this.props;
+  if (course && course.id) {
+    this.props.history.push(`/courses/${course.id}/dashboard`);
+  } else {
     this.props.history.push("/courses");
   }
+}
 
   handleCloneClick(event) {
     event.preventDefault();

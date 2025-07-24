@@ -46,9 +46,7 @@ class CourseIndex extends React.PureComponent {
       ? ActivitiesTeacherPage
       : ActivitiesPage;
 
-    const mainCourseRoute = permissions.includes("activity_manage")
-      ? `/courses/${courseId}/dashboard`
-      : `/courses/${courseId}/activities`;
+    const mainCourseRoute = `/courses/${courseId}/dashboard`
 
     return (
       <>
