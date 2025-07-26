@@ -31,12 +31,12 @@ const styles = theme => ({
   },
   editor: {
     display: "flex",
-    height: "100%",
-    // maxHeight: "80vh",
+    height: "90%",
+    width: "97%",
   },
   submissionsSideList: {
     maxHeight: "80vh",
-    overflow: "auto",
+    overflow: "scroll",
   },
   topDiv: {
     height: "100vh",
@@ -44,6 +44,7 @@ const styles = theme => ({
   },
   splitPaneStyle: {
     height: "80vh",
+    backgroundColor: theme.palette.background.default,
   },
   submissionsList: {
     padding: "0",
