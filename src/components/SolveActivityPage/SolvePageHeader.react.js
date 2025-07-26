@@ -21,7 +21,9 @@ const styles = theme => ({
     justifyContent: "space-between",
     alignItems: "center",
     padding: "8px",
-    margin: `-${theme.spacing(1)}px -${theme.spacing(3)}px 0px -${theme.spacing(0)}px`, // Force the second header to override layout
+    margin: `-${theme.spacing(2)}px 0px 0px -${theme.spacing(1)}px`, // Force the second header to override layout
+    height: 56,
+    flexShrink: 0
   },
   secondHeaderTitle: {
     alignSelf: "center",

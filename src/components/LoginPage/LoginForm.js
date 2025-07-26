@@ -5,6 +5,10 @@ import Grid from "@material-ui/core/Grid";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
 import Link from "@material-ui/core/Link";
+import InputAdornment from "@material-ui/core/InputAdornment";
+import IconButton from "@material-ui/core/IconButton";
+import Visibility from "@material-ui/icons/Visibility";
+import VisibilityOff from "@material-ui/icons/VisibilityOff";
 import { withStyles } from "@material-ui/core/styles";
 import { withState } from "../../utils/State";
 import ErrorNotification from "../../utils/ErrorNotification";
@@ -31,6 +35,7 @@ type State = {
   error: { open: boolean, message: ?string },
   username: string,
   password: string,
+  showPassword: boolean,
 };
 
 class LoginForm extends React.Component<Props, State> {
@@ -38,6 +43,7 @@ class LoginForm extends React.Component<Props, State> {
     error: { open: false, message: null },
     username: "",
     password: "",
+    showPassword: false,
   };
 
   componentDidMount() {
@@ -66,6 +72,12 @@ class LoginForm extends React.Component<Props, State> {
       }
       window.localStorage.removeItem("sessionExpired");     
     }
+  }
+
+  handleTogglePasswordVisibility = () => {
+    this.setState(prevState => ({
+      showPassword: !prevState.showPassword,
+    }));
   }
 
   handleChange(event) {
@@ -117,7 +129,7 @@ class LoginForm extends React.Component<Props, State> {
 
   render() {
     const { classes } = this.props;
-    const { error } = this.state;
+    const { error, showPassword } = this.state;
 
     return (
       <div>
@@ -144,10 +156,23 @@ class LoginForm extends React.Component<Props, State> {
             fullWidth
             name="password"
             label="Contraseña"
-            type="password"
+            type={showPassword ? "text" : "password"}
             id="password"
             autoComplete="current-password"
             onChange={e => this.handleChange(e)}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                    onClick={this.handleTogglePasswordVisibility}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
           <Button
             type="submit"

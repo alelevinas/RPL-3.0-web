@@ -11,6 +11,10 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
 import Link from "@material-ui/core/Link";
+import InputAdornment from "@material-ui/core/InputAdornment";
+import IconButton from "@material-ui/core/IconButton";
+import Visibility from "@material-ui/icons/Visibility";
+import VisibilityOff from "@material-ui/icons/VisibilityOff";
 import { withStyles } from "@material-ui/core/styles";
 import { withState } from "../../utils/State";
 import ErrorNotification from "../../utils/ErrorNotification";
@@ -46,6 +50,7 @@ type State = {
   success: boolean,
   universities: Array<any>,
   studentId: string,
+  showPassword: boolean,
 };
 
 class Signup extends React.Component<Props, State> {
@@ -61,13 +66,20 @@ class Signup extends React.Component<Props, State> {
     university: undefined,
     success: false,
     universities: [],
-    studentId: ""
+    studentId: "",
+    showPassword: false,
   };
 
   componentDidMount() {
     return authenticationService.getUniversities().then(universities => {
       this.setState({ universities });
     });
+  }
+
+  handleTogglePasswordVisibility = () => {
+    this.setState(prevState => ({
+      showPassword: !prevState.showPassword,
+    }));
   }
 
   handleChange(event, valid) {
@@ -185,7 +197,7 @@ class Signup extends React.Component<Props, State> {
 
   render() {
     const { classes, history } = this.props;
-    const { error, success, universities, university } = this.state;
+    const { error, success, universities, university, showPassword } = this.state;
 
     return (
       <div>
@@ -358,7 +370,7 @@ class Signup extends React.Component<Props, State> {
             fullWidth
             name="password"
             label="Contraseña"
-            type="password"
+            type={showPassword ? "text" : "password"}
             id="password"
             error={error.invalidFields && error.invalidFields.has("password")}
             helperText={
@@ -368,6 +380,19 @@ class Signup extends React.Component<Props, State> {
             }
             autoComplete="current-password"
             onChange={e => this.handleChange(e, validate(e.target.value, /.{6,}/, "string"))}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                    onClick={this.handleTogglePasswordVisibility}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
           <Button
             type="submit"
