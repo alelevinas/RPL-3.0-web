@@ -239,7 +239,7 @@ class CoursesPage extends React.Component<Props, State> {
               <AddIcon />
             </Fab>
           ) : (
-            <div />
+            <div style={{ marginTop: 20 }} />
           )}
           <EnrollInformationModal
             open={enrollModalOpen}

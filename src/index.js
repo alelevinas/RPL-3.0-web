@@ -19,15 +19,17 @@ import PublicRoute from "./PublicRoute";
 import PageWrapper from "./utils/PageWrapper";
 import { ThemeProvider } from "@material-ui/core/styles";
 import { useThemeContext, ThemeContextProvider } from "./theme/ThemeContextProvider";
+import ScrollbarStyles from "./utils/ScrollbarWebkitAdapter";
 
 showdown.setFlavor("github");
 
 
 function App() {
-  const { theme } = useThemeContext();
+  const { theme, darkMode } = useThemeContext();
   
   return (
     <ThemeProvider theme={theme}>
+      <ScrollbarStyles />
       <StateProvider>
         <BrowserRouter>
           <PublicRoute exact path="/" component={LoginPage} />

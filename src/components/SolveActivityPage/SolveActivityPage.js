@@ -62,6 +62,8 @@ type State = {
 };
 
 class SolveActivityPage extends React.Component<Props, State> {
+  topDivRef = React.createRef();
+
   state = {
     error: { open: false, message: null },
     editorWidth: "100%",
@@ -75,6 +77,9 @@ class SolveActivityPage extends React.Component<Props, State> {
   };
 
   componentDidMount() {
+    if (this.topDivRef.current) {
+      this.topDivRef.current.scrollTop = 0;
+    }
     activitiesService
       .getActivityForStudent(this.props.match.params.courseId, this.props.match.params.activityId)
       .then(activityResponse => {
@@ -177,7 +182,7 @@ class SolveActivityPage extends React.Component<Props, State> {
     } = this.state;
 
     return (
-      <div>
+      <div ref={this.topDivRef}>
         {error.open && <ErrorNotification open={error.open} message={error.message} />}
 
         {/* Se abre cuando alguien presiona el boton de VER ENTEGAS */}
