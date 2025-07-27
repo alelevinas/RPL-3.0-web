@@ -170,7 +170,7 @@ class CourseCard extends React.Component<Props, State> {
           variant="contained"
           style={{ marginRight: "5px" }}
         >
-          <Typography noWrap className={classes.actionText}>
+          <Typography noWrap className={classes.actionText} color="inherit">
             Acceder
           </Typography>
         </Button>
@@ -197,7 +197,11 @@ class CourseCard extends React.Component<Props, State> {
             root: classes.cardHeaderRoot,
             content: classes.cardHeaderContent,
           }}
-          title={name}
+          title={
+            <Tooltip title={name} placement="top">
+              <span>{name}</span>
+            </Tooltip>
+          }
         />
         <CardMedia
           className={classes.media}
