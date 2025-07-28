@@ -178,16 +178,17 @@ class HomePage extends React.Component {
             <Typography
               className={classes.footerText}
               variant="body1"
-              color="textPrimary"
               component="body1"
             >
-              <span> RPL 3.0: Trabajo Profesional de Vasquez Miguel, Gamberale Luciano y Martinez Erick </span>
+              <span> RPL 3.0: Trabajo Profesional de Vásquez Jiménez Miguel, Gamberale Luciano y Martinez Quintero Erick </span>
               <br/>
               <span> Tutor: Dr. Mendez Mariano </span>
               <br/>
-              <span> Co-tutores y desarrolladores RPL 2.0: Lic. Camejo Manuel, Cano Matías José y Levinas Alejandro</span>
+              <span> Co-tutores y desarrolladores RPL 2.0: Ing. Cano Matías José, Ing. Levinas Alejandro</span>
               <br/>
               <span> Facultad de Ingeniería, Universidad de Buenos Aires </span>
+              <br/>
+              <span> © FIUBA 2025 </span>
             </Typography>
           </div>
         </Grid>
