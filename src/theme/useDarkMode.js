@@ -4,8 +4,8 @@ export default function useDarkMode() {
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem("darkMode");
     if (saved === null) {
-      // Default to true if no preference is saved
-      return true;
+      // Default to false if no preference is saved
+      return false;
     }
     return saved === "true";
   });
