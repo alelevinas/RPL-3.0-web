@@ -8,14 +8,27 @@ import AccordionDetails from "@material-ui/core/AccordionDetails";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import MarkdownRenderer from "../commons/MarkdownRenderer";
 import activitiesService from "../../services/activitiesService";
+import { withStyles } from "@material-ui/core/styles";
+
+const styles = theme => ({
+  borderPrimary: {
+    border: `1px solid ${theme.palette.text.primary}`,
+  },
+  summaryText: {
+    color: theme.palette.text.primary,
+    fontWeight: "bold",
+  },
+});
+
 
 type Props = {
   courseId: number,
   activityId: number,
+  classes: any,
 };
 
 const ActivityDescriptionAccordion = (props: Props) => {
-  const { courseId, activityId } = props;
+  const { courseId, activityId, classes } = props;
 
   const [content, setContent] = useState("");
   const [error, setError] = useState(false);
@@ -51,13 +64,17 @@ const ActivityDescriptionAccordion = (props: Props) => {
   };
 
   return (
-    <Accordion expanded={expanded} onChange={handleExpanded}>
+    <Accordion 
+      expanded={expanded} 
+      onChange={handleExpanded}
+      className={classes.borderPrimary}
+    >
       <AccordionSummary
         id="activity-description-header"
         aria-controls="activity-description-content"
         expandIcon={<ExpandMoreIcon />}
       >
-        <Typography variant="h5" color="black" component="p">
+        <Typography variant="h5" component="p" className={classes.summaryText}>
           Enunciado
         </Typography>
       </AccordionSummary>
@@ -66,4 +83,4 @@ const ActivityDescriptionAccordion = (props: Props) => {
   );
 };
 
-export default ActivityDescriptionAccordion;
+export default withStyles(styles)(ActivityDescriptionAccordion);
