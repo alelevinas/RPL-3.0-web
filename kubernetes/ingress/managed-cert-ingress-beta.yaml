@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: managed-cert-ingress-beta
+  annotations:
+    networking.gke.io/managed-certificates: managed-cert-beta
+    kubernetes.io/ingress.class: "gce"
+spec:
+  rules:
+    - host: beta.myrpl.ar
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: webapp
+                port:
+                  number: 80
