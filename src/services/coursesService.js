@@ -134,7 +134,7 @@ exports.getAllStudentsByCourseId = (courseId: number): Promise<Array<Student>> =
 
 exports.getAllStudentsAndTeachersByCourseId = (courseId: number): Promise<Array<Student>> =>
   request({
-    url: `${users_api.base_url}/courses/${courseId}/users`,
+    url: `${users_api.base_url}/courses/${courseId}/users?return_profile_pictures=true`,
     method: "GET",
   });
 

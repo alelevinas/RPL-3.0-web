@@ -52,7 +52,9 @@ const styles = theme => ({
     alignItems: "center",
   },
   currentUserRow: {
-    backgroundColor: theme.palette.success.light,
+    "&.Mui-selected, &.Mui-selected:hover": {
+      backgroundColor: theme.palette.action.hover,
+    },
   },
   circularProgress: {
     position: "absolute",
@@ -98,6 +100,7 @@ class Scoreboard extends React.Component<Props, State> {
             open: true,
             message: "Hubo un error al buscar el scoreboard. Por favor reintenta",
           },
+          loadingData: false,
         });
       });
   }
@@ -123,11 +126,11 @@ class Scoreboard extends React.Component<Props, State> {
     const { profile } = this.props.context;
 
     const cells = [
-      <TableCell key={5} align="left">
+      <TableCell key={1} align="left">
         {student.position}
       </TableCell>,
       <TableCell key={2} component="th" scope="row">
-        <Avatar src={student.img_uri} className={classes.avatar}>
+        <Avatar src={student.img_uri}>
           {student.name[0]}
           {student.surname[0]}
         </Avatar>
@@ -143,8 +146,14 @@ class Scoreboard extends React.Component<Props, State> {
       </TableCell>,
     ];
 
+    const isCurrentUser = profile.id === student.id;
     return (
-      <TableRow className={profile.id === student.id && classes.currentUserRow}>{cells}</TableRow>
+      <TableRow
+        className={isCurrentUser ? classes.currentUserRow : ""}
+        selected={isCurrentUser}
+      >
+      {cells}
+      </TableRow>
     );
   }
 

@@ -14,6 +14,7 @@ import ReactMde from "react-mde";
 import * as Showdown from "showdown";
 import ReactResizeDetector from "react-resize-detector";
 import ErrorNotification from "../../utils/ErrorNotification";
+import CustomSnackbar from "../../utils/CustomSnackbar.react";
 import { withState } from "../../utils/State";
 import ActivityCategoryModal from "../ActivityCategoryModal/ActivityCategoryModal";
 import activitiesService from "../../services/activitiesService";
@@ -68,12 +69,49 @@ const styles = theme => ({
     },
   },
   mdEditor: {
+    "& .mde-header, & .mde-tabs, & .mde-toolbar": {
+      backgroundColor: theme.palette.background.paper,
+      color: theme.palette.text.primary,
+    },
+    // Header and tab text
+    "& .mde-header, & .mde-tabs, & .mde-tabs button, & .mde-tabs span, & .mde-header span": {
+      color: theme.palette.text.primary,
+      fill: theme.palette.text.primary,
+
+    },
+    // Toolbar buttons (icons)
+    "& .mde-header ul.mde-header-group li.mde-header-item button": {
+      color: theme.palette.text.primary,
+      fill: theme.palette.text.primary,
+    },
+    // Toolbar header dropdown
+    "& .mde-header ul.mde-header-group li.mde-header-item ul.react-mde-dropdown": {
+      backgroundColor: theme.palette.background.paper,
+    },
+    "& .mde-toolbar button:hover & .mde-toolbar button:focus": {
+      backgroundColor: theme.palette.action.hover,
+    },
+    // Editor background and text
+    "& .mde-text": {
+      backgroundColor: theme.palette.background.default,
+      color: theme.palette.text.primary,
+      border: `1px solid ${theme.palette.divider}`,
+    },
     "& .mde-preview": {
       height: "53vh",
       overflow: "scroll",
+      backgroundColor: theme.palette.background.default,
+      color: theme.palette.text.primary,
+    },
+    "& .mde-selected": {
+      backgroundColor: theme.palette.action.selected,
     },
     "& .grip": {
       display: "none",
+    },
+    "& .markdown-body pre": {
+      backgroundColor: theme.palette.action.hover,
+      color: theme.palette.text.primary,
     },
   },
   buttons: {
@@ -132,6 +170,8 @@ type State = {
   editor: any,
   isCreateCategoryModalOpen: boolean,
   isAddMainFileModalActive: boolean,
+  isSavingActivity: boolean,
+  successSave: boolean,
 };
 
 class CreateActivityPage extends React.Component<Props, State> {
@@ -149,6 +189,8 @@ class CreateActivityPage extends React.Component<Props, State> {
     editor: null,
     isCreateCategoryModalOpen: false,
     isAddMainFileModalActive: false,
+    isSavingActivity: false,
+    successSave: false,
   };
 
   componentDidMount() {
@@ -208,8 +250,11 @@ class CreateActivityPage extends React.Component<Props, State> {
   }
 
   canSaveActivity() {
-    const { name, points, language, categoryId, code, mdText, activity } = this.state;
-    if (!name || !points || !language || categoryId === -1 || !mdText) {
+    const { name, points, language, categoryId, code, mdText, activity, isSavingActivity } = this.state;
+    if (!name || points==="" || !language || categoryId === -1 || !mdText) {
+      return false;
+    }
+    if (isSavingActivity) {
       return false;
     }
     return true;
@@ -233,11 +278,19 @@ class CreateActivityPage extends React.Component<Props, State> {
       description: mdText,
       ...(!activity ? {} : { activityId: activity.id }),
     };
+    
+    this.setState({ isSavingActivity: true });
 
     return serviceToCall(data)
       .then(response => {
         context.invalidateByKeys("activities");
         this.setState({ activity: response });
+        this.setState({
+          error: { open: false, message: "", invalidFields: new Set() },
+          isSavingActivity: false,
+          successSave: true,
+        });
+        setTimeout(() => this.setState({ successSave: false }), 3000);
         return response;
       })
       .catch(() => {
@@ -248,6 +301,7 @@ class CreateActivityPage extends React.Component<Props, State> {
               message: `Hubo un error al guardar la actividad, revisa que los datos ingresados sean validos.`,
               invalidFields: prevState.error.invalidFields,
             },
+            isSavingActivity: false,
           };
         });
       });
@@ -274,7 +328,7 @@ class CreateActivityPage extends React.Component<Props, State> {
   }
 
   handleGoToStudentPreview(event) {
-    this.handleCreateClick(event, true);
+    this.handleCreateClick(event);
   }
 
   renderCategoriesDropdown() {
@@ -340,11 +394,18 @@ class CreateActivityPage extends React.Component<Props, State> {
       isCreateCategoryModalOpen,
       activity,
       isAddMainFileModalActive,
+      successSave,
     } = this.state;
 
     return (
       <div>
         {error.open && <ErrorNotification open={error.open} message={error.message} />}
+        {successSave && (
+          <CustomSnackbar
+            open={successSave}
+            message="Actividad guardada correctamente"
+          />
+        )}
         <AddMainFileModal
           open={isAddMainFileModalActive}
           mainFileByLanguage={constants.languages}

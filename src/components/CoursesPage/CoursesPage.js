@@ -54,9 +54,10 @@ type Props = {
 type State = {
   error: { open: boolean, message: ?string },
   myCourses: Array<Course>,
-  pendingCourses: Array<Course>,
+  myPendingCourses: Array<Course>,
+  myFinishedCourses: Array<Course>,
   otherCourses: Array<Course>,
-  finishedCourses: Array<Course>,
+  inactiveCourses: Array<Course>,
   currentTab: number,
   enrollModalOpen: boolean,
 };
@@ -65,9 +66,10 @@ class CoursesPage extends React.Component<Props, State> {
   state = {
     error: { open: false, message: null },
     myCourses: [],
+    myPendingCourses: [],
+    myFinishedCourses: [],
     otherCourses: [],
-    pendingCourses: [],
-    finishedCourses: [],
+    inactiveCourses: [],
     currentTab: 0,
     enrollModalOpen: false,
   };
@@ -81,38 +83,38 @@ class CoursesPage extends React.Component<Props, State> {
     coursesService
       .getAll()
       .then(response => {
-        // Active courses were the user is enrolled
+        // Active courses where the user is enrolled
         const myCourses = _.filter(
           response,
           course => course.active && course.enrolled && course.accepted
         );
-        // Active courses were the user is waiting for acceptance
-        const pendingCourses = _.filter(
+        // Active courses where the user is waiting for acceptance
+        const myPendingCourses = _.filter(
           response,
-          course => course.active && course.enrolled && !course.accepted
+          course => course.enrolled && !course.accepted
         );
-        // Other active courses
-        const otherCourses = _.filter(response, course => course.active && !course.enrolled);
-        // Inactive courses were the user was enrolled
-        const finishedCourses = _.filter(
+        // Inactive courses where the user was enrolled
+        const myFinishedCourses = _.filter(
           response,
           course => !course.active && course.enrolled && course.accepted
         );
+        // Other active courses
+        const otherCourses = _.filter(response, course => course.active && !course.enrolled);
 
         let currentTab;
         if (goToTab !== undefined && goToTab !== null) {
           currentTab = goToTab;
         } else if (myCourses && myCourses.length > 0) {
-          // If I have curses, go to my courses page
+          // If I have courses, go to my courses page
           currentTab = 0;
-        } else if (pendingCourses && pendingCourses.length > 0) {
-          // If I have curses pending accepting, go to that tab
+        } else if (myPendingCourses && myPendingCourses.length > 0) {
+          // If I have courses pending accepting, go to that tab
           currentTab = 1;
         } else {
           // Go to Other courses tab
-          currentTab = 2;
+          currentTab = 3;
         }
-        this.setState({ myCourses, otherCourses, pendingCourses, finishedCourses, currentTab });
+        this.setState({ myCourses, otherCourses, myPendingCourses, myFinishedCourses, currentTab });
       })
       .catch(() => {
         this.setState({
@@ -215,13 +217,13 @@ class CoursesPage extends React.Component<Props, State> {
     const {
       otherCourses,
       myCourses,
-      pendingCourses,
-      finishedCourses,
+      myPendingCourses,
+      myFinishedCourses,
       enrollModalOpen,
       error,
     } = this.state;
 
-    const tab2courses = [myCourses, pendingCourses, otherCourses, finishedCourses];
+    const tab2courses = [myCourses, myPendingCourses, myFinishedCourses, otherCourses];
 
     return (
       <div>
@@ -237,7 +239,7 @@ class CoursesPage extends React.Component<Props, State> {
               <AddIcon />
             </Fab>
           ) : (
-            <div />
+            <div style={{ marginTop: 20 }} />
           )}
           <EnrollInformationModal
             open={enrollModalOpen}
@@ -248,13 +250,13 @@ class CoursesPage extends React.Component<Props, State> {
               value={this.state.currentTab}
               onChange={(event, newValue) => this.handleChange(event, newValue)}
               indicatorColor="primary"
-              textColor="primary"
+              textColor="textPrimary"
               variant="scrollable"
             >
               <Tab label="Mis cursos" />
               <Tab label="Mis cursos pendientes" />
+              <Tab label="Mis cursos terminados" />
               <Tab label="Otros cursos" />
-              <Tab label="Cursos terminados" />
             </Tabs>
           </Paper>
           {this.renderCourseCards(tab2courses[this.state.currentTab])}

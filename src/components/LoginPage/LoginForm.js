@@ -5,16 +5,16 @@ import Grid from "@material-ui/core/Grid";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
 import Link from "@material-ui/core/Link";
+import InputAdornment from "@material-ui/core/InputAdornment";
+import IconButton from "@material-ui/core/IconButton";
+import Visibility from "@material-ui/icons/Visibility";
+import VisibilityOff from "@material-ui/icons/VisibilityOff";
 import { withStyles } from "@material-ui/core/styles";
 import { withState } from "../../utils/State";
 import ErrorNotification from "../../utils/ErrorNotification";
 import authenticationService from "../../services/authenticationService";
 
 const styles = theme => ({
-  avatar: {
-    margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main,
-  },
   form: {
     width: "100%", // Fix IE 11 issue.
     marginTop: theme.spacing(1),
@@ -35,6 +35,7 @@ type State = {
   error: { open: boolean, message: ?string },
   username: string,
   password: string,
+  showPassword: boolean,
 };
 
 class LoginForm extends React.Component<Props, State> {
@@ -42,7 +43,42 @@ class LoginForm extends React.Component<Props, State> {
     error: { open: false, message: null },
     username: "",
     password: "",
+    showPassword: false,
   };
+
+  componentDidMount() {
+    const { history } = this.props;
+    // Check for sessionExpired in history.state or localStorage
+    const sessionExpired =
+      (history &&
+        history.location &&
+        history.location.state &&
+        history.location.state.sessionExpired) ||
+      window.localStorage.getItem("sessionExpired") === "1";
+
+    // reset in case there was a previous error
+    this.setState({ error: { open: false, message: "" } });
+
+    if (sessionExpired) {
+      this.setState({
+        error: {
+          open: true,
+          message: "Tu sesión expiró. Por favor, inicia sesión nuevamente.",
+        },
+      });
+      // clear the flag so it doesn't show again
+      if (history && history.location && history.location.state && history.location.state.sessionExpired) {
+        history.replace({ ...history.location, state: { ...history.location.state, sessionExpired: false } });
+      }
+      window.localStorage.removeItem("sessionExpired");     
+    }
+  }
+
+  handleTogglePasswordVisibility = () => {
+    this.setState(prevState => ({
+      showPassword: !prevState.showPassword,
+    }));
+  }
 
   handleChange(event) {
     event.persist();
@@ -53,6 +89,8 @@ class LoginForm extends React.Component<Props, State> {
   handleClick(event) {
     event.preventDefault();
     const { username, password } = this.state;
+    // reset in case there was a previous error
+    this.setState({ error: { open: false, message: "" } });
 
     authenticationService
       .login({
@@ -91,7 +129,7 @@ class LoginForm extends React.Component<Props, State> {
 
   render() {
     const { classes } = this.props;
-    const { error } = this.state;
+    const { error, showPassword } = this.state;
 
     return (
       <div>
@@ -118,10 +156,23 @@ class LoginForm extends React.Component<Props, State> {
             fullWidth
             name="password"
             label="Contraseña"
-            type="password"
+            type={showPassword ? "text" : "password"}
             id="password"
             autoComplete="current-password"
             onChange={e => this.handleChange(e)}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                    onClick={this.handleTogglePasswordVisibility}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
           <Button
             type="submit"

@@ -9,6 +9,9 @@ import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
+import TextField from "@material-ui/core/TextField";
+import InputAdornment from "@material-ui/core/InputAdornment";
+import SearchIcon from "@material-ui/icons/Search";
 import { withStyles } from "@material-ui/core/styles";
 import { withState } from "../../utils/State";
 import usersService from "../../services/usersService";
@@ -27,7 +30,7 @@ const styles = theme => ({
   tableContainer: {
     width: "80%",
   },
-  tableContainerDiv: {
+  upperContainerDiv: {
     display: "flex",
     alignItems: "center",
     flexDirection: "column",
@@ -49,6 +52,11 @@ const styles = theme => ({
     height: theme.spacing(4),
     fontSize: "0.75rem",
   },
+  searchBar: {
+    marginBottom: theme.spacing(2),
+    marginTop: theme.spacing(2),
+    width: "80%",
+  },
 });
 
 type Props = {
@@ -61,33 +69,52 @@ type Props = {
 type State = {
   error: { open: boolean, message: ?string },
   users: Array<Student>,
+  searchQuery: string,
 };
 
 class UsersPage extends React.Component<Props, State> {
   state = {
     error: { open: false, message: null },
     users: [],
+    searchQuery: "",
   };
 
+  searchDebounceTimer: ?TimeoutID = null;
+
   componentDidMount() {
-    this.loadUsers();
+    this.loadUsers("");
   }
 
-  loadUsers() {
+  loadUsers(query: string) {
+    this.setState({ users: [] });
     usersService
-      .findUsers("") // Search for all users, no query
+      .findUsers(query)
       .then(response => {
         this.setState({ users: response });
       })
       .catch(() => {
         this.setState({
+          users: [],
+          searchQuery: "",
           error: {
             open: true,
-            message: "Hubo un error al obtener a los alumnos, Por favor reintenta",
+            message: "Hubo un error al obtener a los usuarios, Por favor reintenta",
           },
         });
       });
   }
+
+  handleSearchChange = (event) => {
+    const value = event.target.value;
+    this.setState({ searchQuery: value });
+
+    if (this.searchDebounceTimer) {
+      clearTimeout(this.searchDebounceTimer);
+    }
+    this.searchDebounceTimer = setTimeout(() => {
+      this.loadUsers(value);
+    }, 300);
+  };
 
   renderUserRow(user: any, classes: any) {
     return (
@@ -129,13 +156,13 @@ class UsersPage extends React.Component<Props, State> {
                 Email
               </TableCell>
               <TableCell key={4} align="right">
-                Id
+                Padrón
               </TableCell>
               <TableCell key={5} align="right">
                 Universidad
               </TableCell>
               <TableCell key={6} align="right">
-                Grado
+                Carrera
               </TableCell>
             </TableRow>
           </TableHead>
@@ -147,13 +174,30 @@ class UsersPage extends React.Component<Props, State> {
 
   render() {
     const { classes } = this.props;
-
-    const { users, error } = this.state;
+    const { users, error, searchQuery } = this.state;
 
     return (
       <div>
         {error.open && <ErrorNotification open={error.open} message={error.message} />}
-        <div className={classes.tableContainerDiv}>{users && this.renderUsers(users, classes)}</div>
+        <div className={classes.upperContainerDiv}>
+          <div className={classes.searchBar}>
+            <TextField
+              label="Buscar usuario"
+              variant="outlined"
+              fullWidth
+              value={searchQuery}
+              onChange={this.handleSearchChange}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </div>
+          {users && this.renderUsers(users, classes)}
+        </div>
       </div>
     );
   }

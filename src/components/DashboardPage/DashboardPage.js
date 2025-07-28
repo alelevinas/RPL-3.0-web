@@ -4,6 +4,7 @@ import { withStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
+import Typography from "@material-ui/core/Typography";
 import coursesService from "../../services/coursesService";
 import StudentStats from "./StudentStats";
 import TeacherStats from "./TeacherStats";
@@ -15,6 +16,7 @@ import StudentCategoryStats from "./StudentCategoryStats";
 import CategoryStats from "./CategoryStats";
 import ActivityStats from "./ActivityStats";
 import Scoreboard from "./Scoreboard";
+import CourseInfoCard from "../GeneralCourseInfoCards/CourseInfoCard";
 
 import Tag from "../commons/Tag";
 
@@ -92,7 +94,7 @@ type State = {
   error: { open: boolean, message: ?string },
 };
 
-class ActivitiesPage extends React.Component<Props, State> {
+class DashboardPage extends React.Component<Props, State> {
   state = {
     error: { open: false, message: null },
     current: 0,
@@ -121,11 +123,7 @@ class ActivitiesPage extends React.Component<Props, State> {
     this.setState({ current: newValue });
   }
 
-  render() {
-    const { classes, match, context } = this.props;
-    const { permissions } = context;
-    const { error, scoreboard } = this.state;
-
+  renderDashboardContentForTeacher(classes, match) {
     const teacherStats = [
       <Scoreboard courseId={match.params.courseId} />,
       <TeacherStats courseId={match.params.courseId} />,
@@ -136,43 +134,58 @@ class ActivitiesPage extends React.Component<Props, State> {
 
     return (
       <div>
+        <Paper>
+          <Tabs
+            value={this.state.current}
+            onChange={(event, newValue) => this.handleChange(event, newValue)}
+            indicatorColor="primary"
+            textColor="textPrimary"
+            variant="scrollable"
+          >
+            <Tab label="Ranking" />
+            <Tab label="Envios por Fecha" />
+            <Tab label="Envios por Alumno" />
+            <Tab label="Envios por Categoría" />
+            <Tab label="Alumnos por Ejercicio"/>
+          </Tabs>
+        </Paper>
+        {teacherStats[this.state.current]}
+      </div>
+    );
+  }
+
+  renderDashboardContentForStudent(classes, match) {
+    return (
+      <div>
+        <Typography variant="h5">
+          Mis estadísticas
+        </Typography>
+        <StudentStats courseId={match.params.courseId} />
+        <Typography variant="h5">
+          Ranking
+        </Typography>
+        <Scoreboard courseId={match.params.courseId} />
+      </div>
+    );
+  }
+
+  render() {
+    const { classes, match, context } = this.props;
+    const { permissions } = context;
+    const { error } = this.state;
+
+    return (
+      <div>
         {error.open && <ErrorNotification open={error.open} message={error.message} />}
         <div className={classes.dashboardContainer}>
-          {permissions.includes("user_manage") ? (
-            <div>
-              <Paper className={classes.root}>
-                <Tabs
-                  value={this.state.current}
-                  onChange={(event, newValue) => this.handleChange(event, newValue)}
-                  indicatorColor="primary"
-                  textColor="primary"
-                >
-                  <Tab label="Ranking" />
-                  <Tab label="Envios por Fecha" />
-                  <Tab label="Envios por Alumno" />
-                  <Tab label="Envios por Categoría" />
-                  <Tab
-                    label={(
-                      <div>
-                        Alumnos por Ejercicio
-                        <Tag text="New!" />
-                      </div>
-                    )}
-                  />
-                </Tabs>
-              </Paper>
-              {teacherStats[this.state.current]}
-            </div>
-          ) : (
-            <div>
-              <StudentStats courseId={match.params.courseId} />
-              <Scoreboard courseId={match.params.courseId} />
-            </div>
-          )}
+          <CourseInfoCard course={context.course} />
+          {permissions.includes("user_manage")
+            ? this.renderDashboardContentForTeacher(classes, match)
+            : this.renderDashboardContentForStudent(classes, match)}
         </div>
       </div>
     );
   }
 }
 
-export default withState(withStyles(styles)(ActivitiesPage));
+export default withState(withStyles(styles)(DashboardPage));

@@ -11,7 +11,7 @@ const ErrorMessageSection = (props: Props) => {
 
   return (
     <>
-      <Typography variant="h5" color="black" component="p">
+      <Typography variant="h5" component="p">
         Mensaje de error:
       </Typography>
       <Typography variant="subtitle1" color="textSecondary" component="p">

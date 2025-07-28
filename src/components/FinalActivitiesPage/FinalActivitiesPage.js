@@ -31,12 +31,12 @@ const styles = theme => ({
   },
   editor: {
     display: "flex",
-    height: "100%",
-    // maxHeight: "80vh",
+    height: "78%",
+    width: "97%",
   },
   submissionsSideList: {
-    maxHeight: "80vh",
-    overflow: "auto",
+    maxHeight: "83vh",
+    overflow: "scroll",
   },
   topDiv: {
     height: "100vh",
@@ -44,6 +44,7 @@ const styles = theme => ({
   },
   splitPaneStyle: {
     height: "80vh",
+    backgroundColor: theme.palette.background.default,
   },
   submissionsList: {
     padding: "0",
@@ -68,6 +69,8 @@ type State = {
 };
 
 class FinalActivitiesPage extends React.Component<Props, State> {
+  topDivRef = React.createRef();
+
   state = {
     error: { open: false, message: null },
     editorWidth: "100%",
@@ -80,6 +83,10 @@ class FinalActivitiesPage extends React.Component<Props, State> {
   };
 
   componentDidMount() {
+    if (this.topDivRef.current) {
+      this.topDivRef.current.scrollTop = 0;
+    }
+
     const { permissions } = this.props.context;
     if (permissions.includes("activity_manage")) {
       this.loadSubmissionsForTeacher();
@@ -131,7 +138,7 @@ class FinalActivitiesPage extends React.Component<Props, State> {
     const { courseId, activityId } = this.props.match.params;
     // Obtener todas las soluciones
     activitiesService
-      .getActivity(courseId, activityId)
+      .getActivityForStudent(courseId, activityId)
       .then(activityResponse => {
         this.setState({
           activity: activityResponse,
@@ -191,7 +198,7 @@ class FinalActivitiesPage extends React.Component<Props, State> {
       teacherMode,
     } = this.state;
     return (
-      <div className={classes.topDiv}>
+      <div className={classes.topDiv} ref={this.topDivRef}>
         {error.open && <ErrorNotification open={error.open} message={error.message} />}
 
         {!activity && <CircularProgress className={classes.circularProgress} />}

@@ -23,7 +23,7 @@ import type { Course } from "../../types";
 const styles = theme => ({
   avatar: {
     margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main,
+    backgroundColor: theme.palette.background.default,
   },
   form: {
     marginTop: theme.spacing(1),
@@ -97,6 +97,8 @@ class CourseForm extends React.Component<Props, State> {
     waiting: false,
   };
 
+  userSearchDebounceTimer: ?TimeoutID = null;
+
   componentDidMount() {
     const { course } = this.props;
     authenticationService.getUniversities().then(universities => {
@@ -133,8 +135,27 @@ class CourseForm extends React.Component<Props, State> {
   loadUsers(query) {
     return usersService.findUsers(query).then(users => {
       this.setState({ users });
+    }).catch(() => {
+      this.setState({
+        users: [],
+        error: {
+          open: true,
+          message: "Hubo un error al obtener los usuarios, Por favor reintenta",
+          invalidFields: new Set(),
+        },
+      });
     });
   }
+
+  loadUsersOnInput(query) {
+    if (this.userSearchDebounceTimer) {
+      clearTimeout(this.userSearchDebounceTimer);
+    }
+    this.userSearchDebounceTimer = setTimeout(() => {
+      this.loadUsers(query);
+    }, 300);
+  }
+
 
   handleChange(event, valid) {
     event.persist();
@@ -154,25 +175,30 @@ class CourseForm extends React.Component<Props, State> {
   }
 
   handleCancelClick(event) {
-    event.preventDefault();
+  event.preventDefault();
+  const { course } = this.props;
+  if (course && course.id) {
+    this.props.history.push(`/courses/${course.id}/dashboard`);
+  } else {
     this.props.history.push("/courses");
   }
+}
 
   handleCloneClick(event) {
     event.preventDefault();
     const {
-  name,
-  university,
-  subjectId: subjectId,
-  semester,
-  semesterStart,
-  semesterEnd,
-  description,
-  courseAdminUserId,
-  courseImg,
-  imgUri,
-  error
-} = this.state;
+      name,
+      university,
+      subjectId: subjectId,
+      semester,
+      semesterStart,
+      semesterEnd,
+      description,
+      courseAdminUserId,
+      courseImg,
+      imgUri,
+      error
+    } = this.state;
 
     const { course } = this.props;
     const { id } = course;
@@ -227,18 +253,18 @@ class CourseForm extends React.Component<Props, State> {
   handleCreateClick(event) {
     event.preventDefault();
     const {
-  name,
-  university,
-  subjectId: subjectId,
-  semester,
-  semesterStart,
-  semesterEnd,
-  description,
-  courseAdminUserId,
-  courseImg,
-  imgUri,
-  error
-} = this.state;
+      name,
+      university,
+      subjectId: subjectId,
+      semester,
+      semesterStart,
+      semesterEnd,
+      description,
+      courseAdminUserId,
+      courseImg,
+      imgUri,
+      error
+    } = this.state;
 
     if (error.invalidFields.size !== 0 || !university) {
       this.setState(prevState => ({
@@ -288,16 +314,16 @@ class CourseForm extends React.Component<Props, State> {
   handleSaveClick(event) {
     event.preventDefault();
     const {
-  name,
-  university,
-  subjectId: subjectId,
-  semester,
-  semesterStart,
-  semesterEnd,
-  description,
-  courseImg,
-  imgUri
-} = this.state;
+      name,
+      university,
+      subjectId: subjectId,
+      semester,
+      semesterStart,
+      semesterEnd,
+      description,
+      courseImg,
+      imgUri
+    } = this.state;
     const { course } = this.props;
     const courseImgPromise = courseImg
       ? cloudinaryService.uploadFile(courseImg)
@@ -344,15 +370,15 @@ class CourseForm extends React.Component<Props, State> {
 
   canSaveCourse() {
     const {
-  name,
-  university,
-  subjectId: subjectId,
-  semester,
-  semesterStart,
-  semesterEnd,
-  description,
-  courseAdminUserId
-} = this.state;
+      name,
+      university,
+      subjectId: subjectId,
+      semester,
+      semesterStart,
+      semesterEnd,
+      description,
+      courseAdminUserId
+    } = this.state;
     const { course, editMode } = this.props;
 
     if (
@@ -517,7 +543,7 @@ class CourseForm extends React.Component<Props, State> {
                 }}
                 onInputChange={(event, value, reason) => {
                     if (reason === "input") {
-                        this.loadUsers(value);
+                        this.loadUsersOnInput(value);
                     }
                 }}
                 getOptionLabel={user => `${user.name} ${user.surname} (${user.username})`}

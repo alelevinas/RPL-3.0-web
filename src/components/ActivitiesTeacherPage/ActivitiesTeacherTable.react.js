@@ -45,7 +45,7 @@ const styles = theme => ({
     marginRight: theme.spacing(3),
   },
   tableRowDisabled: {
-    backgroundColor: "#d0c4c4",
+    backgroundColor: theme.palette.action.disabledBackground,
   },
   tableRowEnabled: {
     cursor: "pointer",

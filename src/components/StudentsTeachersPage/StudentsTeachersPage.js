@@ -15,38 +15,49 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import IconButton from "@material-ui/core/IconButton";
 import Typography from "@material-ui/core/Typography";
 import Select from "@material-ui/core/Select";
-import { MenuItem, Accordion } from "@material-ui/core";
-import AccordionSummary from "@material-ui/core/AccordionSummary";
-import AccordionDetails from "@material-ui/core/AccordionDetails";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import Button from "@material-ui/core/Button";
+import { MenuItem } from "@material-ui/core";
 import { withState } from "../../utils/State";
 import coursesService from "../../services/coursesService";
 import authenticationService from "../../services/authenticationService";
 import ErrorNotification from "../../utils/ErrorNotification";
+import ConfirmDeleteStudentModal from "./ConfirmDeleteStudentModal.react";
+import Paper from "@material-ui/core/Paper";
+import Tabs from "@material-ui/core/Tabs";
+import Tab from "@material-ui/core/Tab";
+import TextField from "@material-ui/core/TextField";
+import InputAdornment from "@material-ui/core/InputAdornment";
+import SearchIcon from "@material-ui/icons/Search";
+import FormControl from "@material-ui/core/FormControl";
+import CircularProgress from "@material-ui/core/CircularProgress";
+
 
 import type { Student } from "../../types";
 
 const _ = require("lodash");
 
 const styles = theme => ({
-  title: {
-    marginTop: 20,
-    marginBottom: 20,
+  dashboardContainer: {
+    width: "75%",
+    alignItems: "center",
+    justifyContent: "center",
+    margin: `0 auto`,
+    marginBottom: theme.spacing(5),
   },
-  divider: {
-    margin: 20,
-  },
-  rightButton: {
+  filtersContainer: {
     display: "flex",
-    marginLeft: "auto",
-    marginRight: theme.spacing(2),
-    marginBottom: theme.spacing(2),
+    gap: 16,
+    marginBottom: 32,
+    marginTop: 24,
+    flexDirection: "row",
+    alignItems: "center",
+    flexWrap: "wrap",
   },
   table: {
     minWidth: 650,
   },
   tableContainer: {
-    width: "80%",
+    width: "100%",
   },
   tableContainerDiv: {
     display: "flex",
@@ -63,24 +74,15 @@ const styles = theme => ({
     width: theme.spacing(5),
   },
   tableIconsColumn: {
-    width: theme.spacing(20),
+    width: theme.spacing(16),
+  },
+  largeTableIconsColumn: {
+    width: theme.spacing(26),
   },
   avatar: {
     width: theme.spacing(4),
     height: theme.spacing(4),
     fontSize: "0.75rem",
-  },
-  status: {
-    height: theme.spacing(1.5),
-    width: theme.spacing(1.5),
-    borderRadius: "50%",
-    display: "inline-block",
-  },
-  activeStatus: {
-    backgroundColor: theme.palette.success.main,
-  },
-  inactiveStatus: {
-    backgroundColor: theme.palette.error.main,
   },
 });
 
@@ -96,6 +98,16 @@ type State = {
   students: Array<Student>,
   teachers: Array<Student>,
   refreshStudentsNotification: boolean,
+  deleteModal: { open: boolean, studentId: ?number },
+  editMode: boolean,
+  currentUserId: string,
+  currentUserRole: ?{ id: number, name: string },
+  roles: Array<{ id: number, name: string }>,
+  tabIndex: number, // 0: students, 1: teachers, 2: pending users
+  searchNameQuery: string,
+  searchIdQuery: string,
+  searchEmailQuery: string,
+  currentlyModifyingUserWithId: ?number,
 };
 
 class StudentsTeachersPage extends React.Component<Props, State> {
@@ -108,6 +120,12 @@ class StudentsTeachersPage extends React.Component<Props, State> {
     currentUserId: "",
     currentUserRole: undefined,
     roles: [],
+    deleteModal: { open: false, studentId: null },
+    tabIndex: 0, // 0: students, 1: teachers, 2: pending users
+    searchNameQuery: "",
+    searchIdQuery: "",
+    searchEmailQuery: "",
+    currentlyModifyingUserWithId: null,
   };
 
   componentDidMount() {
@@ -128,7 +146,7 @@ class StudentsTeachersPage extends React.Component<Props, State> {
         this.setState({
           error: {
             open: true,
-            message: "Hubo un error al obtener las actividades, Por favor reintenta",
+            message: "Hubo un error al obtener la lista de usuarios, Por favor reintenta",
           },
         });
       });
@@ -141,25 +159,64 @@ class StudentsTeachersPage extends React.Component<Props, State> {
   }
 
   handleAcceptStudent(courseId: number, userId: number, event: any) {
+    this.setState({ currentlyModifyingUserWithId: userId });
     coursesService
       .acceptStudent(courseId, userId)
       .then(() => this.loadStudents())
       .then(() =>
         this.setState(prevState => ({
           refreshStudentsNotification: !prevState.refreshStudentsNotification,
+          currentlyModifyingUserWithId: null,
         }))
-      );
+      ).catch(() => {
+        this.setState({
+          error: {
+            open: true,
+            message: "Hubo un error al aceptar al estudiante, Por favor reintenta",
+          },
+          currentlyModifyingUserWithId: null,
+        });
+      });
   }
 
-  handleDeleteStudent(courseId: Number, userId: number, event: any) {
+  handleClickDeleteStudent(studentId: number) {
+    this.setState({ deleteModal: { open: true, studentId } });
+  }
+
+  handleDeleteStudentConfirmed() {
+    const { deleteModal } = this.state;
+    const prevStudentId = deleteModal.studentId;
+    if (!prevStudentId) {
+      this.setState({ deleteModal: { open: false, studentId: null } });
+      return;
+    }
+    this.setState({ deleteModal: { open: false, studentId: prevStudentId } });
+    this.setState({ currentlyModifyingUserWithId: prevStudentId });
+    const { match } = this.props;
     coursesService
-      .deleteStudent(courseId, userId)
+      .deleteStudent(match.params.courseId, prevStudentId)
       .then(() => this.loadStudents())
-      .then(() =>
-        this.setState(prevState => ({
-          refreshStudentsNotification: !prevState.refreshStudentsNotification,
-        }))
-      );
+      .then(() => {
+          this.setState(prevState => ({
+            refreshStudentsNotification: !prevState.refreshStudentsNotification,
+          }));
+          this.setState({ deleteModal: { open: false, studentId: null } });
+          this.setState({ currentlyModifyingUserWithId: null });
+        }
+      ).catch(() => {
+        this.setState({
+          error: {
+            open: true,
+            message: "Hubo un error al eliminar al estudiante, Por favor reintenta",
+          },
+          deleteModal: { open: false, studentId: null },
+          currentlyModifyingUserWithId: null,
+        });
+      });
+  }
+
+  handleCancelDeleteStudent() {
+    this.setState({ deleteModal: { open: false, studentId: null } });
   }
 
   handleEditStudent(courseId: Number, userId: number, event: any) {
@@ -175,16 +232,29 @@ class StudentsTeachersPage extends React.Component<Props, State> {
       }));
     }
 
+    this.setState({ currentlyModifyingUserWithId: userId });
     coursesService
       .changeStudentRole(courseId, userId, this.state.currentUserRole.name)
       .then(() => this.loadStudents())
-      .then(() =>
+      .then(() => {
         this.setState(prevState => ({
           editMode: false,
           currentUserId: "",
           currentUserRole: undefined,
         }))
-      );
+        this.setState({ currentlyModifyingUserWithId: null })
+      }).catch(() => {
+        this.setState({
+          error: {
+            open: true,
+            message: "Hubo un error al guardar el rol del usuario, Por favor reintenta",
+          },
+          editMode: false,
+          currentUserId: "",
+          currentUserRole: undefined,
+          currentlyModifyingUserWithId: null,
+        });
+      });
   }
 
   handleCloseModal() {
@@ -193,6 +263,30 @@ class StudentsTeachersPage extends React.Component<Props, State> {
 
   handleSelectRole(event) {
     this.setState({ currentUserRole: event.target.value });
+  }
+
+  handleTabChange(event, newValue) {
+    this.setState({ tabIndex: newValue });
+  }
+
+  handleFilterChange(field, value) {
+    this.setState({ [field]: value });
+  }
+
+  getFilteredUserIdsByQueries(users) {
+    const { searchNameQuery, searchIdQuery, searchEmailQuery } = this.state;
+    return users
+      .filter(user => {
+        const matchesName =
+          !searchNameQuery ||
+          `${user.name} ${user.surname}`.toLowerCase().includes(searchNameQuery.toLowerCase());
+        const matchesId =
+          !searchIdQuery || (user.student_id && user.student_id.toString().includes(searchIdQuery));
+        const matchesEmail =
+          !searchEmailQuery || (user.email && user.email.toLowerCase().includes(searchEmailQuery.toLowerCase()));
+        return matchesName && matchesId && matchesEmail;
+      })
+      .map(user => user.id);
   }
 
   renderRolesOptions() {
@@ -222,9 +316,6 @@ class StudentsTeachersPage extends React.Component<Props, State> {
     const { context } = this.props;
     if (context.permissions && context.permissions.includes("user_manage")) {
       const extraCells = [
-        <TableCell key={6} align="right">
-          Activo
-        </TableCell>,
         <TableCell key={7} className={classes.tableIconsColumn} />,
       ];
 
@@ -234,7 +325,7 @@ class StudentsTeachersPage extends React.Component<Props, State> {
     return <TableRow key={0}>{cells}</TableRow>;
   }
 
-  renderStudentRow(student: any, classes: any) {
+  renderStudentRow(student: any, classes: any, showAcceptButton = false) {
     const cells = [
       <TableCell key={1} component="th" scope="row">
         <Avatar src={student.img_uri} className={classes.avatar}>
@@ -262,114 +353,158 @@ class StudentsTeachersPage extends React.Component<Props, State> {
       </TableCell>,
     ];
 
+    const { currentlyModifyingUserWithId } = this.state;
     const { match, context } = this.props;
     const { courseId } = match.params;
     if (context.permissions && context.permissions.includes("user_manage")) {
-      const extraCells = [
-        <TableCell
-          key={6}
-          align="right"
-          style={
-            context.permissions && context.permissions.includes("user_manage")
-              ? {}
-              : { display: "none" }
-          }
-        >
-          <span
-            className={`${classes.status} ${
-              student.accepted ? classes.activeStatus : classes.inactiveStatus
-            }`}
-          />
-        </TableCell>,
+      cells.push(
         <TableCell
           key={7}
           align="right"
-          style={
-            context.permissions && context.permissions.includes("user_manage")
-              ? {}
-              : { display: "none" }
-          }
+          className={showAcceptButton ? classes.largeTableIconsColumn : classes.tableIconsColumn}
         >
-          <IconButton
-            style={student.accepted ? { display: "none" } : {}}
-            component="span"
-            onClick={event => this.handleAcceptStudent(courseId, student.id, event)}
-          >
-            <CheckIcon />
-          </IconButton>
-          <IconButton
-            component="span"
-            onClick={event => this.handleDeleteStudent(courseId, student.id, event)}
-          >
-            <DeleteIcon />
-          </IconButton>
-
-          {this.state.editMode && this.state.currentUserId === student.id ? (
-            <IconButton
-              component="span"
-              onClick={event => this.handleSaveStudent(courseId, student.id, event)}
-            >
-              <SaveIcon />
-            </IconButton>
+          {currentlyModifyingUserWithId === student.id ? (
+            <CircularProgress size={24} style={{ marginRight: 16 }} />
           ) : (
-            <IconButton
-              component="span"
-              onClick={event => this.handleEditStudent(courseId, student.id, event)}
-            >
-              <EditIcon />
-            </IconButton>
+            <>
+              {showAcceptButton && (
+                <Button
+                  onClick={event => this.handleAcceptStudent(courseId, student.id, event)}
+                  style={{ marginRight: 6 }}
+                >
+                  Aceptar
+                </Button>
+              )}
+              <IconButton
+                component="span"
+                onClick={event => this.handleClickDeleteStudent(student.id)}
+              >
+                <DeleteIcon />
+              </IconButton>
+              {this.state.editMode && this.state.currentUserId === student.id ? (
+                <IconButton
+                  component="span"
+                  onClick={event => this.handleSaveStudent(courseId, student.id, event)}
+                >
+                  <SaveIcon />
+                </IconButton>
+              ) : (
+                <IconButton
+                  component="span"
+                  onClick={event => this.handleEditStudent(courseId, student.id, event)}
+                >
+                  <EditIcon />
+                </IconButton>
+              )}
+            </>
           )}
-        </TableCell>,
-      ];
-
-      cells.push(...extraCells);
+        </TableCell>
+      );
     }
 
     return (
-      <TableRow hover key={student.student_id}>
+      <TableRow hover key={student.id}>
         {cells}
       </TableRow>
     );
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  renderUsers(tableTitle: string, students: Array<Student>, classes: any) {
+  renderFilters(classes) {
+    const { searchNameQuery, searchIdQuery, searchEmailQuery } = this.state;
     return (
-      <TableContainer component={Accordion} className={classes.tableContainer}>
-        <AccordionSummary content={{ display: "inline" }} expandIcon={<ExpandMoreIcon />}>
-          <Typography variant="h4" color="textSecondary" component="h4">
-            {tableTitle}
-          </Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Table className={classes.table} aria-label="simple table">
-            <TableHead>{this.renderHeadRow(classes)}</TableHead>
-            <TableBody>
-              {students.map(student => this.renderStudentRow(student, classes))}
-            </TableBody>
-          </Table>
-        </AccordionDetails>
-      </TableContainer>
+      <div className={classes.filtersContainer}>
+        <Typography variant="subtitle1" color="textSecondary" component="p">
+          Filtros
+        </Typography>
+        <TextField
+          label="Nombre"
+          value={searchNameQuery}
+          onChange={e => this.handleFilterChange("searchNameQuery", e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+        />
+        <TextField
+          label="Email"
+          value={searchEmailQuery}
+          onChange={e => this.handleFilterChange("searchEmailQuery", e.target.value)}
+        />
+        <TextField
+          label="Id"
+          value={searchIdQuery}
+          onChange={e => this.handleFilterChange("searchIdQuery", e.target.value)}
+        />
+      </div>
     );
   }
 
-  render() {
-    const { classes, match } = this.props;
+  renderUsersTable(users, classes, showAcceptButton = false) {
+    const filteredIds = this.getFilteredUserIdsByQueries(users);
+    const filteredSet = new Set(filteredIds);
 
-    const { students, teachers, refreshStudentsNotification, error } = this.state;
+    return (
+      <div className={classes.tableContainerDiv}>
+        {this.renderFilters(classes)}
+        <TableContainer className={classes.tableContainer}>
+          <Table className={classes.table} aria-label="simple table">
+            <TableHead>{this.renderHeadRow(classes)}</TableHead>
+            <TableBody>
+              {users
+                .filter(student => filteredSet.has(student.id))
+                .map(student =>
+                  this.renderStudentRow(student, classes, showAcceptButton)
+                )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </div>
+    );
+  }
+
+  
+  render() {
+    const { classes } = this.props;
+    const { students, teachers, error, tabIndex, refreshStudentsNotification } = this.state;
+
+    const acceptedStudents = students.filter(s => s.accepted);
+    const pendingStudents = students.filter(s => !s.accepted);
 
     return (
       <div>
         {error.open && <ErrorNotification open={error.open} message={error.message} />}
-        <div className={classes.tableContainerDiv}>
-          {students && this.renderUsers("Alumnos", students, classes)}
-        </div>
-        <div className={classes.tableContainerDiv}>
-          {teachers && this.renderUsers("Docentes", teachers, classes)}
+        <div className={classes.dashboardContainer}>
+          <Paper>
+            <Tabs
+              value={tabIndex}
+              onChange={(event, newValue) => this.handleTabChange(event, newValue)}
+              indicatorColor="primary"
+              textColor="textPrimary"
+              variant="scrollable"
+            >
+              <Tab label="Alumnos" />
+              <Tab label="Docentes" />
+              <Tab label="Pendientes" />
+            </Tabs>
+          </Paper>
+          <div>
+            {tabIndex === 0 && this.renderUsersTable(acceptedStudents, classes)}
+            {tabIndex === 1 && this.renderUsersTable(teachers, classes)}
+            {tabIndex === 2 && this.renderUsersTable(pendingStudents, classes, true)}
+          </div>
+          <ConfirmDeleteStudentModal
+            open={this.state.deleteModal.open}
+            onDeleteClicked={() => this.handleDeleteStudentConfirmed()}
+            onCancelClicked={() => this.handleCancelDeleteStudent()}
+          />
         </div>
       </div>
     );
   }
+
 }
 
 export default withState(withStyles(styles)(StudentsTeachersPage));

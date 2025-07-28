@@ -7,6 +7,7 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemAvatar from "@material-ui/core/ListItemAvatar";
 import ListItemText from "@material-ui/core/ListItemText";
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
+import { withStyles } from "@material-ui/core/styles";
 import Avatar from "@material-ui/core/Avatar";
 import DescriptionOutlinedIcon from "@material-ui/icons/DescriptionOutlined";
 import Typography from "@material-ui/core/Typography";
@@ -19,7 +20,37 @@ import getText from "../../utils/messages";
 
 const _ = require("lodash");
 
+const styles = theme => ({
+  panelContainer: {
+    height: "100%",
+    width: "100%",
+    boxSizing: "border-box",
+    backgroundColor: theme.palette.background.paper,
+    display: "flex",
+    flexDirection: "column",
+    paddingLeft: theme.spacing(1.5),
+    paddingRight: theme.spacing(1),
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
+    gap: theme.spacing(1),
+    overflowY: "auto",
+    overflowX: "hidden",
+  },
+  dateSubmissionContainer: {
+    width: "100%",
+    boxSizing: "border-box",
+  },
+  dateSubmissionItem: {
+    width: "100%",
+    boxSizing: "border-box",
+    "&:hover": {
+      backgroundColor: theme.palette.action.hover,
+    },
+  },
+});
+
 type Props = {
+  classes: any,
   activityId: number,
   courseId: number,
   studentId: ?number,
@@ -81,7 +112,7 @@ class SubmissionsSidePanel extends React.Component<Props, State> {
 
   render() {
     const { submissions, error } = this.state;
-    const { isOpen, onSelectSubmission, backdropClicked } = this.props;
+    const { classes, isOpen, onSelectSubmission, backdropClicked } = this.props;
 
     const submissionsByDate = _.groupBy(
       submissions,
@@ -97,11 +128,11 @@ class SubmissionsSidePanel extends React.Component<Props, State> {
           size={25} // percentage of screen
           backdropClicked={() => backdropClicked()}
         >
-          <div className="panel-container">
+          <div className={classes.panelContainer}>
             {submissions &&
               Object.keys(submissionsByDate).map(date => {
                 return (
-                  <div key={date} className="date-submission-container">
+                  <div key={date} className={classes.dateSubmissionContainer}>
                     <Typography variant="h6" color="textSecondary" component="p">
                       {date}
                     </Typography>
@@ -111,6 +142,7 @@ class SubmissionsSidePanel extends React.Component<Props, State> {
                           button
                           key={submission.id}
                           onClick={() => onSelectSubmission(submission.id, idxx)}
+                          className={classes.dateSubmissionItem}
                         >
                           <ListItemAvatar>
                             <Avatar>
@@ -145,4 +177,4 @@ class SubmissionsSidePanel extends React.Component<Props, State> {
   }
 }
 
-export default withState(SubmissionsSidePanel);
+export default withState(withStyles(styles)(SubmissionsSidePanel));

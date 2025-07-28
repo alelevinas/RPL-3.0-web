@@ -29,10 +29,17 @@ const styles = theme => ({
   editor: {
     display: "flex",
     height: "100%",
+    minHeight: 0,
   },
   mdDescription: {
     height: "100%",
     overflow: "scroll",
+    flex: 1,
+    minHeight: 0,
+    "& .markdown-body pre": {
+      backgroundColor: theme.palette.action.hover,
+      color: theme.palette.text.primary,
+    },
   },
 });
 
@@ -55,6 +62,8 @@ type State = {
 };
 
 class SolveActivityPage extends React.Component<Props, State> {
+  topDivRef = React.createRef();
+
   state = {
     error: { open: false, message: null },
     editorWidth: "100%",
@@ -68,6 +77,9 @@ class SolveActivityPage extends React.Component<Props, State> {
   };
 
   componentDidMount() {
+    if (this.topDivRef.current) {
+      this.topDivRef.current.scrollTop = 0;
+    }
     activitiesService
       .getActivityForStudent(this.props.match.params.courseId, this.props.match.params.activityId)
       .then(activityResponse => {
@@ -168,8 +180,9 @@ class SolveActivityPage extends React.Component<Props, State> {
       pastSubmissionsPanel,
       finalSolutionId,
     } = this.state;
+
     return (
-      <div>
+      <div ref={this.topDivRef}>
         {error.open && <ErrorNotification open={error.open} message={error.message} />}
 
         {/* Se abre cuando alguien presiona el boton de VER ENTEGAS */}
@@ -201,7 +214,14 @@ class SolveActivityPage extends React.Component<Props, State> {
 
         {!activity && <CircularProgress className={classes.circularProgress} />}
         {activity && (
-          <div>
+          <div
+            style={{
+              height: `calc(100vh - 64px)`, // 64px = TopBar height
+              overflow: "hidden",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
             <SolvePageHeader
               handleSubmitActivity={e => this.handleSubmitActivity(e)}
               handleOpenPastSubmissionsSidePanel={() => this.setOpenSubmissionsPanel()}
@@ -209,53 +229,51 @@ class SolveActivityPage extends React.Component<Props, State> {
               history={history}
               canShowOtherSolutions={finalSolutionId !== null}
             />
-            <SplitPane
-              split="vertical"
-              defaultSize="50%"
-              onChange={width => this.handleDrag(width)}
-              style={{
-                display: "flex",
-                flex: "1 1 0%",
-                // For now, we set height to 86vh to manage text overflow caused by the header.
-                height: "86vh",
-                "flex-direction": "row",
-                position: "fixed",
-                overflow: "visible",
-                left: "0px",
-                right: "0px",
-              }}
-            >
-              <div className={classes.editor}>
-                <ReactResizeDetector
-                  handleWidth
-                  handleHeight={false}
-                  onResize={() => (editor ? editor.layout : () => {})}
-                >
-                  <MultipleTabsEditor
-                    width={editorWidth}
-                    initialCode={code}
-                    language={activity.language.toLowerCase()}
-                    readOnly={false}
-                    forceCanEditFiles={false}
-                    onCodeChange={newCode => this.onCodeChange(newCode)}
-                    editorDidMount={mountedEditor => {
-                      mountedEditor.changeViewZones(changeAccessor => {
-                        changeAccessor.addZone({
-                          afterLineNumber: 0,
-                          heightInLines: 1,
-                          domNode: document.createElement("span"),
+            <div style={{ flex: 1, minHeight: 0 }}>
+              <SplitPane
+                split="vertical"
+                defaultSize="50%"
+                onChange={width => this.handleDrag(width)}
+                style={{
+                  height: "100%",
+                  display: "flex",
+                  flex: 1,
+                  minHeight: 0,
+                  position: "relative",
+                }}
+              >
+                <div className={classes.editor}>
+                  <ReactResizeDetector
+                    handleWidth
+                    handleHeight={false}
+                    onResize={() => (editor ? editor.layout : () => {})}
+                  >
+                    <MultipleTabsEditor
+                      width={editorWidth}
+                      initialCode={code}
+                      language={activity.language.toLowerCase()}
+                      readOnly={false}
+                      forceCanEditFiles={false}
+                      onCodeChange={newCode => this.onCodeChange(newCode)}
+                      editorDidMount={mountedEditor => {
+                        mountedEditor.changeViewZones(changeAccessor => {
+                          changeAccessor.addZone({
+                            afterLineNumber: 0,
+                            heightInLines: 1,
+                            domNode: document.createElement("span"),
+                          });
                         });
-                      });
-                      this.setState({ editor: mountedEditor });
-                    }}
-                  />
-                </ReactResizeDetector>
-              </div>
+                        this.setState({ editor: mountedEditor });
+                      }}
+                    />
+                  </ReactResizeDetector>
+                </div>
 
-              <div className={classes.mdDescription}>
-                <MarkdownRenderer content={activity.description} />
-              </div>
-            </SplitPane>
+                <div className={classes.mdDescription}>
+                  <MarkdownRenderer content={activity.description} />
+                </div>
+              </SplitPane>
+            </div>
           </div>
         )}
         {submittedActivity && (

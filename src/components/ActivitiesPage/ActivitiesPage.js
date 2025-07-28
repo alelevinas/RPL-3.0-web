@@ -4,33 +4,37 @@ import { Link } from "react-router-dom";
 import { withStyles } from "@material-ui/core/styles";
 import AddIcon from "@material-ui/icons/Add";
 import Fab from "@material-ui/core/Fab";
+import Button from "@material-ui/core/Button";
 import { withState } from "../../utils/State";
 import activitiesService from "../../services/activitiesService";
 import ErrorNotification from "../../utils/ErrorNotification";
 import type { Activity } from "../../types";
-import "./ActivitiesPage.css";
 import SubmissionsSidePanel from "./SubmissionsSidePanel.react";
 import ActivitiesTable from "./ActivitiesTable.react";
 import SubmissionResultModal from "../SubmissionResultModal/TestResultsModal.react";
+import CourseInfoMiniCard from "../GeneralCourseInfoCards/CourseInfoMiniCard";
 
 const _ = require("lodash");
 
 const styles = theme => ({
-  title: {
-    marginTop: 20,
-    marginBottom: 20,
-  },
-  rightButton: {
-    display: "flex",
-    marginLeft: "auto",
-    marginRight: theme.spacing(2),
-  },
   tableContainerDiv: {
     display: "flex",
     alignItems: "center",
     flexDirection: "column",
     justifyContent: "center",
     padding: "0px 30px 30px 30px",
+  },
+  innerTopBar: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginLeft: "11%",
+    marginBottom: theme.spacing(5),
+    [theme.breakpoints.down("sm")]: {
+      marginLeft: 0,
+      flexDirection: "column",
+      gap: theme.spacing(1),
+    },
   },
 });
 
@@ -88,7 +92,6 @@ class ActivitiesPage extends React.Component<Props, State> {
 
   handleClickOnActivityTitle(event: any, activityId: number) {
     const { history, match } = this.props;
-    // TODO: si es un docente que vaya a /edit
     history.push(`/courses/${match.params.courseId}/activities/${activityId}`);
   }
 
@@ -157,19 +160,9 @@ class ActivitiesPage extends React.Component<Props, State> {
           />
         )}
 
-        {context.permissions && context.permissions.includes("activity_manage") ? (
-          <Fab
-            color="primary"
-            aria-label="add"
-            className={classes.rightButton}
-            component={Link}
-            to={`/courses/${match.params.courseId}/activity/create`}
-          >
-            <AddIcon />
-          </Fab>
-        ) : (
-          <div />
-        )}
+        <div className={classes.innerTopBar}>
+          <CourseInfoMiniCard course={context.course} />          
+        </div>
 
         {activeActivities &&
           Object.keys(activitiesByCategory)

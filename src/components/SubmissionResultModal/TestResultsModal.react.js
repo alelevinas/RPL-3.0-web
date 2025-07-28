@@ -8,8 +8,10 @@ import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { withStyles } from "@material-ui/core/styles";
+import { withTheme } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import Box from "@material-ui/core/Box";
+import { grey } from "@material-ui/core/colors";
 import SubmissionResultStatusIcon from "../../utils/icons";
 import type { SubmissionResult } from "../../types";
 import getText from "../../utils/messages";
@@ -21,7 +23,7 @@ import TestAccordion from "./TestAccordion";
 import CodeAccordion from "./CodeAccordion";
 import { withState } from "../../utils/State";
 
-const styles = () => ({
+const styles = theme => ({
   modal: {
     minHeight: "200px",
   },
@@ -40,6 +42,7 @@ const styles = () => ({
   dialogTitleText: {
     alignSelf: "center",
     marginRight: "10px",
+    fontWeight: "bold",
   },
   markAsDefinitiveButton: {
     alignSelf: "flex-end",
@@ -54,7 +57,7 @@ const styles = () => ({
       },
     },
     "& #scroll-dialog-description .MuiAlert-root": {
-      marginBottom: "0.8rem",
+      marginBottom: "0.4rem",
       fontSize: "1rem",
     },
   },
@@ -179,6 +182,8 @@ class SubmissionResultModal extends React.Component<Props, State> {
       showActivityDescription,
     } = this.props;
 
+    const { theme } = this.props;
+
     const { results, error } = this.state;
 
     const title = results
@@ -186,10 +191,10 @@ class SubmissionResultModal extends React.Component<Props, State> {
       : "Corriendo pruebas";
 
     const getStderrColor = (item: string) => {
-      if (item.includes("main") || item.includes("end_BUILD")) {
-        return "secondary";
+      if (item.includes("main") || item.includes("src/") || item.includes("end_BUILD")) {
+        return theme.palette.info.main;
       }
-      return "textSecondary";
+      return theme.palette.text.primary;
     };
 
     const expandStd = results
@@ -197,12 +202,13 @@ class SubmissionResultModal extends React.Component<Props, State> {
 
     const getStdoutColor = (item: string) => {
       if (item.includes("start_BUILD") || item.includes("end_BUILD")) {
-        return "secondary";
+        return theme.palette.warning.main;
+      } else if (item.includes("start_RUN") || item.includes("end_RUN")) {
+        return theme.palette.success.main;
+      } else if (item.includes("RPL-2.0")) {
+        return grey[500];
       }
-      if (item.includes("start_RUN") || item.includes("end_RUN")) {
-        return "primary";
-      }
-      return "textSecondary";
+      return theme.palette.text.primary;
     };
     return (
       <div>
@@ -246,22 +252,26 @@ class SubmissionResultModal extends React.Component<Props, State> {
           {results && (
             <DialogContent dividers className={classes.dialogContent}>
               {/* Mark as definitive (if success) */}
-              {!context.permissions.includes("activity_manage") && (
-                <Box mb={3} display="flex" justifyContent="flex-end">
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    disabled={
-                      results.submission_status !== "SUCCESS" || activityFinalSubmissionId !== null
-                    }
-                    className={classes.markAsDefinitiveButton}
-                    onClick={() => this.onClickMarkAsFinalSolution(results.activity_id, results.id)}
-                  >
-                    Marcar como solucion definitiva
-                  </Button>
-                </Box>
-              )}
+              {
+                !context.permissions.includes("activity_manage") &&
+                results.submission_status === "SUCCESS" &&
+                activityFinalSubmissionId === null && (
+                  <Box mb={3} display="flex" justifyContent="flex-end">
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      color="primary"
+                      disabled={
+                        results.submission_status !== "SUCCESS" || activityFinalSubmissionId !== null
+                      }
+                      className={classes.markAsDefinitiveButton}
+                      onClick={() => this.onClickMarkAsFinalSolution(results.activity_id, results.id)}
+                    >
+                      Marcar como solucion definitiva
+                    </Button>
+                  </Box>
+                )
+              }
               {/* Enunciado */}
               {showActivityDescription && (
                 <Box mb={3}>
@@ -312,4 +322,4 @@ class SubmissionResultModal extends React.Component<Props, State> {
   }
 }
 
-export default withState(withStyles(styles)(SubmissionResultModal));
+export default withState(withStyles(styles)(withTheme(SubmissionResultModal)));

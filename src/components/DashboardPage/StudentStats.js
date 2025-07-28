@@ -3,6 +3,7 @@ import React from "react";
 import palette from "google-palette";
 import { Pie } from "react-chartjs-2";
 import { withStyles } from "@material-ui/core/styles";
+import { withTheme } from "@material-ui/core/styles";
 import { Typography } from "@material-ui/core";
 import Grid from "@material-ui/core/Grid";
 import statsService from "../../services/statsService";
@@ -42,6 +43,7 @@ const styles = theme => ({
     fontSize: "0.75rem",
   },
   plotContainerDiv: {
+    marginTop: theme.spacing(2),
     alignItems: "center",
     justifyContent: "center",
     padding: "0px 30px 30px 30px",
@@ -53,6 +55,11 @@ const styles = theme => ({
   plot: {
     height: "100%",
   },
+  gridItemWithBorder: {
+    border: `1px dotted ${theme.palette.text.primary}`,
+    borderRadius: 3,
+    backgroundColor: theme.palette.background.paper,
+  },
   calendarHeatmap: {
     marginTop: theme.spacing(2),
     width: "75%",
@@ -63,15 +70,6 @@ const styles = theme => ({
   },
 });
 
-const legendOpts = {
-  display: true,
-  fullWidth: false,
-  position: "left",
-  reverse: false,
-  labels: {
-    fontSize: 10,
-  },
-};
 
 type Props = {
   courseId: number,
@@ -117,50 +115,81 @@ class StudentStats extends React.Component<Props, State> {
   render() {
     const { classes } = this.props;
     const { error, activitiesStats, submissionsStats } = this.state;
+    const { theme } = this.props;
+    const legendOpts = {
+      display: true,
+      fullWidth: false,
+      position: "left",
+      align: "start",
+      reverse: false,
+      labels: {
+        fontColor: theme.palette.text.primary,
+      },
+    };
+    // to re-render the pie charts when the theme changes:
+    const pieKey = theme.palette.text.primary
+
+    const activitiesArcColors = [
+      "#a7a7a7",
+      "#ffa726",
+      "#4caf50",
+    ];
 
     const dataActivities = {
-      labels: ["Empezada", "No empezada", "Resuelta"],
+      labels: ["Sin empezar", "Intentada", "Resuelta"],
       datasets: [
         {
           data: activitiesStats && [
-            activitiesStats.amount_of_activities_started,
             activitiesStats.amount_of_activities_not_started,
+            activitiesStats.amount_of_activities_started,
             activitiesStats.amount_of_activities_solved,
           ],
-          backgroundColor: palette("sequential", 3).map(hex => `#${hex}`),
+          backgroundColor: activitiesArcColors,
         },
       ],
     };
 
+    const submissionsArcColors = [
+      "#6e1212",
+      "#a83aa8",
+      "#d84329",
+      "#4caf50",
+    ];
+
     const dataSubmissions = {
       labels: [
-        getText("SUCCESS"),
         getText("RUNTIME_ERROR"),
         getText("BUILD_ERROR"),
         getText("FAILURE"),
+        getText("SUCCESS"),
       ],
       datasets: [
         {
           data: submissionsStats && [
-            submissionsStats.successful_submissions,
             submissionsStats.submissions_with_runtime_errors,
             submissionsStats.submissions_with_build_errors,
             submissionsStats.submissions_with_failures,
+            submissionsStats.successful_submissions,
           ],
-          backgroundColor: palette("sequential", 4).map(hex => `#${hex}`),
+          backgroundColor: submissionsArcColors,
         },
       ],
     };
 
+    const scoresArcColors = [
+      "#a7a7a7",
+      "#4caf50",
+    ];
+
     const dataScore = {
-      labels: ["Obtenidos", "Pendientes"],
+      labels: ["Pendientes", "Obtenidos"],
       datasets: [
         {
           data: activitiesStats && [
-            activitiesStats.points_obtained,
             activitiesStats.total_possible_points - activitiesStats.points_obtained,
+            activitiesStats.points_obtained,
           ],
-          backgroundColor: palette("sequential", 2).map(hex => `#${hex}`),
+          backgroundColor: scoresArcColors,
         },
       ],
     };
@@ -168,21 +197,21 @@ class StudentStats extends React.Component<Props, State> {
     return (
       <Grid container xs={12} spacing={3} className={classes.plotContainerDiv}>
         {error.open && <ErrorNotification open={error.open} message={error.message} />}
-        <Grid item xs={3}>
+        <Grid item xs={12} sm={12} md={8} lg={4} className={classes.gridItemWithBorder} >
           <Typography>Mis Actividades</Typography>
-          <Pie data={dataActivities} legend={legendOpts} />
+          <Pie key={`act-${pieKey}`} data={dataActivities} legend={legendOpts} />
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={12} sm={12} md={8} lg={4} className={classes.gridItemWithBorder} >
           <Typography>Mis Entregas</Typography>
-          <Pie data={dataSubmissions} />
+          <Pie key={`sub-${pieKey}`} data={dataSubmissions} legend={legendOpts} />
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={12} sm={12} md={8} lg={4} className={classes.gridItemWithBorder} >
           <Typography>Mis Puntos</Typography>
-          <Pie data={dataScore} />
+          <Pie key={`score-${pieKey}`} data={dataScore} legend={legendOpts} />
         </Grid>
       </Grid>
     );
   }
 }
 
-export default withState(withStyles(styles)(StudentStats));
+export default withState(withStyles(styles)(withTheme(StudentStats)));

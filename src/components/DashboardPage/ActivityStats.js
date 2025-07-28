@@ -1,7 +1,6 @@
 // @flow
 import React from "react";
 import palette from "google-palette";
-import { Bar } from "react-chartjs-2";
 import { withStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
@@ -114,6 +113,7 @@ type State = {
   activityId: any,
   activitiesStats: any,
   loadingData: boolean,
+  hasSearched: boolean,
 };
 
 class ActivityStats extends React.Component<Props, State> {
@@ -125,6 +125,7 @@ class ActivityStats extends React.Component<Props, State> {
     activityId: undefined,
     activitiesStats: undefined,
     loadingData: false,
+    hasSearched: false,
   };
 
   componentDidMount() {
@@ -141,6 +142,9 @@ class ActivityStats extends React.Component<Props, State> {
   }
 
   onCategoryChange(categoryId) {
+    if (!categoryId) {
+      return;
+    }
     this.setState({
       activities: this.state.allActivities
         .filter(activity => activity.category_id === categoryId)
@@ -157,7 +161,7 @@ class ActivityStats extends React.Component<Props, State> {
     this.setState({ loadingData: true });
     return statsService.getActivityStatsByStudent(courseId, activityId).then(response => {
       this.setState({ activitiesStats: response });
-      this.setState({ loadingData: false });
+      this.setState({ loadingData: false, hasSearched: true  });
     });
   }
 
@@ -213,7 +217,7 @@ class ActivityStats extends React.Component<Props, State> {
 
   render() {
     const { classes } = this.props;
-    const { error, loadingData } = this.state;
+    const { error, loadingData, hasSearched, activitiesStats } = this.state;
 
     return (
       <div>
@@ -227,7 +231,7 @@ class ActivityStats extends React.Component<Props, State> {
               id="category"
               name="category"
               autoComplete="category"
-              onChange={(event, newValue) => this.onCategoryChange(newValue.id)}
+              onChange={(event, newValue) => this.onCategoryChange(newValue ? newValue.id : undefined)}
               getOptionLabel={category => `${category.name}`}
               renderInput={params => <TextField {...params} label="Categoria" margin="normal" />}
             />
@@ -239,7 +243,7 @@ class ActivityStats extends React.Component<Props, State> {
               id="activity"
               name="activity"
               autoComplete="activity"
-              onChange={(event, newValue) => this.setState({ activityId: newValue.id })}
+              onChange={(event, newValue) => this.setState({ activityId: newValue ? newValue.id : undefined })}
               getOptionLabel={activity => `${activity.name}`}
               renderInput={params => <TextField {...params} label="Actividad" margin="normal" />}
             />
@@ -247,7 +251,6 @@ class ActivityStats extends React.Component<Props, State> {
           <Grid item xs={2}>
             <Button
               className={classes.search}
-              variant="outlined"
               color="primary"
               onClick={() => this.searchCategoryStats()}
             >
@@ -256,9 +259,19 @@ class ActivityStats extends React.Component<Props, State> {
           </Grid>
           <Grid item xs={12}>
             {loadingData && <CircularProgress className={classes.circularProgress} />}
-            {!loadingData && this.state.activitiesStats && (
-              this.renderActivities()
-            )}
+            {!loadingData &&
+              (
+                activitiesStats && activitiesStats.submissions_stats && activitiesStats.submissions_stats.length > 0
+                ? (
+                  this.renderActivities()
+                )
+                : hasSearched && (
+                  <Paper style={{ padding: 24, textAlign: "center" }}>
+                    No hay datos para los filtros seleccionados.
+                  </Paper>
+                )
+              )
+            }
           </Grid>
         </Grid>
       </div>

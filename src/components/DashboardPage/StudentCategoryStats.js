@@ -3,6 +3,7 @@ import React from "react";
 import palette from "google-palette";
 import { Bar } from "react-chartjs-2";
 import { withStyles } from "@material-ui/core/styles";
+import { withTheme } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import Autocomplete from "@material-ui/lab/Autocomplete";
@@ -99,15 +100,6 @@ const styles = theme => ({
   },
 });
 
-const legendOpts = {
-  display: true,
-  fullWidth: false,
-  position: "left",
-  reverse: false,
-  labels: {
-    fontSize: 10,
-  },
-};
 
 type Props = {
   courseId: number,
@@ -124,6 +116,7 @@ type State = {
   submissionsPanel: { isOpen: boolean, activityId: ?number },
   selectedSubmissionId: ?number,
   loadingData: boolean,
+  hasSearched: boolean,
 };
 
 class StudentCategoryStats extends React.Component<Props, State> {
@@ -136,6 +129,7 @@ class StudentCategoryStats extends React.Component<Props, State> {
     submissionsPanel: { isOpen: false, activityId: null },
     selectedSubmissionId: null,
     loadingData: false,
+    hasSearched: false,
   };
 
   componentDidMount() {
@@ -161,7 +155,7 @@ class StudentCategoryStats extends React.Component<Props, State> {
     if (!studentId) {
       return Promise.resolve();
     }
-    this.setState({ loadingData: true });
+    this.setState({ loadingData: true, hasSearched: true });
     return statsService
       .getSubmissionStatsByActivity(courseId, categoryId, studentId)
       .then(response => {
@@ -273,7 +267,9 @@ class StudentCategoryStats extends React.Component<Props, State> {
       selectedSubmissionId,
       studentId,
       loadingData,
+      hasSearched,
     } = this.state;
+    const { theme } = this.props;
 
     const colors = palette("sequential", 2).map(hex => `#${hex}`);
     const data =
@@ -290,26 +286,40 @@ class StudentCategoryStats extends React.Component<Props, State> {
       ],
     };
 
-    const scales = {
-      yAxes: [
-        {
-          ticks: {
-            beginAtZero: true,
-            min: 0,
-            max: Math.max(...(data || [])) + 1,
+    const barChartOpts = {
+      legend: {
+        display: false,
+      },
+      maintainAspectRatio: false,
+      layout: {
+        padding: {
+          top: 32,
+        },
+      },
+      scales: {
+        yAxes: [
+          {
+            ticks: {
+              beginAtZero: true,
+              min: 0,
+              max: Math.max(...(data || [])) + 1,
+              fontColor: theme.palette.text.primary,
+            },
+            gridLines: {
+              color: theme.palette.text.secondary,
+              borderDash: [4, 4],
+              zeroLineColor: theme.palette.text.secondary,
+            },
+          }
+        ],
+        xAxes: [
+          {
+            display: false,
           },
-        },
-      ],
-      xAxes: [
-        {
-          display: false,
-        },
-      ],
-    };
+        ],
+      },
+    }
 
-    const legendOpts = {
-      display: false,
-    };
 
     return (
       <div>
@@ -343,7 +353,7 @@ class StudentCategoryStats extends React.Component<Props, State> {
               id="student"
               name="student"
               autoComplete="student"
-              onChange={(event, newValue) => this.setState({ studentId: newValue.id })}
+              onChange={(event, newValue) => this.setState({ studentId: newValue ? newValue.id : undefined })}
               getOptionLabel={user => `${user.name} ${user.surname} (${user.username})`}
               renderInput={params => <TextField {...params} label="Alumno" margin="normal" />}
             />
@@ -355,7 +365,7 @@ class StudentCategoryStats extends React.Component<Props, State> {
               id="category"
               name="category"
               autoComplete="category"
-              onChange={(event, newValue) => this.setState({ categoryId: newValue.id })}
+              onChange={(event, newValue) => this.setState({ categoryId: newValue ? newValue.id : undefined })}
               getOptionLabel={category => `${category.name}`}
               renderInput={params => <TextField {...params} label="Categoria" margin="normal" />}
             />
@@ -363,7 +373,6 @@ class StudentCategoryStats extends React.Component<Props, State> {
           <Grid item xs={2}>
             <Button
               className={classes.search}
-              variant="outlined"
               color="primary"
               onClick={() => this.searchStudentCategoryStats()}
             >
@@ -374,25 +383,29 @@ class StudentCategoryStats extends React.Component<Props, State> {
             {loadingData && <CircularProgress className={classes.circularProgress} />}
             {!loadingData && (
               <div>
-                {activitiesStats && (
+                {activitiesStats && activitiesStats.submissions_stats && activitiesStats.submissions_stats.length > 0 ? (
                   <Bar
-                  data={dataScore}
-                  legend={legendOpts}
-                  options={{
-                    maintainAspectRatio: false,
-                    scales,
-                  }}
+                    data={dataScore}
+                    options={barChartOpts}
                   />
+                ) : (
+                  hasSearched && (
+                    <Paper style={{ padding: 24, textAlign: "center" }}>
+                      No hay datos para los filtros seleccionados.
+                    </Paper>
+                  )
                 )}
               </div>
             )}
           </Grid>
           <Grid item xs={12}>
-            {!loadingData && (
-              <div>
-                {activitiesStats && this.renderActivities(activitiesStats)}
-              </div>
-            )}
+            {!loadingData &&
+              (
+                activitiesStats && activitiesStats.submissions_stats && activitiesStats.submissions_stats.length > 0
+                ? this.renderActivities(activitiesStats)
+                : <></>
+              )
+            }
           </Grid>
         </Grid>
       </div>
@@ -400,4 +413,4 @@ class StudentCategoryStats extends React.Component<Props, State> {
   }
 }
 
-export default withState(withStyles(styles)(StudentCategoryStats));
+export default withState(withStyles(styles)(withTheme(StudentCategoryStats)));

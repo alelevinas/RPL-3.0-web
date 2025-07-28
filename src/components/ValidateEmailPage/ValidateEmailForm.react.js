@@ -17,10 +17,6 @@ import authenticationService from "../../services/authenticationService";
 const _ = require("lodash");
 
 const styles = theme => ({
-  avatar: {
-    margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main,
-  },
   form: {
     width: "100%", // Fix IE 11 issue.
     marginTop: theme.spacing(1),
@@ -148,7 +144,6 @@ class ValidateEmailForm extends React.Component<Props, State> {
             <br />
             <br />
             <Button
-              variant="outlined"
               onClick={() => this.resendEmailValidationToken()}
               color="primary"
             >

@@ -5,13 +5,16 @@ import { withStyles } from "@material-ui/core/styles";
 import ErrorIcon from "@material-ui/icons/Error";
 import CloseIcon from "@material-ui/icons/Close";
 import IconButton from "@material-ui/core/IconButton";
+import { red } from "@material-ui/core/colors";
 
 const styles = theme => ({
   error: {
-    backgroundColor: theme.palette.error.dark,
+    backgroundColor: red[900],
+    color: "#ffffff",
   },
   icon: {
     fontSize: 20,
+    color: "#ffffff",
   },
   iconVariant: {
     opacity: 0.9,
@@ -20,7 +23,9 @@ const styles = theme => ({
   message: {
     display: "flex",
     alignItems: "center",
+    color: "#ffffff",
   },
+
 });
 
 class ErrorNotifier extends React.Component {

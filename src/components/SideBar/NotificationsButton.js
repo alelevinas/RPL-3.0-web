@@ -110,6 +110,7 @@ class NotificationsButton extends React.Component<Props, State> {
           buttonRef={node => {
             this.notificationRef = node;
           }}
+          style={{ color: "white" }} 
         >
           <Badge color="secondary" badgeContent={notifications && notifications.length}>
             <NotificationsIcon />

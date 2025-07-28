@@ -32,21 +32,6 @@ import ActivityTemplateCodeModal from "./ActivityTemplateCodeModal.react";
 const _ = require("lodash");
 
 const styles = theme => ({
-  divider: {
-    margin: 20,
-  },
-  list: {
-    margin: 20,
-    backgroundColor: "#f5f5f5",
-    maxWidth: "500px",
-  },
-  addTestCaseButton: {
-    margin: "20px 0 0 20px",
-  },
-  heading: {
-    fontSize: theme.typography.pxToRem(15),
-    fontWeight: theme.typography.fontWeightRegular,
-  },
   flagsField: {
     width: "100%",
   },
@@ -212,6 +197,9 @@ class AddActivityCorrectionTests extends React.Component<Props, State> {
 
     const newFiles = _.cloneDeep(activity.initial_code);
     newFiles.files_metadata = JSON.stringify(activityFilesMetadata);
+    
+    // reset in case there was a previous error
+    this.setState({ error: { open: false, message: "" } });
 
     activitiesService
       .updateActivity({
@@ -223,7 +211,6 @@ class AddActivityCorrectionTests extends React.Component<Props, State> {
         const newActivity = updatedActivity;
         newActivity.initial_code = newFiles;
         this.setState({ activity: newActivity, successSave: true });
-        setTimeout(() => this.setState({ successSave: false }), 2000);
       })
       .catch(err => {
         console.log(err);
@@ -270,6 +257,9 @@ class AddActivityCorrectionTests extends React.Component<Props, State> {
       promise = activityTestsService.createUnitTest(courseId, activityId, unitTestCode);
     }
 
+    // reset in case there was a previous error
+    this.setState({ error: { open: false, message: "" } });
+
     promise
       .then(updatedActivity => {
         this.setState(prevState => {
@@ -277,7 +267,6 @@ class AddActivityCorrectionTests extends React.Component<Props, State> {
           newActivity.initial_code = prevState.activity.initial_code;
           return { activity: newActivity, successSave: true };
         });
-        setTimeout(() => this.setState({ successSave: false }), 2000);
       })
       .catch(err => {
         console.log(err);
@@ -510,7 +499,7 @@ class AddActivityCorrectionTests extends React.Component<Props, State> {
             </Accordion>
             <Grid container className={classes.buttons}>
               <div>
-                <Grid itemclassName={classes.initialCodeButton}>
+                <Grid item className={classes.initialCodeButton}>
                   <Button
                     type="submit"
                     variant="contained"

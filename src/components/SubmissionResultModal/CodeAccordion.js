@@ -5,11 +5,11 @@ import Accordion from "@material-ui/core/Accordion";
 import AccordionSummary from "@material-ui/core/AccordionSummary";
 import AccordionDetails from "@material-ui/core/AccordionDetails";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import { makeStyles } from "@material-ui/core/styles";
+import { withStyles } from "@material-ui/core/styles";
 import MultipleTabsEditor from "../MultipleTabsEditor/MultipleTabsEditor.react";
 import type { SubmissionResult } from "../../types";
 
-const useStyles = makeStyles({
+const styles = theme => ({
   codeEditor: {
     height: "500px",
     width: "100%",
@@ -17,18 +17,23 @@ const useStyles = makeStyles({
     paddingBottom: "70px",
     flex: "1 0 auto",
   },
+  borderPrimary: {
+    border: `1px solid ${theme.palette.text.primary}`,
+  },
+  summaryText: {
+    color: theme.palette.text.primary,
+    fontWeight: "bold",
+  },
 });
 
 type Props = {
   results: SubmissionResult,
+  classes: any,
 };
 
-const TestAccordion = (props: Props) => {
-  const { results } = props;
-
+const CodeAccordion = (props: Props) => {
+  const { results, classes } = props;
   const [expanded, setExpanded] = useState(false);
-
-  const classes = useStyles();
 
   const handleExpanded = (event: Event, isExpanded: boolean) => {
     setExpanded(isExpanded);
@@ -55,13 +60,17 @@ const TestAccordion = (props: Props) => {
   };
 
   return (
-    <Accordion expanded={expanded} onChange={handleExpanded}>
+    <Accordion
+      expanded={expanded}
+      onChange={handleExpanded}
+      className={classes.borderPrimary}
+    >
       <AccordionSummary
         id="code-header"
         aria-controls="code-content"
         expandIcon={<ExpandMoreIcon />}
       >
-        <Typography variant="h5" color="black" component="p">
+        <Typography variant="h5" component="p" className={classes.summaryText}>
           Resolución
         </Typography>
       </AccordionSummary>
@@ -70,4 +79,4 @@ const TestAccordion = (props: Props) => {
   );
 };
 
-export default TestAccordion;
+export default withStyles(styles)(CodeAccordion);

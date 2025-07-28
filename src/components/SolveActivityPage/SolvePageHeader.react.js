@@ -21,7 +21,9 @@ const styles = theme => ({
     justifyContent: "space-between",
     alignItems: "center",
     padding: "8px",
-    margin: `-${theme.spacing(1)}px -${theme.spacing(3)}px 0px -${theme.spacing(0)}px`, // Force the second header to override layout
+    margin: `-${theme.spacing(2)}px 0px 0px -${theme.spacing(1)}px`, // Force the second header to override layout
+    height: 56,
+    flexShrink: 0
   },
   secondHeaderTitle: {
     alignSelf: "center",
@@ -53,7 +55,8 @@ type Props = {
 
 type State = {
   activityMenu: { isOpen: boolean, anchorEl: ?string },
-  activityOptions: Array<Activity>
+  activityOptions: Array<Activity>,
+  submitDisabled: boolean
 };
 
 function getLeftTitle(
@@ -75,7 +78,6 @@ function getLeftTitle(
   return (
     <Button
       type="submit"
-      variant="contained"
       className={classes.rightButton}
       disabled={!canShowOtherSolutions}
       onClick={() => history.push(`${history.location.pathname}/definitives`)}
@@ -88,7 +90,8 @@ function getLeftTitle(
 class SolvePageHeader extends React.Component<Props, State> {
   state = {
     activityMenu: { isOpen: false, anchorEl: null },
-    activityOptions: []
+    activityOptions: [],
+    submitDisabled: false,
   };
 
   componentDidMount() {
@@ -119,20 +122,33 @@ class SolvePageHeader extends React.Component<Props, State> {
     this.setState({ activityMenu: { isOpen: false, anchorEl: null } });
   }
 
+  handleSubmitWithDelay = (e) => {
+    e.preventDefault();
+    if (this.state.submitDisabled) {
+      return;
+    }
+    this.setState({ submitDisabled: true });
+    this.props.handleSubmitActivity(e);
+    setTimeout(() => {
+      this.setState({ submitDisabled: false });
+    }, 5000);
+  };
+
   render() {
     const { course } = this.props.context;
     const { activityMenu, activityOptions } = this.state;
     const { activity } = this.props;
+
     return (
       <div style={this.props.style} className={this.props.classes.secondHeader}>
         <Breadcrumbs aria-label="breadcrumb">
-          <LinkRouter color="inherit" to={`/courses/${course.id}/dashboard`}>
+          <LinkRouter color="textPrimary" to={`/courses/${course.id}/dashboard`}>
             {this.props.context.course.name}
           </LinkRouter>
-          <LinkRouter color="inherit" to={`/courses/${course.id}/activities`}>
+          <LinkRouter color="textPrimary" to={`/courses/${course.id}/activities`}>
             Actividades
           </LinkRouter>
-          <LinkRouter color="inherit" to={this.props.history.location.pathname}>
+          <LinkRouter color="textPrimary" to={this.props.history.location.pathname}>
             <Button
               color="inherit"
               aria-haspopup="true"
@@ -180,7 +196,8 @@ class SolvePageHeader extends React.Component<Props, State> {
               type="submit"
               variant="contained"
               color="secondary"
-              onClick={e => this.props.handleSubmitActivity(e)}
+              disabled={this.state.submitDisabled}
+              onClick={e => this.handleSubmitWithDelay(e)}
             >
               Entregar
             </Button>

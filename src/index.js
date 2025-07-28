@@ -17,62 +17,74 @@ import CourseIndex from "./courseIndex";
 import PrivateRoute from "./PrivateRoute";
 import PublicRoute from "./PublicRoute";
 import PageWrapper from "./utils/PageWrapper";
+import { ThemeProvider } from "@material-ui/core/styles";
+import { useThemeContext, ThemeContextProvider } from "./theme/ThemeContextProvider";
+import ScrollbarStyles from "./utils/ScrollbarWebkitAdapter";
 
 showdown.setFlavor("github");
 
-const routing = (
-  <StateProvider>
-    <BrowserRouter>
-      <PublicRoute exact path="/" component={LoginPage} />
-      <PublicRoute path="/login" component={LoginPage} />
-      <PublicRoute path="/signup" component={SignupPage} />
-      <PublicRoute path="/forgotPassword" component={ForgotPasswordPage} />
-      <Route path="/user/changePassword" component={ResetPasswordPage} />
-      <Route path="/user/validateEmail" component={ValidateEmailPage} />
-      <PrivateRoute
-        exact
-        path="/users"
-        component={UsersPage}
-        layout={PageWrapper}
-        title="Usuarios"
-      />
-      <PrivateRoute
-        exact
-        path="/courses"
-        component={CoursesPage}
-        layout={PageWrapper}
-        title="Cursos"
-      />
-      <PrivateRoute
-        exact
-        path="/profile"
-        component={ProfilePage}
-        layout={PageWrapper}
-        title="Perfil"
-      />
-      <PrivateRoute
-        path="/courses/create"
-        component={CreateCoursePage}
-        layout={PageWrapper}
-        title="Crear Curso"
-      />
-      <Route path="/courses/:courseId/" component={CourseIndex} />
-      {/* CourseIndex fetches permissions and render the following routes:
-            /courses/:courseId/students
-            /courses/:courseId/activity/create
-            /courses/:courseId/activities
-            /courses/:courseId/activities/:activityId
-            /courses/:courseId/activities/:activityId/edit
-            /courses/:courseId/activities/:activityId/edit/correction
-      */}
-      <PrivateRoute
-        path="/courses/clone"
-        component={CloneCoursePage}
-        layout={PageWrapper}
-        title="Clonar Curso"
-      />
-    </BrowserRouter>
-  </StateProvider>
-);
 
-ReactDOM.render(routing, document.getElementById("root"));
+function App() {
+  const { theme, darkMode } = useThemeContext();
+  
+  return (
+    <ThemeProvider theme={theme}>
+      <ScrollbarStyles />
+      <StateProvider>
+        <BrowserRouter>
+          <PublicRoute exact path="/" component={LoginPage} />
+          <PublicRoute path="/login" component={LoginPage} />
+          <PublicRoute path="/signup" component={SignupPage} />
+          <PublicRoute path="/forgotPassword" component={ForgotPasswordPage} />
+          <Route path="/user/changePassword" component={ResetPasswordPage} />
+          <Route path="/user/validateEmail" component={ValidateEmailPage} />
+          <PrivateRoute
+            exact
+            path="/users"
+            component={UsersPage}
+            layout={PageWrapper}
+            title="Usuarios"
+          />
+          <PrivateRoute
+            exact
+            path="/courses"
+            component={CoursesPage}
+            layout={PageWrapper}
+            title="Cursos"
+          />
+          <PrivateRoute
+            exact
+            path="/profile"
+            component={ProfilePage}
+            layout={PageWrapper}
+            title="Perfil"
+          />
+          <PrivateRoute
+            path="/courses/create"
+            component={CreateCoursePage}
+            layout={PageWrapper}
+            title="Crear Curso"
+          />
+          <Route path="/courses/:courseId/" component={CourseIndex} />
+          {/* CourseIndex fetches permissions and render the following routes:
+                /courses/:courseId/students
+                /courses/:courseId/activity/create
+                /courses/:courseId/activities
+                /courses/:courseId/activities/:activityId
+                /courses/:courseId/activities/:activityId/edit
+                /courses/:courseId/activities/:activityId/edit/correction
+          */}
+          <PrivateRoute
+            path="/courses/clone"
+            component={CloneCoursePage}
+            layout={PageWrapper}
+            title="Clonar Curso"
+          />
+        </BrowserRouter>
+      </StateProvider>
+    </ThemeProvider>
+  );
+}
+
+
+ReactDOM.render(<ThemeContextProvider><App /></ThemeContextProvider>, document.getElementById("root"));

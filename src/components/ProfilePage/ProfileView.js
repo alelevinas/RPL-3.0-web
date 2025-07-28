@@ -2,88 +2,81 @@ import React from "react";
 import { withStyles } from "@material-ui/core/styles";
 import Avatar from "@material-ui/core/Avatar";
 import Grid from "@material-ui/core/Grid";
-import Paper from "@material-ui/core/Paper";
-import { Typography } from "@material-ui/core";
-import Fab from "@material-ui/core/Fab";
+import Card from "@material-ui/core/Card";
+import CardContent from "@material-ui/core/CardContent";
+import Typography from "@material-ui/core/Typography";
+import Button from "@material-ui/core/Button";
 import EditIcon from "@material-ui/icons/Edit";
 import { withState } from "../../utils/State";
 
 const styles = theme => ({
-  form: {
-    marginTop: theme.spacing(1),
-    marginLeft: theme.spacing(40),
-    marginRight: theme.spacing(40),
-    padding: `0px ${theme.spacing(4)}px`,
+  root: {
+    maxWidth: "60%",
+    margin: "auto",
+    marginTop: theme.spacing(4),
+    [theme.breakpoints.down("md")]: {
+      maxWidth: "100%",
+      marginTop: theme.spacing(2),
+    },
   },
   avatar: {
-    margin: "auto",
-    width: theme.spacing(15),
-    height: theme.spacing(15),
+    width: theme.spacing(26),
+    height: theme.spacing(26),
     fontSize: theme.spacing(7),
+    margin: "auto",
+    marginBottom: theme.spacing(2),
+    [theme.breakpoints.down("md")]: {
+      width: theme.spacing(20),
+      height: theme.spacing(20),
+      fontSize: theme.spacing(5),
+    },
   },
-  avatarContainer: {
-    top: "25%",
+  info: {
+    marginBottom: theme.spacing(1),
+    wordBreak: "break-word",
   },
-  property: {
-    marginLeft: theme.spacing(2),
-    padding: theme.spacing(3),
-  },
-  paperContainer: {
-    width: "100%",
-    height: "100%",
-  },
-  rightButton: {
+  editButton: {
     display: "flex",
-    marginLeft: "auto",
-    marginRight: theme.spacing(2),
+    justifyContent: "flex-end",
     marginBottom: theme.spacing(2),
   },
 });
 
 class ProfileView extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {};
-  }
-
   render() {
-    const { profile, classes } = this.props;
+    const { profile, classes, onClickEdit } = this.props;
     return (
-      <div>
-        <Fab
-          color="primary"
-          aria-label="add"
-          className={classes.rightButton}
-          onClick={() => this.props.onClickEdit()}
-        >
-          <EditIcon />
-        </Fab>
-        <Grid container spacing={8}>
-          <Grid align="center" justify="center" direction="column" container spacing={2} xs={4}>
-            <Grid item>
+      <Card className={classes.root} elevation={3}>
+        <div className={classes.editButton}>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<EditIcon />}
+            onClick={onClickEdit}
+          >
+            Editar Perfil
+          </Button>
+        </div>
+        <CardContent>
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs={12} md={4}>
               <Avatar src={profile.img_uri} className={classes.avatar}>
                 {profile.name[0]}
                 {profile.surname[0]}
               </Avatar>
             </Grid>
-            <Grid item>
-              <Typography style={{fontStyle: "italic"}} className={classes.property} variant="h6">
-                {`Usuario: ${profile.username}`}
-              </Typography>
+            <Grid item xs={12} md={8}>
+              <Typography className={classes.info} variant="h6">{`Usuario:  ${profile.username}`}</Typography>
+              <Typography className={classes.info} variant="body1">{`Nombre:  ${profile.name}`}</Typography>
+              <Typography className={classes.info} variant="body1">{`Apellido:  ${profile.surname}`}</Typography>
+              <Typography className={classes.info} variant="body1">{`Id de Universidad:  ${profile.student_id}`}</Typography>
+              <Typography className={classes.info} variant="body1">{`Email:  ${profile.email}`}</Typography>
+              <Typography className={classes.info} variant="body1">{`Universidad:  ${profile.university}`}</Typography>
+              <Typography className={classes.info} variant="body1">{`Carrera:  ${profile.degree}`}</Typography>
             </Grid>
           </Grid>
-          <Grid item xs={8}>
-            <Paper className={classes.paperContainer}>
-              <Typography className={classes.property} variant="h6">{`Nombre: ${profile.name}`}</Typography>
-              <Typography className={classes.property} variant="h6">{`Apellido: ${profile.surname}`}</Typography>
-              <Typography className={classes.property} variant="h6">{`Id de Universidad: ${profile.student_id}`}</Typography>
-              <Typography className={classes.property} variant="h6">{`Email: ${profile.email}`}</Typography>
-              <Typography className={classes.property} variant="h6">{`Universidad: ${profile.university}`}</Typography>
-              <Typography className={classes.property} variant="h6">{`Carrera: ${profile.degree}`}</Typography>
-            </Paper>
-          </Grid>
-        </Grid>
-      </div>
+        </CardContent>
+      </Card>
     );
   }
 }

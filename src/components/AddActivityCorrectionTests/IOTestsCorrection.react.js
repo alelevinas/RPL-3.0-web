@@ -30,7 +30,7 @@ const styles = theme => ({
     maxWidth: "500px",
   },
   list: {
-    backgroundColor: "#f5f5f5",
+    backgroundColor: theme.palette.background.default,
   },
   addTestCaseButton: {
     display: "flex",

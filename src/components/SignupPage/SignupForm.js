@@ -11,6 +11,10 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
 import Link from "@material-ui/core/Link";
+import InputAdornment from "@material-ui/core/InputAdornment";
+import IconButton from "@material-ui/core/IconButton";
+import Visibility from "@material-ui/icons/Visibility";
+import VisibilityOff from "@material-ui/icons/VisibilityOff";
 import { withStyles } from "@material-ui/core/styles";
 import { withState } from "../../utils/State";
 import ErrorNotification from "../../utils/ErrorNotification";
@@ -18,10 +22,6 @@ import authenticationService from "../../services/authenticationService";
 import { validate } from "../../utils/inputValidator";
 
 const styles = theme => ({
-  avatar: {
-    margin: theme.spacing(0),
-    backgroundColor: theme.palette.secondary.main,
-  },
   form: {
     width: "100%", // Fix IE 11 issue.
     marginTop: theme.spacing(1),
@@ -50,6 +50,7 @@ type State = {
   success: boolean,
   universities: Array<any>,
   studentId: string,
+  showPassword: boolean,
 };
 
 class Signup extends React.Component<Props, State> {
@@ -65,13 +66,20 @@ class Signup extends React.Component<Props, State> {
     university: undefined,
     success: false,
     universities: [],
-    studentId: ""
+    studentId: "",
+    showPassword: false,
   };
 
   componentDidMount() {
     return authenticationService.getUniversities().then(universities => {
       this.setState({ universities });
     });
+  }
+
+  handleTogglePasswordVisibility = () => {
+    this.setState(prevState => ({
+      showPassword: !prevState.showPassword,
+    }));
   }
 
   handleChange(event, valid) {
@@ -116,6 +124,9 @@ class Signup extends React.Component<Props, State> {
       }));
       return;
     }
+    
+    // reset in case there was a previous error
+    this.setState({ error: { open: false, message: "", invalidFields: new Set() } });
 
     authenticationService
       .signup({
@@ -186,7 +197,7 @@ class Signup extends React.Component<Props, State> {
 
   render() {
     const { classes, history } = this.props;
-    const { error, success, universities, university } = this.state;
+    const { error, success, universities, university, showPassword } = this.state;
 
     return (
       <div>
@@ -359,7 +370,7 @@ class Signup extends React.Component<Props, State> {
             fullWidth
             name="password"
             label="Contraseña"
-            type="password"
+            type={showPassword ? "text" : "password"}
             id="password"
             error={error.invalidFields && error.invalidFields.has("password")}
             helperText={
@@ -369,6 +380,19 @@ class Signup extends React.Component<Props, State> {
             }
             autoComplete="current-password"
             onChange={e => this.handleChange(e, validate(e.target.value, /.{6,}/, "string"))}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                    onClick={this.handleTogglePasswordVisibility}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
           <Button
             type="submit"
@@ -384,7 +408,7 @@ class Signup extends React.Component<Props, State> {
         </form>
         <Grid container>
           <Grid item xs>
-            <Link href="#" variant="body2">
+            <Link href="/forgotPassword" variant="body2">
               Olvidé mi contraseña
             </Link>
           </Grid>

@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import { withStyles } from "@material-ui/core/styles";
 import AddIcon from "@material-ui/icons/Add";
 import Fab from "@material-ui/core/Fab";
+import Button from "@material-ui/core/Button";
+import AddCircleIcon from "@material-ui/icons/AddCircle";
 import { withState } from "../../utils/State";
 import activitiesService from "../../services/activitiesService";
 import ErrorNotification from "../../utils/ErrorNotification";
@@ -11,6 +13,7 @@ import type { Activity } from "../../types";
 import ActivitiesTeacherTable from "./ActivitiesTeacherTable.react";
 import ConfirmDeleteActivityModal from "./ConfirmDeleteActivityModal.react";
 import ActivityCategoryModal from "../ActivityCategoryModal/ActivityCategoryModal";
+import CourseInfoMiniCard from "../GeneralCourseInfoCards/CourseInfoMiniCard";
 
 const _ = require("lodash");
 
@@ -31,6 +34,27 @@ const styles = theme => ({
     justifyContent: "center",
     padding: "0px 30px 30px 30px",
   },
+  innerTopBar: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginLeft: "11%",
+    marginBottom: theme.spacing(5),
+    [theme.breakpoints.down("sm")]: {
+      marginLeft: 0,
+      flexDirection: "column",
+      gap: theme.spacing(1),
+    },
+  },
+  createButton: {
+    marginLeft: theme.spacing(2),
+    marginRight: "13%",
+    [theme.breakpoints.down("sm")]: {
+      marginLeft: 0,
+      marginRight: 0,
+      marginTop: theme.spacing(3),
+    },
+  },   
 });
 
 type Props = {
@@ -208,19 +232,19 @@ class ActivitiesTeacherPage extends React.Component<Props, State> {
           onCancelClicked={() => this.setState({ deleteModal: { open: false, activityId: null } })}
         />
 
-        {context.permissions && context.permissions.includes("activity_manage") ? (
-          <Fab
+        <div className={classes.innerTopBar}>
+          <CourseInfoMiniCard course={context.course} />
+          <Button
+            variant="contained"
             color="primary"
-            aria-label="add"
-            className={classes.rightButton}
+            className={classes.createButton}
             component={Link}
             to={`/courses/${match.params.courseId}/activity/create`}
+            startIcon={<AddCircleIcon />}
           >
-            <AddIcon />
-          </Fab>
-        ) : (
-          <div />
-        )}
+            Crear actividad
+          </Button>
+        </div>
 
         {nonDeletedActivities &&
           Object.keys(activitiesByCategory)

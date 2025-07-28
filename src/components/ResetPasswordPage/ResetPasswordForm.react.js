@@ -17,10 +17,6 @@ import ErrorNotification from "../../utils/ErrorNotification";
 import authenticationService from "../../services/authenticationService";
 
 const styles = theme => ({
-  avatar: {
-    margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main,
-  },
   form: {
     width: "100%", // Fix IE 11 issue.
     marginTop: theme.spacing(1),
@@ -85,6 +81,9 @@ class ResetPasswordForm extends React.Component<Props, State> {
       });
       return;
     }
+
+    // reset in case there was a previous error
+    this.setState({ error: { open: false, message: null } });
 
     authenticationService
       .resetPassword(token, newPassword)
