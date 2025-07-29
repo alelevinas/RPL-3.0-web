@@ -66,6 +66,7 @@ type State = {
   selectedSubmissionIdx: ?number,
   openModal: boolean,
   teacherMode: boolean,
+  loadingSubmissions: boolean,
 };
 
 class FinalActivitiesPage extends React.Component<Props, State> {
@@ -79,6 +80,7 @@ class FinalActivitiesPage extends React.Component<Props, State> {
     selectedSubmissionIdx: null,
     openModal: false,
     teacherMode: false,
+    loadingSubmissions: true,
   };
 
   componentDidMount() {
@@ -92,6 +94,7 @@ class FinalActivitiesPage extends React.Component<Props, State> {
 
   loadSubmissionsForTeacher() {
     const { courseId, activityId } = this.props.match.params;
+    this.setState({ loadingSubmissions: true });
     activitiesService
       .getActivity(courseId, activityId)
       .then(activityResponse => {
@@ -103,18 +106,20 @@ class FinalActivitiesPage extends React.Component<Props, State> {
           .getAllFinalSolutionsFilesForStudent(courseId, activityId)
           .then(files => {
             if (files.length === 0) {
-              this.setState({ finalSubmissions: [], openModal: true });
+              this.setState({ finalSubmissions: [], openModal: true, loadingSubmissions: false });
             } else {
               this.setState({
                 finalSubmissions: files,
                 selectedSubmissionIdx: 0,
+                loadingSubmissions: false,
               });
             }
           })
           .catch(err => {
             if (err.status === 404) {
-              return Promise.resolve(this.setState({ finalSubmissions: [], openModal: true }));
+              return Promise.resolve(this.setState({ finalSubmissions: [], openModal: true, loadingSubmissions: false }));
             }
+            this.setState({ loadingSubmissions: false });
             return Promise.reject(err);
           });
       })
@@ -125,12 +130,14 @@ class FinalActivitiesPage extends React.Component<Props, State> {
             open: true,
             message: "Hubo un error al obtener la actividad, Por favor reintenta",
           },
+          loadingSubmissions: false,
         });
       });
   }
 
   loadSubmissionsForStudents() {
     const { courseId, activityId } = this.props.match.params;
+    this.setState({ loadingSubmissions: true });
     // Obtener todas las soluciones
     activitiesService
       .getActivityForStudent(courseId, activityId)
@@ -155,13 +162,15 @@ class FinalActivitiesPage extends React.Component<Props, State> {
                 this.setState({
                   finalSubmissions: [finalSolution.submited_code, ...files],
                   selectedSubmissionIdx: 0,
+                  loadingSubmissions: false,
                 })
               );
           })
           .catch(err => {
             if (err.status === 404) {
-              return Promise.resolve(this.setState({ finalSubmissions: [], openModal: true }));
+              return Promise.resolve(this.setState({ finalSubmissions: [], openModal: true, loadingSubmissions: false }));
             }
+            this.setState({ loadingSubmissions: false });
             return Promise.reject(err);
           });
       })
@@ -172,6 +181,7 @@ class FinalActivitiesPage extends React.Component<Props, State> {
             open: true,
             message: "Hubo un error al obtener la actividad, Por favor reintenta",
           },
+          loadingSubmissions: false,
         });
       });
   }
@@ -191,12 +201,16 @@ class FinalActivitiesPage extends React.Component<Props, State> {
       selectedSubmissionIdx,
       openModal,
       teacherMode,
+      loadingSubmissions,
     } = this.state;
     return (
       <div className={classes.topDiv}>
         {error.open && <ErrorNotification open={error.open} message={error.message} />}
 
         {!activity && <CircularProgress className={classes.circularProgress} />}
+        {activity && loadingSubmissions && (
+          <CircularProgress className={classes.circularProgress}/>
+        )}
         {activity && (
           <div>
             <SolvePageHeader activity={activity} history={history} onlyTitle />
