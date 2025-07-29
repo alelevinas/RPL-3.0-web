@@ -113,6 +113,10 @@ const styles = theme => ({
       backgroundColor: theme.palette.action.hover,
       color: theme.palette.text.primary,
     },
+    "& .markdown-body code": {
+      backgroundColor: theme.palette.action.hover,
+      color: theme.palette.text.primary,
+    },
   },
   buttons: {
     display: "flex",

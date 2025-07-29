@@ -6,6 +6,7 @@ import AddIcon from "@material-ui/icons/Add";
 import Fab from "@material-ui/core/Fab";
 import Button from "@material-ui/core/Button";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
+import CircularProgress from "@material-ui/core/CircularProgress";
 import { withState } from "../../utils/State";
 import activitiesService from "../../services/activitiesService";
 import ErrorNotification from "../../utils/ErrorNotification";
@@ -72,6 +73,7 @@ type State = {
     open: boolean,
     activityCategory: any,
   },
+  loadingData: boolean,
 };
 
 class ActivitiesTeacherPage extends React.Component<Props, State> {
@@ -80,6 +82,7 @@ class ActivitiesTeacherPage extends React.Component<Props, State> {
     activities: [],
     deleteModal: { open: false, activityId: null },
     updateCategoryModal: { open: false, activityCategory: null },
+    loadingData: true,
   };
 
   componentDidMount() {
@@ -88,11 +91,12 @@ class ActivitiesTeacherPage extends React.Component<Props, State> {
 
   getAllActivities() {
     const { match } = this.props;
+    this.setState({ loadingData: true });
     activitiesService
       .getAllActivities(match.params.courseId)
       .then(response => {
         this.props.context.set("activities", response);
-        this.setState({ activities: response });
+        this.setState({ activities: response, loadingData: false });
       })
       .catch(() => {
         this.setState({
@@ -100,6 +104,7 @@ class ActivitiesTeacherPage extends React.Component<Props, State> {
             open: true,
             message: "Hubo un error al obtener las actividades, Por favor reintenta",
           },
+          loadingData: false,
         });
       });
   }
@@ -199,7 +204,7 @@ class ActivitiesTeacherPage extends React.Component<Props, State> {
   render() {
     const { classes, match, context } = this.props;
 
-    const { activities, error, deleteModal, updateCategoryModal } = this.state;
+    const { activities, error, deleteModal, updateCategoryModal, loadingData } = this.state;
 
     const nonDeletedActivities = _.filter(
       activities || (context && context.activities),
@@ -245,6 +250,12 @@ class ActivitiesTeacherPage extends React.Component<Props, State> {
             Crear actividad
           </Button>
         </div>
+
+        {loadingData && (
+          <div style={{ display: "flex", justifyContent: "center", marginTop: 20 }}>
+            <CircularProgress />
+          </div>
+        )}
 
         {nonDeletedActivities &&
           Object.keys(activitiesByCategory)

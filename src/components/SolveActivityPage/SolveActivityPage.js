@@ -40,6 +40,10 @@ const styles = theme => ({
       backgroundColor: theme.palette.action.hover,
       color: theme.palette.text.primary,
     },
+    "& .markdown-body code": {
+      backgroundColor: theme.palette.action.hover,
+      color: theme.palette.text.primary,
+    },
   },
 });
 
@@ -62,7 +66,6 @@ type State = {
 };
 
 class SolveActivityPage extends React.Component<Props, State> {
-  topDivRef = React.createRef();
 
   state = {
     error: { open: false, message: null },
@@ -77,9 +80,6 @@ class SolveActivityPage extends React.Component<Props, State> {
   };
 
   componentDidMount() {
-    if (this.topDivRef.current) {
-      this.topDivRef.current.scrollTop = 0;
-    }
     activitiesService
       .getActivityForStudent(this.props.match.params.courseId, this.props.match.params.activityId)
       .then(activityResponse => {
@@ -182,7 +182,7 @@ class SolveActivityPage extends React.Component<Props, State> {
     } = this.state;
 
     return (
-      <div ref={this.topDivRef}>
+      <div>
         {error.open && <ErrorNotification open={error.open} message={error.message} />}
 
         {/* Se abre cuando alguien presiona el boton de VER ENTEGAS */}

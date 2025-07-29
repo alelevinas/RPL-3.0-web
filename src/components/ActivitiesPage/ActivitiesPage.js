@@ -5,6 +5,7 @@ import { withStyles } from "@material-ui/core/styles";
 import AddIcon from "@material-ui/icons/Add";
 import Fab from "@material-ui/core/Fab";
 import Button from "@material-ui/core/Button";
+import CircularProgress from "@material-ui/core/CircularProgress";
 import { withState } from "../../utils/State";
 import activitiesService from "../../services/activitiesService";
 import ErrorNotification from "../../utils/ErrorNotification";
@@ -51,6 +52,7 @@ type State = {
   submissionsPanel: { isOpen: boolean, activityId: ?number },
   isSelectedResult: boolean,
   selectedSubmissionId: ?number,
+  loadingData: boolean,
 };
 
 class ActivitiesPage extends React.Component<Props, State> {
@@ -60,15 +62,17 @@ class ActivitiesPage extends React.Component<Props, State> {
     submissionsPanel: { isOpen: false, activityId: null },
     isSelectedResult: false,
     selectedSubmissionId: null,
+    loadingData: true,
   };
 
   componentDidMount() {
     const { match } = this.props;
+    this.setState({ loadingData: true });
     activitiesService
       .getAllActivities(match.params.courseId)
       .then(response => {
         this.props.context.set("activities", response);
-        this.setState({ activities: response });
+        this.setState({ activities: response, loadingData: false });
       })
       .catch(() => {
         this.setState({
@@ -76,6 +80,7 @@ class ActivitiesPage extends React.Component<Props, State> {
             open: true,
             message: "Hubo un error al obtener las actividades, Por favor reintenta",
           },
+          loadingData: false,
         });
       });
   }
@@ -128,6 +133,7 @@ class ActivitiesPage extends React.Component<Props, State> {
       submissionsPanel,
       isSelectedResult,
       selectedSubmissionId,
+      loadingData,
     } = this.state;
 
     const activeActivities = _.filter(
@@ -147,15 +153,15 @@ class ActivitiesPage extends React.Component<Props, State> {
           courseId={match.params.courseId}
           backdropClicked={() => this.setClosePanel()}
           onSelectSubmission={(submissionId, i) => this.handleClickOnSubmission(submissionId, i)}
-        />
+          />
 
         {/* APARECE CUANDO SE QUIERE VER EL DETALLE DE UNA ENTEGA PASADA DESDE EL SIDE PANEL */}
         {isSelectedResult && (
           <SubmissionResultModal
-            open={isSelectedResult}
-            handleCloseModal={e => this.handleCloseModal(e)}
-            showWaitingDialog
-            activitySubmissionId={selectedSubmissionId}
+          open={isSelectedResult}
+          handleCloseModal={e => this.handleCloseModal(e)}
+          showWaitingDialog
+          activitySubmissionId={selectedSubmissionId}
             courseId={match.params.courseId}
           />
         )}
@@ -164,18 +170,24 @@ class ActivitiesPage extends React.Component<Props, State> {
           <CourseInfoMiniCard course={context.course} />          
         </div>
 
+        {loadingData && (
+          <div style={{ display: "flex", justifyContent: "center", marginTop: 20 }}>
+            <CircularProgress />
+          </div>
+        )}
+
         {activeActivities &&
           Object.keys(activitiesByCategory)
-            .sort((a, b) => (a > b ? 1 : -1))
-            .map(category => (
-              <div key={category} className={classes.tableContainerDiv}>
+          .sort((a, b) => (a > b ? 1 : -1))
+          .map(category => (
+            <div key={category} className={classes.tableContainerDiv}>
                 <ActivitiesTable
                   activities={activitiesByCategory[category]}
                   setOpenPanel={activityId => this.setOpenPanel(activityId)}
                   handleCellClick={(event, activityId) =>
                     this.handleClickOnActivityTitle(event, activityId)
                   }
-                />
+                  />
               </div>
             ))}
       </div>

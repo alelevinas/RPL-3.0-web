@@ -90,7 +90,13 @@ class NotificationsButton extends React.Component<Props, State> {
     }
 
     return notifications.map((notification, idx) => (
-      <MenuItem onClick={() => history.push(notification.redirect)} key={idx}>
+      <MenuItem 
+        onClick={() => history.push({
+          pathname: notification.redirect,
+          state: { fromNotification: true }
+        })} 
+        key={idx}
+      >
         <Typography className={classes.typography}>{notification.message}</Typography>
       </MenuItem>
     ));

@@ -69,7 +69,6 @@ type State = {
 };
 
 class FinalActivitiesPage extends React.Component<Props, State> {
-  topDivRef = React.createRef();
 
   state = {
     error: { open: false, message: null },
@@ -83,10 +82,6 @@ class FinalActivitiesPage extends React.Component<Props, State> {
   };
 
   componentDidMount() {
-    if (this.topDivRef.current) {
-      this.topDivRef.current.scrollTop = 0;
-    }
-
     const { permissions } = this.props.context;
     if (permissions.includes("activity_manage")) {
       this.loadSubmissionsForTeacher();
@@ -198,7 +193,7 @@ class FinalActivitiesPage extends React.Component<Props, State> {
       teacherMode,
     } = this.state;
     return (
-      <div className={classes.topDiv} ref={this.topDivRef}>
+      <div className={classes.topDiv}>
         {error.open && <ErrorNotification open={error.open} message={error.message} />}
 
         {!activity && <CircularProgress className={classes.circularProgress} />}

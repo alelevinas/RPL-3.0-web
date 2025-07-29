@@ -129,6 +129,9 @@ class StudentsTeachersPage extends React.Component<Props, State> {
   };
 
   componentDidMount() {
+    if (this.props.location && this.props.location.state && this.props.location.state.fromNotification) {
+      this.setState({ tabIndex: 2 });
+    }
     this.loadStudents();
     this.loadRoles();
   }

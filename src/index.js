@@ -20,6 +20,7 @@ import PageWrapper from "./utils/PageWrapper";
 import { ThemeProvider } from "@material-ui/core/styles";
 import { useThemeContext, ThemeContextProvider } from "./theme/ThemeContextProvider";
 import ScrollbarStyles from "./utils/ScrollbarWebkitAdapter";
+import ScrollToTop from "./utils/ScrollToTop";
 
 showdown.setFlavor("github");
 
@@ -32,6 +33,7 @@ function App() {
       <ScrollbarStyles />
       <StateProvider>
         <BrowserRouter>
+          <ScrollToTop />
           <PublicRoute exact path="/" component={LoginPage} />
           <PublicRoute path="/login" component={LoginPage} />
           <PublicRoute path="/signup" component={SignupPage} />

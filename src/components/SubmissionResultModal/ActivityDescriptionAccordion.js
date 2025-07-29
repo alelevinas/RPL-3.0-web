@@ -18,6 +18,16 @@ const styles = theme => ({
     color: theme.palette.text.primary,
     fontWeight: "bold",
   },
+  mdDescription: {
+    "& .markdown-body pre": {
+      backgroundColor: theme.palette.action.hover,
+      color: theme.palette.text.primary,
+    },
+    "& .markdown-body code": {
+      backgroundColor: theme.palette.action.hover,
+      color: theme.palette.text.primary,
+    },
+  },
 });
 
 
@@ -60,7 +70,11 @@ const ActivityDescriptionAccordion = (props: Props) => {
       );
     }
 
-    return <MarkdownRenderer content={content} />;
+    return (
+      <div className={classes.mdDescription}>
+        <MarkdownRenderer content={content} />
+      </div>
+    );    
   };
 
   return (
