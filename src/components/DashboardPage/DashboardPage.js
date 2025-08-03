@@ -21,50 +21,6 @@ import CourseInfoCard from "../GeneralCourseInfoCards/CourseInfoCard";
 import Tag from "../commons/Tag";
 
 const styles = theme => ({
-  table: {
-    minWidth: 650,
-  },
-  tableContainer: {
-    width: "75%",
-  },
-  tableContainerDiv: {
-    display: "flex",
-    alignItems: "center",
-    flexDirection: "column",
-    justifyContent: "center",
-    padding: "0px 30px 30px 30px",
-  },
-  tableTitle: {
-    alignSelf: "start",
-    paddingLeft: "15px",
-  },
-  tableAvatarColumn: {
-    width: theme.spacing(5),
-  },
-  tableIconsColumn: {
-    width: theme.spacing(20),
-  },
-  avatar: {
-    width: theme.spacing(4),
-    height: theme.spacing(4),
-    fontSize: "0.75rem",
-  },
-  plotContainerDiv: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  plotPaper: {
-    width: "80%",
-    height: "400px",
-  },
-  plot: {
-    height: "100%",
-  },
-  calendarHeatmap: {
-    marginTop: theme.spacing(2),
-    width: "75%",
-    fontFamily: "sans-serif",
-  },
   dashboardContainer: {
     width: "75%",
     alignItems: "center",

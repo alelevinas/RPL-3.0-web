@@ -32,45 +32,6 @@ const styles = theme => ({
   tableContainer: {
     // width: "80%",
   },
-  tableContainerDiv: {
-    display: "flex",
-    alignItems: "center",
-    flexDirection: "column",
-    justifyContent: "center",
-    padding: "0px 30px 30px 30px",
-  },
-  tableTitle: {
-    alignSelf: "start",
-    paddingLeft: "15px",
-  },
-  tableAvatarColumn: {
-    width: theme.spacing(5),
-  },
-  tableIconsColumn: {
-    width: theme.spacing(20),
-  },
-  avatar: {
-    width: theme.spacing(4),
-    height: theme.spacing(4),
-    fontSize: "0.75rem",
-  },
-  plotContainerDiv: {
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "0px 30px 30px 30px",
-  },
-  plotPaper: {
-    width: "80%",
-    height: "400px",
-  },
-  plot: {
-    height: "100%",
-  },
-  calendarHeatmap: {
-    marginTop: theme.spacing(2),
-    width: "75%",
-    fontFamily: "sans-serif",
-  },
   container: {
     width: "100%",
   },
@@ -82,22 +43,10 @@ const styles = theme => ({
     margin: "0 auto",
     display: "flex",
   },
-  status: {
-    height: theme.spacing(1.5),
-    width: theme.spacing(1.5),
-    borderRadius: "50%",
-    display: "inline-block",
-  },
-  activeStatus: {
-    backgroundColor: theme.palette.success.main,
-  },
-  inactiveStatus: {
-    backgroundColor: theme.palette.error.main,
-  },
   circularProgress: {
     position: "absolute",
     left: "50%",
-    top: "50%",
+    top: "65%",
   },
 });
 
@@ -195,7 +144,7 @@ class CategoryStats extends React.Component<Props, State> {
     const { error, activitiesStats, loadingData, hasSearched } = this.state;
     const { theme } = this.props;
 
-    const colors = palette("sequential", 2).map(hex => `#${hex}`);
+    const colors = [theme.palette.primary.light, theme.palette.primary.dark];
     const data =
       activitiesStats &&
       activitiesStats.submissions_stats.map(activity => activity.avg_error_submissions_by_student);
@@ -207,6 +156,7 @@ class CategoryStats extends React.Component<Props, State> {
           borderColor: colors[1],
           borderWidth: 1,
           data,
+          minBarLength: 5,
         },
       ],
     };
@@ -221,6 +171,17 @@ class CategoryStats extends React.Component<Props, State> {
           top: 32,
         },
       },
+      tooltips: { // Limit decimals in tooltip
+      callbacks: {
+        label: function(tooltipItem) {
+          const value = data[tooltipItem.index];
+          if (typeof value === "number" && !Number.isInteger(value)) {
+            return value.toFixed(2);
+          }
+          return value;
+        }
+      }
+    },
       scales: {
         yAxes: [
           {

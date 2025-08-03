@@ -28,45 +28,6 @@ import { withState } from "../../utils/State";
 const _ = require("lodash");
 
 const styles = theme => ({
-  tableContainerDiv: {
-    display: "flex",
-    alignItems: "center",
-    flexDirection: "column",
-    justifyContent: "center",
-    padding: "0px 30px 30px 30px",
-  },
-  tableTitle: {
-    alignSelf: "start",
-    paddingLeft: "15px",
-  },
-  tableAvatarColumn: {
-    width: theme.spacing(5),
-  },
-  tableIconsColumn: {
-    width: theme.spacing(20),
-  },
-  avatar: {
-    width: theme.spacing(4),
-    height: theme.spacing(4),
-    fontSize: "0.75rem",
-  },
-  plotContainerDiv: {
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "0px 30px 30px 30px",
-  },
-  plotPaper: {
-    width: "80%",
-    height: "400px",
-  },
-  plot: {
-    height: "100%",
-  },
-  calendarHeatmap: {
-    marginTop: theme.spacing(2),
-    width: "75%",
-    fontFamily: "sans-serif",
-  },
   container: {
     width: "100%",
   },
@@ -96,7 +57,7 @@ const styles = theme => ({
   circularProgress: {
     position: "absolute",
     left: "50%",
-    top: "50%",
+    top: "65%",
   },
 });
 
@@ -271,17 +232,24 @@ class StudentCategoryStats extends React.Component<Props, State> {
     } = this.state;
     const { theme } = this.props;
 
-    const colors = palette("sequential", 2).map(hex => `#${hex}`);
+    const colors = 
+      activitiesStats &&
+      activitiesStats.submissions_stats.map(activity =>
+        activity.successful_submissions > 0
+          ? theme.palette.success.main
+          : theme.palette.error.main
+      );
     const data =
       activitiesStats && activitiesStats.submissions_stats.map(activity => activity.total_submissions);
     const dataScore = {
       labels: activitiesStats && activitiesStats.metadata.map(activity => activity.name),
       datasets: [
         {
-          backgroundColor: colors[0],
-          borderColor: colors[1],
+          backgroundColor: colors,
+          borderColor: colors,
           borderWidth: 1,
           data,
+          minBarLength: 5,
         },
       ],
     };

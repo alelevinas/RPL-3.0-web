@@ -60,11 +60,6 @@ const styles = theme => ({
     borderRadius: 3,
     backgroundColor: theme.palette.background.paper,
   },
-  calendarHeatmap: {
-    marginTop: theme.spacing(2),
-    width: "75%",
-    fontFamily: "sans-serif",
-  },
   container: {
     width: "100%",
   },

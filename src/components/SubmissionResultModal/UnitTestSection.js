@@ -31,7 +31,7 @@ const UnitTestSection = (props: Props) => {
 
   return (
     <>
-      <Typography variant="h5" color="black" component="p">
+      <Typography variant="h5" component="p">
         Tests unitarios:
       </Typography>
       {renderContent()}

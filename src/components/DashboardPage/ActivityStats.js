@@ -95,7 +95,7 @@ const styles = theme => ({
   circularProgress: {
     position: "absolute",
     left: "50%",
-    top: "50%",
+    top: "65%",
   },
 });
 

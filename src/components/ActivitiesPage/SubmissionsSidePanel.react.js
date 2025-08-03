@@ -11,6 +11,7 @@ import { withStyles } from "@material-ui/core/styles";
 import Avatar from "@material-ui/core/Avatar";
 import DescriptionOutlinedIcon from "@material-ui/icons/DescriptionOutlined";
 import Typography from "@material-ui/core/Typography";
+import CircularProgress from "@material-ui/core/CircularProgress";
 import SubmissionResultStatusIcon from "../../utils/icons";
 import ErrorNotification from "../../utils/ErrorNotification";
 import type { SubmissionResult } from "../../types";
@@ -63,12 +64,14 @@ type Props = {
 type State = {
   error: { open: boolean, message: ?string },
   submissions: Array<SubmissionResult>,
+  loading: boolean,
 };
 
 class SubmissionsSidePanel extends React.Component<Props, State> {
   state = {
     error: { open: false, message: null },
     submissions: [],
+    loading: true,
   };
 
   componentDidUpdate(prevProps) {
@@ -85,6 +88,8 @@ class SubmissionsSidePanel extends React.Component<Props, State> {
   getSubmissions() {
     const { courseId, activityId, studentId } = this.props;
 
+    this.setState({ loading: true });
+
     let serviceToCall;
     if (studentId !== null && studentId !== undefined) {
       serviceToCall = submissionsService.getAllSubmissionsFromStudent(
@@ -98,7 +103,7 @@ class SubmissionsSidePanel extends React.Component<Props, State> {
 
     serviceToCall
       .then(response => {
-        this.setState({ submissions: response });
+        this.setState({ submissions: response, loading: false });
       })
       .catch(() => {
         this.setState({
@@ -106,12 +111,13 @@ class SubmissionsSidePanel extends React.Component<Props, State> {
             open: true,
             message: "Hubo un error al obtener las actividades, Por favor reintenta",
           },
+          loading: false,
         });
       });
   }
 
   render() {
-    const { submissions, error } = this.state;
+    const { submissions, error, loading } = this.state;
     const { classes, isOpen, onSelectSubmission, backdropClicked } = this.props;
 
     const submissionsByDate = _.groupBy(
@@ -125,51 +131,57 @@ class SubmissionsSidePanel extends React.Component<Props, State> {
         <SlidingPanel
           type="right"
           isOpen={isOpen}
-          size={25} // percentage of screen
+          size={25}
           backdropClicked={() => backdropClicked()}
         >
           <div className={classes.panelContainer}>
-            {submissions &&
-              Object.keys(submissionsByDate).map(date => {
-                return (
-                  <div key={date} className={classes.dateSubmissionContainer}>
-                    <Typography variant="h6" color="textSecondary" component="p">
-                      {date}
-                    </Typography>
-                    <List>
-                      {submissionsByDate[date].map((submission, idxx) => (
-                        <ListItem
-                          button
-                          key={submission.id}
-                          onClick={() => onSelectSubmission(submission.id, idxx)}
-                          className={classes.dateSubmissionItem}
-                        >
-                          <ListItemAvatar>
-                            <Avatar>
-                              <DescriptionOutlinedIcon />
-                            </Avatar>
-                          </ListItemAvatar>
-                          <ListItemText
-                            primary={getText(submission.submission_status).toUpperCase()}
-                            secondary={submission.submission_date.split("T")[1].split(".")[0]}
-                          />
-                          <ListItemSecondaryAction>
-                            <SubmissionResultStatusIcon
-                              isFinalSolution={submission.is_final_solution}
-                              submissionStatus={submission.submission_status}
+            {loading ? (
+              <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }}>
+                <CircularProgress />
+              </div>
+            ) : (
+              <>
+                {submissions &&
+                  Object.keys(submissionsByDate).map(date => (
+                    <div key={date} className={classes.dateSubmissionContainer}>
+                      <Typography variant="h6" color="textSecondary" component="p">
+                        {date}
+                      </Typography>
+                      <List>
+                        {submissionsByDate[date].map((submission, idxx) => (
+                          <ListItem
+                            button
+                            key={submission.id}
+                            onClick={() => onSelectSubmission(submission.id, idxx)}
+                            className={classes.dateSubmissionItem}
+                          >
+                            <ListItemAvatar>
+                              <Avatar>
+                                <DescriptionOutlinedIcon />
+                              </Avatar>
+                            </ListItemAvatar>
+                            <ListItemText
+                              primary={getText(submission.submission_status).toUpperCase()}
+                              secondary={submission.submission_date.split("T")[1].split(".")[0]}
                             />
-                          </ListItemSecondaryAction>
-                        </ListItem>
-                      ))}
-                    </List>
-                  </div>
-                );
-              })}
-            {submissions.length === 0 ? (
-              <Typography variant="h5" color="textSecondary" component="h6">
-                No hay entregas
-              </Typography>
-            ) : null}
+                            <ListItemSecondaryAction>
+                              <SubmissionResultStatusIcon
+                                isFinalSolution={submission.is_final_solution}
+                                submissionStatus={submission.submission_status}
+                              />
+                            </ListItemSecondaryAction>
+                          </ListItem>
+                        ))}
+                      </List>
+                    </div>
+                  ))}
+                {submissions.length === 0 && (
+                  <Typography variant="h5" color="textSecondary" component="h6">
+                    No hay entregas
+                  </Typography>
+                )}
+              </>
+            )}
           </div>
         </SlidingPanel>
       </div>

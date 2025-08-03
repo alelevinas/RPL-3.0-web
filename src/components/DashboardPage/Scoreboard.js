@@ -26,26 +26,10 @@ import TeacherStats from "./TeacherStats";
 import { withState } from "../../utils/State";
 
 import ErrorNotification from "../../utils/ErrorNotification";
-import StudentCategoryStats from "./StudentCategoryStats";
-import CategoryStats from "./CategoryStats";
 
 const styles = theme => ({
-  tableContainerDiv: {
-    display: "flex",
-    alignItems: "center",
-    flexDirection: "column",
-    justifyContent: "center",
-    padding: "0px 30px 30px 30px",
-  },
-  tableTitle: {
-    alignSelf: "start",
-    paddingLeft: "15px",
-  },
   tableAvatarColumn: {
     width: theme.spacing(5),
-  },
-  tableIconsColumn: {
-    width: theme.spacing(20),
   },
   filters: {
     display: "flex",
@@ -59,7 +43,7 @@ const styles = theme => ({
   circularProgress: {
     position: "absolute",
     left: "50%",
-    top: "50%",
+    top: "65%",
   },
 });
 

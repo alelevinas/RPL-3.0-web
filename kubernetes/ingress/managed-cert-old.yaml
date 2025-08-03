@@ -1,7 +1,7 @@
 apiVersion: networking.gke.io/v1
 kind: ManagedCertificate
 metadata:
-  name: managed-cert-beta
+  name: managed-cert-old
 spec:
   domains:
-    - beta.myrpl.ar
+    - v2.myrpl.ar
