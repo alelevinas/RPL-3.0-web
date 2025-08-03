@@ -243,7 +243,7 @@ class ActivitiesTeacherPage extends React.Component<Props, State> {
             variant="contained"
             color="primary"
             className={classes.createButton}
-            onClick={() => window.open(`https://github.com/marketplace/actions/send-activities-to-rpl-3-0?version=v1`, '_blank')}
+            onClick={() => window.open(`https://github.com/marketplace/actions/send-activities-to-rpl-3-0`, '_blank')}
             startIcon={<AddCircleIcon />}
             style={{ marginRight: 16 }}
           >
