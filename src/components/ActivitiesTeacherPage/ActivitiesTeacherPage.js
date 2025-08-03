@@ -239,28 +239,26 @@ class ActivitiesTeacherPage extends React.Component<Props, State> {
 
         <div className={classes.innerTopBar}>
           <CourseInfoMiniCard course={context.course} />
-          <div style={{ display: "flex", gap: 16 }}>
-                         <Button
-               variant="contained"
-               color="primary"
-               className={classes.createButton}
-               onClick={() => window.open(`https://github.com/marketplace/actions/send-activities-to-rpl-3-0?version=v1`, '_blank')}
-               startIcon={<AddCircleIcon />}
-             >
-               Carga masiva de actividades (ID: {match.params.courseId})
-             </Button>
-
-            <Button
-              variant="contained"
-              color="primary"
-              className={classes.createButton}
-              component={Link}
-              to={`/courses/${match.params.courseId}/activity/create`}
-              startIcon={<AddCircleIcon />}
-            >
-              Crear actividad
-            </Button>
-          </div>
+          <Button
+            variant="contained"
+            color="primary"
+            className={classes.createButton}
+            onClick={() => window.open(`https://github.com/marketplace/actions/send-activities-to-rpl-3-0?version=v1`, '_blank')}
+            startIcon={<AddCircleIcon />}
+            style={{ marginRight: 16 }}
+          >
+            Carga masiva de actividades (ID: {match.params.courseId})
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            className={classes.createButton}
+            component={Link}
+            to={`/courses/${match.params.courseId}/activity/create`}
+            startIcon={<AddCircleIcon />}
+          >
+            Crear actividad
+          </Button>
         </div>
        
 
