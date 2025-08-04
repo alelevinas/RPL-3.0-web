@@ -243,6 +243,16 @@ class ActivitiesTeacherPage extends React.Component<Props, State> {
             variant="contained"
             color="primary"
             className={classes.createButton}
+            onClick={() => window.open(`https://github.com/marketplace/actions/send-activities-to-rpl-3-0`, '_blank')}
+            startIcon={<AddCircleIcon />}
+            style={{ marginRight: 16 }}
+          >
+            Carga masiva de actividades (ID: {match.params.courseId})
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            className={classes.createButton}
             component={Link}
             to={`/courses/${match.params.courseId}/activity/create`}
             startIcon={<AddCircleIcon />}
@@ -250,6 +260,7 @@ class ActivitiesTeacherPage extends React.Component<Props, State> {
             Crear actividad
           </Button>
         </div>
+       
 
         {loadingData && (
           <div style={{ display: "flex", justifyContent: "center", marginTop: 20 }}>
