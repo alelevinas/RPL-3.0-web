@@ -1,9 +1,9 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: managed-cert-ingress-old
+  name: v2-ingress
   annotations:
-    networking.gke.io/managed-certificates: managed-cert-old
+    networking.gke.io/managed-certificates: v2-managed-cert
     kubernetes.io/ingress.class: "gce"
     # IMPORTANTE: https://cloud.google.com/kubernetes-engine/docs/concepts/ingress#deprecated_annotation
     # Figura como deprecated por kubernetes pero GCP lo sigue necesitando (el actualizado NO funciona para GCP hasta la fecha).
