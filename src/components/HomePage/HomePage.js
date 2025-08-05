@@ -184,7 +184,9 @@ class HomePage extends React.Component {
               <br/>
               <span> Tutor: Dr. Mendez Mariano </span>
               <br/>
-              <span> Co-tutores y desarrolladores RPL 2.0: Ing. Cano Matías José, Ing. Levinas Alejandro</span>
+              <span> Co-tutores y desarrolladores RPL 2.0: Ing. Cano Matías José, Ing. Levinas Alejandro, Lic. Camejo Manuel</span>
+              <br/>
+              <span> Desarrolladores RPL 1.0: Ing. Alonso Juan Manuel, Ing. Desseno Carlos, Ing. Lew Kevin Martin</span>
               <br/>
               <span> Facultad de Ingeniería, Universidad de Buenos Aires </span>
               <br/>
