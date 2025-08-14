@@ -104,6 +104,11 @@ class CourseForm extends React.Component<Props, State> {
     authenticationService.getUniversities().then(universities => {
       this.setState({ universities });
       if (!course) {
+        // Set default university to FIUBA
+        const fiubaUniversity = universities.find(uni => uni.name === "FIUBA");
+        if (fiubaUniversity) {
+          this.setState({ university: fiubaUniversity });
+        }
         return this.loadUsers("");
       }
       this.updateFillCourseFields(course);
