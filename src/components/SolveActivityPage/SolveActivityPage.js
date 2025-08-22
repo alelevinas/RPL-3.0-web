@@ -125,6 +125,8 @@ class SolveActivityPage extends React.Component<Props, State> {
 
     delete code.files_metadata;
 
+    this.setState({ error: { open: false, message: null } });
+
     submissionsService
       .createSubmission(courseId, activityId, code)
       .then(response => {
@@ -137,7 +139,7 @@ class SolveActivityPage extends React.Component<Props, State> {
         this.setState({
           error: {
             open: true,
-            message: "Hubo un error al entregar la actividad, Por favor reintenta",
+            message: "Hubo un error al entregar la actividad, Por favor reintenta en unos segundos",
           },
         });
       });
