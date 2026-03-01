@@ -6,10 +6,6 @@ const nextConfig = {
       { protocol: "https", hostname: "cdn.jsdelivr.net" },
     ],
   },
-  experimental: {
-    workerThreads: false,
-    cpus: 1,
-  },
 };
 
 export default nextConfig;

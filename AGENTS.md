@@ -17,7 +17,6 @@ Next.js frontend for the RPL platform. Students browse courses, solve coding act
 RPL-3.0-web/
 ├── package.json
 ├── next.config.mjs                # Next.js config (images, experimental opts)
-├── server.js                      # Custom server — binds port before Next.js compiles
 ├── tsconfig.json
 ├── src/
 │   ├── app/                       # Next.js App Router pages
@@ -58,7 +57,7 @@ RPL-3.0-web/
 
 ```bash
 npm install
-npm run dev        # Dev server on port 8088 (custom server.js)
+npm run dev        # Dev server on port 8088
 npm run build      # Production build
 npm run lint       # ESLint
 npm test           # Vitest (single run)
@@ -112,8 +111,8 @@ NEXT_PUBLIC_ACTIVITIES_API_BASE_URL=http://localhost:8001/api/v3
 
 ## Dev Server Notes
 
-- `server.js` is a custom Node HTTP server that binds port 8088 immediately, then calls `app.prepare()`. This ensures readiness checks pass while Next.js compiles pages on demand.
-- Production build (`next build`) may fail with SIGBUS in memory-constrained environments (<4GB). Use `experimental.workerThreads: false` and `cpus: 1` in `next.config.mjs` to reduce memory usage.
+- `npm run dev` runs `next dev -p 8088 -H 0.0.0.0`. Next.js compiles pages on demand — the first request to a page will be slow.
+- Production build (`next build`) may require 4GB+ of memory.
 
 ## Agent Tasks
 
