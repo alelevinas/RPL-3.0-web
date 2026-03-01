@@ -56,6 +56,11 @@ typings/
 
 # dotenv environment variables file
 .env.development
+.env.local
+.env.*.local
+
+# core dumps
+core
 
 # next.js build output
 .next
@@ -68,3 +73,6 @@ dist/
 lib/
 
 stats.json
+
+# TypeScript build info
+tsconfig.tsbuildinfo
