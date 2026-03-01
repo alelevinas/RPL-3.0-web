@@ -198,6 +198,23 @@ export default function SolveActivityPage() {
               {selectedSubmission.exit_message && (
                 <Alert severity="info" sx={{ mb: 2 }}>{selectedSubmission.exit_message}</Alert>
               )}
+              {selectedSubmission.ai_hint && (
+                <Box sx={{ mb: 3 }}>
+                  <Typography variant="subtitle2" color="primary" sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                    <span style={{ fontSize: '1.2rem' }}>💡</span> AI Debugging Hint:
+                  </Typography>
+                  <Alert severity="warning" variant="outlined" sx={{ 
+                    borderStyle: 'dashed', 
+                    borderColor: 'primary.main', 
+                    bgcolor: 'primary.50',
+                    '& .MuiAlert-icon': { display: 'none' } 
+                  }}>
+                    <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'text.primary' }}>
+                      {selectedSubmission.ai_hint}
+                    </Typography>
+                  </Alert>
+                </Box>
+              )}
               {selectedSubmission.io_tests_run_results?.length > 0 && (
                 <Box sx={{ mb: 2 }}>
                   <Typography variant="subtitle2" gutterBottom>I/O Test Results:</Typography>

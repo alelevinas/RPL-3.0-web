@@ -34,21 +34,45 @@ export default function TopBar({ onMenuClick, showMenu = false }: Props) {
     <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
       <Toolbar>
         {showMenu && (
-          <IconButton color="inherit" edge="start" onClick={onMenuClick} sx={{ mr: 2 }}>
+          <IconButton 
+            color="inherit" 
+            edge="start" 
+            onClick={onMenuClick} 
+            sx={{ mr: 2 }}
+            aria-label="open drawer"
+          >
             <MenuIcon />
           </IconButton>
         )}
-        <Box sx={{ cursor: "pointer", display: "flex", alignItems: "center" }} onClick={() => router.push(isLoggedIn ? "/courses" : "/login")}>
-          <Image src="/logo_white_large.png" alt="RPL" width={40} height={40} style={{ marginRight: 8 }} />
+        <Box 
+          sx={{ cursor: "pointer", display: "flex", alignItems: "center" }} 
+          onClick={() => router.push(isLoggedIn ? "/courses" : "/login")}
+          role="button"
+          aria-label="go to home"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === "Enter" && router.push(isLoggedIn ? "/courses" : "/login")}
+        >
+          <Image src="/logo_white_large.png" alt="RPL logo" width={40} height={40} style={{ marginRight: 8 }} />
           <Typography variant="h6" noWrap>RPL 3.0</Typography>
         </Box>
         <Box sx={{ flexGrow: 1 }} />
-        <IconButton color="inherit" onClick={toggle}>
+        <IconButton 
+          color="inherit" 
+          onClick={toggle}
+          aria-label={isDark ? "switch to light mode" : "switch to dark mode"}
+        >
           {isDark ? <Brightness7Icon /> : <Brightness4Icon />}
         </IconButton>
         {isLoggedIn && profile && (
           <>
-            <Button color="inherit" onClick={(e) => setAnchorEl(e.currentTarget)} sx={{ ml: 1, textTransform: "none" }}>
+            <Button 
+              color="inherit" 
+              onClick={(e) => setAnchorEl(e.currentTarget)} 
+              sx={{ ml: 1, textTransform: "none" }}
+              aria-label="user profile menu"
+              aria-haspopup="true"
+              aria-expanded={!!anchorEl}
+            >
               <Avatar src={profile.img_uri || undefined} sx={{ width: 32, height: 32, mr: 1 }}>
                 {profile.name?.[0]}
               </Avatar>
