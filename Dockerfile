@@ -1,40 +1,27 @@
-#### Stage 1: Build the react application
-# FROM node:12.4.0-alpine as build
+# Multi-stage Dockerfile for RPL-3.0 Web (Next.js 15)
+FROM node:22-alpine AS builder
 
-# # Configure the main working directory inside the docker image. 
-# # This is the base directory used in any further RUN, COPY, and ENTRYPOINT 
-# # commands.
-# WORKDIR /app
+WORKDIR /app
 
-# # Copy the package.json as well as the package-lock.json and install 
-# # the dependencies. This is a separate step so the dependencies 
-# # will be cached unless changes to one of those two files 
-# # are made.
-# COPY package.json package-lock.json ./
-# RUN npm install
+COPY package.json package-lock.json ./
+RUN npm ci
 
-# # Copy the main application
-# COPY . ./
+COPY . ./
+RUN npm run build
 
-# # ENVS to then be used by .env.production compiled with webpack
-# ARG API_BASE_URL
-# ENV API_BASE_URL=${API_BASE_URL}
+# Stage 2: Production
+FROM node:22-alpine
 
-# ARG CLOUDINARY_UPLOAD_PRESET
-# ENV CLOUDINARY_UPLOAD_PRESET=${CLOUDINARY_UPLOAD_PRESET}
+WORKDIR /app
 
-# ARG CLOUDINARY_URL
-# ENV CLOUDINARY_URL=${CLOUDINARY_URL}
+ENV NODE_ENV=production
 
-# # Build the application
-# RUN npm run build
+# Copy built assets and dependencies
+COPY --from=builder /app/package.json /app/package-lock.json ./
+COPY --from=builder /app/.next /app/.next
+COPY --from=builder /app/public /app/public
+COPY --from=builder /app/node_modules /app/node_modules
 
-# Set nginx base image
-FROM nginx
+EXPOSE 3000
 
-# Copy the react build from Stage 1
-# COPY --from=build /app/dist /var/www
-COPY ./dist /var/www
-
-# Copy custom configuration file from the current directory
-COPY nginx.conf /etc/nginx/nginx.conf
+CMD ["npm", "start"]
