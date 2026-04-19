@@ -107,6 +107,7 @@ export type SubmissionResult = {
   submission_date: string;
   submited_code: Record<string, string>;
   is_final_solution: boolean;
+  ai_hint: string | null;
 };
 
 export const FILE_DISPLAY_MODE = {
