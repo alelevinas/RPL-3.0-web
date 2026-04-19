@@ -70,7 +70,7 @@ dist/
 
 .DS_Store
 
-lib/
+/lib/
 
 stats.json
 
