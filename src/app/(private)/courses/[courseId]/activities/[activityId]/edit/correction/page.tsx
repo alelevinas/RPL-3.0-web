@@ -172,12 +172,26 @@ export default function CorrectionPage() {
         </AccordionSummary>
         <AccordionDetails>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>Only one mode can be active at a time.</Typography>
-          <FormControl>
-            <RadioGroup value={testMode} onChange={(e) => setTestMode(e.target.value as "io" | "unit")}>
-              <FormControlLabel value="io" control={<Radio />} label="IO tests" />
-              <FormControlLabel value="unit" control={<Radio />} label="Unit tests" />
-            </RadioGroup>
-          </FormControl>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <FormControl>
+              <RadioGroup value={testMode} onChange={(e) => setTestMode(e.target.value as "io" | "unit")}>
+                <FormControlLabel value="io" control={<Radio />} label="IO tests" />
+                <FormControlLabel value="unit" control={<Radio />} label="Unit tests" />
+              </RadioGroup>
+            </FormControl>
+            <Button
+              variant="contained"
+              startIcon={<SaveIcon />}
+              onClick={async () => {
+                try {
+                  await activitiesService.edit(courseId, activityId, { is_io_tested: testMode === "io" });
+                  setSuccess("Test mode saved");
+                } catch { setError("Error saving test mode"); }
+              }}
+            >
+              Save
+            </Button>
+          </Box>
         </AccordionDetails>
       </Accordion>
 
