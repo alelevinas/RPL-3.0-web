@@ -19,7 +19,7 @@ export const getAll = (courseId: number, activityId: number): Promise<Submission
   request({ url: `${BASE}/courses/${courseId}/activities/${activityId}/submissions`, method: "GET" });
 
 export const get = (courseId: number, activityId: number, submissionId: number): Promise<SubmissionResult> =>
-  request({ url: `${BASE}/courses/${courseId}/activities/${activityId}/submissions/${submissionId}`, method: "GET" });
+  request({ url: `${BASE}/courses/${courseId}/submissions/${submissionId}/result`, method: "GET" });
 
 export const reprocessAll = () =>
   request({ url: `${BASE}/submissions/reprocessAll`, method: "POST" });

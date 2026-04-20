@@ -45,6 +45,19 @@ describe("submit", () => {
   });
 });
 
+describe("get", () => {
+  it("GETs from /courses/{courseId}/submissions/{submissionId}/result", async () => {
+    mockRequest.mockResolvedValue({ id: 5, submission_status: "SUCCESS" });
+
+    await submissionsService.get(3, 7, 5);
+
+    const call = mockRequest.mock.calls[0][0];
+    expect(call.method).toBe("GET");
+    expect(call.url).toContain("/courses/3/submissions/5/result");
+    expect(call.url).not.toContain("/activities/");
+  });
+});
+
 describe("reprocessAll", () => {
   it("POSTs to /submissions/reprocessAll", async () => {
     mockRequest.mockResolvedValue([]);

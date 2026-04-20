@@ -27,6 +27,7 @@ export default function EditActivityPage() {
     category_id: 0,
   });
   const [files, setFiles] = useState<Record<string, string>>({});
+  const [filesMetadataRaw, setFilesMetadataRaw] = useState<string | undefined>(undefined);
   const [descTab, setDescTab] = useState(0);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,7 +56,9 @@ export default function EditActivityPage() {
       setCategories(cats);
       return activitiesService.getStartingFiles(courseId, act.starting_rplfile_id);
     }).then((startingFiles) => {
-      setFiles(startingFiles);
+      const { files } = activitiesService.parseStartingFiles(startingFiles);
+      setFiles(files);
+      setFilesMetadataRaw(startingFiles["files_metadata"]);
     }).finally(() => setLoading(false));
   }, [courseId, activityId]);
 
@@ -89,6 +92,9 @@ export default function EditActivityPage() {
     e.preventDefault();
     setSaving(true);
     try {
+      const filesToSave = filesMetadataRaw
+        ? { ...files, files_metadata: filesMetadataRaw }
+        : files;
       await activitiesService.edit(courseId, activityId, {
         name: form.name,
         description: form.description || undefined,
@@ -96,7 +102,7 @@ export default function EditActivityPage() {
         points: form.points,
         active: form.active,
         category_id: form.category_id,
-      }, files);
+      }, filesToSave);
       setSuccess("Activity updated");
     } catch (err: unknown) {
       const e = err as { err?: { detail?: string } };
