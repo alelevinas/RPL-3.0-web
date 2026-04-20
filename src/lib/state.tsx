@@ -15,6 +15,7 @@ interface AppState {
   profile: Profile | null;
   course: Course | null;
   permissions: string[] | null;
+  hydrated: boolean;
   set: (key: StateKey, value: unknown) => void;
   invalidate: () => void;
 }
@@ -26,6 +27,7 @@ export function StateProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [course, setCourse] = useState<Course | null>(null);
   const [permissions, setPermissions] = useState<string[] | null>(null);
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem(TOKEN_KEY);
@@ -36,6 +38,7 @@ export function StateProvider({ children }: { children: React.ReactNode }) {
         localStorage.removeItem(TOKEN_KEY);
       }
     }
+    setHydrated(true);
   }, []);
 
   const set = useCallback((key: StateKey, value: unknown) => {
@@ -69,7 +72,7 @@ export function StateProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <StateContext.Provider value={{ token, profile, course, permissions, set, invalidate }}>
+    <StateContext.Provider value={{ token, profile, course, permissions, hydrated, set, invalidate }}>
       {children}
     </StateContext.Provider>
   );

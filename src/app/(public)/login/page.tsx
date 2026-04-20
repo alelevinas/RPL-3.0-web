@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Box, Button, TextField, Typography, Paper, Link as MuiLink, Alert } from "@mui/material";
 import NextLink from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAppState } from "@/lib/state";
 import * as authService from "@/services/authenticationService";
 import CustomSnackbar from "@/components/CustomSnackbar";
@@ -18,6 +18,8 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const state = useAppState();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const next = searchParams.get("next") || "/courses";
 
   useEffect(() => {
     if (typeof window !== "undefined" && localStorage.getItem("sessionExpired")) {
@@ -39,7 +41,7 @@ export default function LoginPage() {
       const profile = await authService.getProfile();
       state.set("profile", profile);
 
-      router.push("/courses");
+      router.push(next);
     } catch (err: unknown) {
       const error = err as { err?: { detail?: string }; status?: number };
       if (error?.err?.detail === "Email not validated") {

@@ -5,6 +5,7 @@ import * as authService from "@/services/authenticationService";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+  useSearchParams: () => ({ get: () => null }),
 }));
 
 vi.mock("next/image", () => ({

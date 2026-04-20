@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useAppState } from "@/lib/state";
 import { Box, Toolbar } from "@mui/material";
 import TopBar from "@/components/TopBar";
@@ -11,22 +11,24 @@ import * as authService from "@/services/authenticationService";
 export default function PrivateLayout({ children }: { children: React.ReactNode }) {
   const state = useAppState();
   const router = useRouter();
+  const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
+    if (!state.hydrated) return;
     if (!state.token) {
-      router.replace("/login");
+      router.replace(`/login?next=${encodeURIComponent(pathname)}`);
       return;
     }
     if (!state.profile) {
       authService.getProfile().then((p) => state.set("profile", p)).catch(() => {
         state.invalidate();
-        router.replace("/login");
+        router.replace(`/login?next=${encodeURIComponent(pathname)}`);
       });
     }
-  }, [state.token]);
+  }, [state.hydrated, state.token]);
 
-  if (!state.token) return null;
+  if (!state.hydrated || !state.token) return null;
 
   return (
     <Box sx={{ display: "flex" }}>
