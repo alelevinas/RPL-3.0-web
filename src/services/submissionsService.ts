@@ -3,12 +3,17 @@ import type { SubmissionResult } from "@/types";
 
 const BASE = process.env.NEXT_PUBLIC_ACTIVITIES_API_BASE_URL || "http://localhost:8001/api/v3";
 
-export const submit = (courseId: number, activityId: number, files: Record<string, string>) =>
-  request({
+export const submit = (courseId: number, activityId: number, files: Record<string, string>) => {
+  const fd = new FormData();
+  for (const [filename, content] of Object.entries(files)) {
+    fd.append("submission_files", new File([content], filename, { type: "text/plain" }));
+  }
+  return request({
     url: `${BASE}/courses/${courseId}/activities/${activityId}/submissions`,
-    body: JSON.stringify(files),
+    formData: fd,
     method: "POST",
   });
+};
 
 export const getAll = (courseId: number, activityId: number): Promise<SubmissionResult[]> =>
   request({ url: `${BASE}/courses/${courseId}/activities/${activityId}/submissions`, method: "GET" });

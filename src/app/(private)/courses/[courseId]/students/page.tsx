@@ -9,13 +9,14 @@ import { useAppState } from "@/lib/state";
 import * as coursesService from "@/services/coursesService";
 import type { Student } from "@/types";
 import CustomSnackbar from "@/components/CustomSnackbar";
+import { hasPermission } from "@/utils/permissions";
 
 export default function StudentsPage() {
   const params = useParams();
   const courseId = Number(params.courseId);
   const state = useAppState();
   const permissions = (state.permissions as string[]) || [];
-  const canManage = permissions.includes("user_manage");
+  const canManage = hasPermission(permissions, "user_manage");
 
   const [users, setUsers] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);

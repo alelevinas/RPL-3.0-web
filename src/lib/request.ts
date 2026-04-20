@@ -4,11 +4,12 @@ type RequestOptions = {
   url: string;
   method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   body?: string;
+  formData?: FormData;
   headers?: Record<string, string>;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function request<T = any>({ url, method, body, headers = {} }: RequestOptions): Promise<T> {
+export async function request<T = any>({ url, method, body, formData, headers = {} }: RequestOptions): Promise<T> {
   const stored = typeof window !== "undefined" ? localStorage.getItem(TOKEN_KEY) : null;
   const token = stored ? JSON.parse(stored) : null;
 
@@ -18,11 +19,12 @@ export async function request<T = any>({ url, method, body, headers = {} }: Requ
     reqHeaders["Authorization"] = `${token.tokenType} ${token.accessToken}`;
   }
 
-  if (body !== undefined && !reqHeaders["Content-Type"]) {
+  // Only set Content-Type for plain string bodies; let the browser set it for FormData (needs boundary)
+  if (body !== undefined && !formData && !reqHeaders["Content-Type"]) {
     reqHeaders["Content-Type"] = "application/json";
   }
 
-  const res = await fetch(url, { method, headers: reqHeaders, body });
+  const res = await fetch(url, { method, headers: reqHeaders, body: formData ?? body });
 
   if (res.status === 401) {
     if (typeof window !== "undefined") {

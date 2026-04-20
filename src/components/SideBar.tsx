@@ -8,6 +8,7 @@ import PeopleIcon from "@mui/icons-material/People";
 import EditIcon from "@mui/icons-material/Edit";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useRouter, useParams } from "next/navigation";
+import { hasPermission } from "@/utils/permissions";
 
 const DRAWER_WIDTH = 240;
 
@@ -24,8 +25,8 @@ export default function SideBar({ open, onClose, permissions = [] }: Props) {
 
   if (!courseId) return null;
 
-  const canEdit = permissions.includes("course_edit");
-  const canManageUsers = permissions.includes("user_manage");
+  const canEdit = hasPermission(permissions, "course_edit");
+  const canManageUsers = hasPermission(permissions, "user_manage");
 
   const navigate = (path: string) => {
     router.push(path);

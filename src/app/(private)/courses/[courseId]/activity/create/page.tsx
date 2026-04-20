@@ -1,91 +1,215 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Paper, TextField, Button, MenuItem, FormControlLabel, Switch } from "@mui/material";
+import {
+  Box, Typography, TextField, Button, MenuItem, Tabs, Tab, Paper,
+  Dialog, DialogTitle, DialogContent, DialogActions, Divider, ListItemText,
+} from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
 import { useParams, useRouter } from "next/navigation";
 import * as activitiesService from "@/services/activitiesService";
-import MonacoEditor from "@/components/MonacoEditor";
-import { languageOptions, getTestCodeForLanguage, getMonacoLanguage } from "@/utils/constants";
+import MultipleTabsEditor from "@/components/MultipleTabsEditor";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { languageOptions, getFileExtension } from "@/utils/constants";
 import type { Category } from "@/types";
 import CustomSnackbar from "@/components/CustomSnackbar";
+
+function defaultFiles(language: string): Record<string, string> {
+  return { [`main${getFileExtension(language)}`]: "" };
+}
 
 export default function CreateActivityPage() {
   const params = useParams();
   const courseId = Number(params.courseId);
   const router = useRouter();
 
-  const [form, setForm] = useState({
-    name: "", description: "", language: "c_std11", points: 10,
-    is_io_tested: false, compilation_flags: "", category_id: 0,
-  });
-  const [unitTestContent, setUnitTestContent] = useState(getTestCodeForLanguage("c_std11"));
+  const [name, setName] = useState("");
+  const [points, setPoints] = useState(10);
+  const [language, setLanguage] = useState("c_std11");
+  const [categoryId, setCategoryId] = useState<number>(0);
+  const [description, setDescription] = useState("");
+  const [files, setFiles] = useState<Record<string, string>>(defaultFiles("c_std11"));
+  const [descTab, setDescTab] = useState(0);
+
   const [categories, setCategories] = useState<Category[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const [newCategoryDialog, setNewCategoryDialog] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [newCategoryDescription, setNewCategoryDescription] = useState("");
+  const [creatingCategory, setCreatingCategory] = useState(false);
 
   useEffect(() => {
     activitiesService.getCategories(courseId).then(setCategories).catch(() => {});
   }, [courseId]);
 
-  const handleChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.type === "number" ? Number(e.target.value) : e.target.value;
-    setForm((prev) => ({ ...prev, [field]: value }));
-    if (field === "language") setUnitTestContent(getTestCodeForLanguage(e.target.value));
+  const handleLanguageChange = (lang: string) => {
+    const oldExt = getFileExtension(language);
+    const newExt = getFileExtension(lang);
+    setLanguage(lang);
+    setFiles((prev) => {
+      const renamed: Record<string, string> = {};
+      for (const [name, content] of Object.entries(prev)) {
+        const newName = name.endsWith(oldExt) ? name.slice(0, -oldExt.length) + newExt : name;
+        renamed[newName] = content;
+      }
+      return renamed;
+    });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleCreateCategory = async () => {
+    if (!newCategoryName.trim()) return;
+    setCreatingCategory(true);
+    try {
+      const created = await activitiesService.createCategory(courseId, {
+        name: newCategoryName.trim(),
+        description: newCategoryDescription.trim() || undefined,
+      });
+      setCategories((prev) => [...prev, created]);
+      setCategoryId(created.id);
+      setNewCategoryDialog(false);
+      setNewCategoryName("");
+      setNewCategoryDescription("");
+    } catch (err: unknown) {
+      const e = err as { err?: { detail?: string } };
+      setError(e?.err?.detail || "Error creating category");
+    } finally {
+      setCreatingCategory(false);
+    }
+  };
+
+  const save = async (redirect: "list" | "correction") => {
+    if (!name.trim()) { setError("Activity name is required"); return; }
+    if (!categoryId) { setError("Please select a category"); return; }
     setLoading(true);
     try {
-      await activitiesService.create(courseId, {
-        ...form,
-        activity_unit_tests_content: form.is_io_tested ? undefined : unitTestContent,
-      });
-      router.push(`/courses/${courseId}/activities`);
+      const activity = await activitiesService.create(
+        courseId,
+        { name: name.trim(), description: description.trim() || undefined, language, points, category_id: categoryId },
+        files,
+      );
+      if (redirect === "correction") {
+        router.push(`/courses/${courseId}/activities/${activity.id}/edit/correction`);
+      } else {
+        router.push(`/courses/${courseId}/activities`);
+      }
     } catch (err: unknown) {
-      const error = err as { err?: { detail?: string } };
-      setError(error?.err?.detail || "Error creating activity");
+      const e = err as { err?: { detail?: string } };
+      setError(e?.err?.detail || "Error creating activity");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Box>
-      <Typography variant="h4" gutterBottom>Create Activity</Typography>
-      <Paper sx={{ p: 3, maxWidth: 800 }}>
-        <form onSubmit={handleSubmit}>
-          <TextField fullWidth label="Name" value={form.name} onChange={handleChange("name")} margin="normal" required />
-          <TextField fullWidth label="Description" value={form.description} onChange={handleChange("description")} margin="normal" multiline rows={3} />
-          <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2, mt: 1 }}>
-            <TextField select label="Language" value={form.language} onChange={handleChange("language")}>
-              {languageOptions.map((o) => <MenuItem key={o.value} value={o.value}>{o.label}</MenuItem>)}
-            </TextField>
-            <TextField select label="Category" value={form.category_id} onChange={handleChange("category_id")}>
-              <MenuItem value={0}>None</MenuItem>
-              {categories.map((c) => <MenuItem key={c.id} value={c.id}>{c.name}</MenuItem>)}
-            </TextField>
-            <TextField label="Points" type="number" value={form.points} onChange={handleChange("points")} />
-            <TextField label="Compilation Flags" value={form.compilation_flags} onChange={handleChange("compilation_flags")} />
-          </Box>
-          <FormControlLabel
-            control={<Switch checked={form.is_io_tested} onChange={(e) => setForm((p) => ({ ...p, is_io_tested: e.target.checked }))} />}
-            label="I/O Tested (instead of unit tests)"
-            sx={{ mt: 2 }}
+    <Box sx={{ display: "flex", flexDirection: "column", height: "calc(100vh - 128px)" }}>
+      {/* Top bar */}
+      <Box sx={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 2, mb: 2 }}>
+        <TextField
+          label="Activity Name" value={name} onChange={(e) => setName(e.target.value)}
+          required size="small" fullWidth
+        />
+        <TextField
+          label="Points" type="number" value={points}
+          onChange={(e) => setPoints(Number(e.target.value))}
+          required size="small" inputProps={{ min: 0 }}
+        />
+        <TextField select label="Language" value={language} onChange={(e) => handleLanguageChange(e.target.value)} size="small">
+          {languageOptions.map((o) => <MenuItem key={o.value} value={o.value}>{o.label}</MenuItem>)}
+        </TextField>
+        <TextField
+          select label="Category" value={categoryId}
+          onChange={(e) => {
+            if (e.target.value === "__create__") { setNewCategoryDialog(true); }
+            else { setCategoryId(Number(e.target.value)); }
+          }}
+          size="small"
+        >
+          <MenuItem value={0}>None</MenuItem>
+          {categories.map((c) => <MenuItem key={c.id} value={c.id}>{c.name}</MenuItem>)}
+          <Divider />
+          <MenuItem value="__create__" sx={{ color: "primary.main" }}>
+            <AddIcon fontSize="small" sx={{ mr: 1 }} />
+            <ListItemText primary="Create new category…" />
+          </MenuItem>
+        </TextField>
+      </Box>
+
+      {/* Main two-column area */}
+      <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2, flexGrow: 1, minHeight: 0 }}>
+        {/* Left: initial code editor */}
+        <Box sx={{ display: "flex", flexDirection: "column", minHeight: 0 }}>
+          <MultipleTabsEditor
+            files={files}
+            language={language}
+            onChange={setFiles}
           />
-          {!form.is_io_tested && (
-            <Box sx={{ mt: 2 }}>
-              <Typography variant="subtitle2" gutterBottom>Unit Test Code:</Typography>
-              <MonacoEditor value={unitTestContent} language={getMonacoLanguage(form.language)} onChange={(v) => setUnitTestContent(v || "")} height="300px" />
-            </Box>
-          )}
-          <Box sx={{ display: "flex", gap: 2, mt: 3 }}>
-            <Button variant="contained" type="submit" disabled={loading}>{loading ? "Creating..." : "Create Activity"}</Button>
-            <Button variant="outlined" onClick={() => router.back()}>Cancel</Button>
+        </Box>
+
+        {/* Right: description markdown editor */}
+        <Paper variant="outlined" sx={{ display: "flex", flexDirection: "column", minHeight: 0 }}>
+          <Tabs value={descTab} onChange={(_, v) => setDescTab(v)} sx={{ borderBottom: 1, borderColor: "divider", minHeight: 36 }}>
+            <Tab label="Write" sx={{ minHeight: 36, py: 0.5 }} />
+            <Tab label="Preview" sx={{ minHeight: 36, py: 0.5 }} />
+          </Tabs>
+          <Box sx={{ flexGrow: 1, overflow: "auto", p: 1 }}>
+            {descTab === 0 ? (
+              <TextField
+                multiline fullWidth value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Write the problem statement in Markdown…"
+                variant="standard"
+                InputProps={{ disableUnderline: true, sx: { fontFamily: "monospace", fontSize: 14 } }}
+                sx={{ height: "100%", "& .MuiInputBase-root": { height: "100%", alignItems: "flex-start" } }}
+              />
+            ) : (
+              <Box className="markdown-body" sx={{ fontSize: 14, p: 1 }}>
+                {description
+                  ? <ReactMarkdown remarkPlugins={[remarkGfm]}>{description}</ReactMarkdown>
+                  : <Typography color="text.secondary" fontSize={14}>Nothing to preview.</Typography>}
+              </Box>
+            )}
           </Box>
-        </form>
-      </Paper>
+        </Paper>
+      </Box>
+
+      {/* Actions */}
+      <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt: 2 }}>
+        <Button variant="outlined" onClick={() => router.push(`/courses/${courseId}/activities`)}>Cancel</Button>
+        <Button variant="contained" onClick={() => save("list")} disabled={loading}>
+          {loading ? "Saving…" : "Save"}
+        </Button>
+        <Button variant="contained" color="secondary" onClick={() => save("correction")} disabled={loading}>
+          {loading ? "Saving…" : "Save and Add Tests"}
+        </Button>
+      </Box>
+
       <CustomSnackbar open={!!error} message={error} severity="error" onClose={() => setError("")} />
+
+      <Dialog open={newCategoryDialog} onClose={() => setNewCategoryDialog(false)} maxWidth="xs" fullWidth>
+        <DialogTitle>New Category</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus fullWidth label="Name" value={newCategoryName}
+            onChange={(e) => setNewCategoryName(e.target.value)}
+            margin="normal" required
+            onKeyDown={(e) => e.key === "Enter" && handleCreateCategory()}
+          />
+          <TextField
+            fullWidth label="Description (optional)" value={newCategoryDescription}
+            onChange={(e) => setNewCategoryDescription(e.target.value)}
+            margin="normal"
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setNewCategoryDialog(false)}>Cancel</Button>
+          <Button variant="contained" onClick={handleCreateCategory} disabled={!newCategoryName.trim() || creatingCategory}>
+            {creatingCategory ? "Creating…" : "Create"}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

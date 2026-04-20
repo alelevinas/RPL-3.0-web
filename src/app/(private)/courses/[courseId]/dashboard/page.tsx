@@ -5,6 +5,7 @@ import { Box, Typography, Grid, Card, CardContent, CircularProgress, LinearProgr
 import { useParams } from "next/navigation";
 import { useAppState } from "@/lib/state";
 import * as statsService from "@/services/statsService";
+import { hasPermission } from "@/utils/permissions";
 
 export default function DashboardPage() {
   const params = useParams();
@@ -12,7 +13,7 @@ export default function DashboardPage() {
   const state = useAppState();
   const course = state.course as { name?: string } | undefined;
   const permissions = (state.permissions as string[]) || [];
-  const isTeacher = permissions.includes("activity_manage");
+  const isTeacher = hasPermission(permissions, "activity_manage");
 
   const [stats, setStats] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);

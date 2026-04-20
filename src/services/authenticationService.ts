@@ -3,7 +3,11 @@ import { request } from "@/lib/request";
 const BASE = process.env.NEXT_PUBLIC_USERS_API_BASE_URL || "http://localhost:8000/api/v3";
 
 export const login = (credentials: { username: string; password: string }) =>
-  request({ url: `${BASE}/auth/login`, body: JSON.stringify(credentials), method: "POST" });
+  request({
+    url: `${BASE}/auth/login`,
+    body: JSON.stringify({ username_or_email: credentials.username, password: credentials.password }),
+    method: "POST",
+  });
 
 export const signup = (user: Record<string, unknown>) =>
   request({ url: `${BASE}/auth/signup`, body: JSON.stringify(user), method: "POST" });

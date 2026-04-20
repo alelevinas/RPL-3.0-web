@@ -1,9 +1,16 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
-import { Box, Typography, Button, Paper, CircularProgress, Chip, Alert, Dialog, DialogTitle, DialogContent, DialogActions, Table, TableBody, TableCell, TableRow, TableHead } from "@mui/material";
+import {
+  Box, Typography, Button, CircularProgress, Chip, Alert,
+  Dialog, DialogTitle, DialogContent, DialogActions,
+  Table, TableBody, TableCell, TableRow, TableHead,
+  Drawer, List, ListItemButton, ListItemIcon, ListItemText, Divider,
+} from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ErrorIcon from "@mui/icons-material/Error";
+import ScheduleIcon from "@mui/icons-material/Schedule";
+import ArticleIcon from "@mui/icons-material/Article";
 import { useParams, useRouter } from "next/navigation";
 import { useAppState } from "@/lib/state";
 import * as activitiesService from "@/services/activitiesService";
@@ -12,7 +19,30 @@ import MultipleTabsEditor from "@/components/MultipleTabsEditor";
 import CustomSnackbar from "@/components/CustomSnackbar";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import type { Activity, SubmissionResult } from "@/types";
+import type { Activity, FilesMetadata, SubmissionResult } from "@/types";
+import { hasPermission } from "@/utils/permissions";
+
+const STATUS_COLOR: Record<string, "success" | "error" | "warning" | "default"> = {
+  SUCCESS: "success",
+  FAILURE: "error",
+  ERROR: "error",
+  TIME_OUT: "warning",
+  PENDING: "default",
+  PROCESSING: "default",
+  ENQUEUED: "default",
+};
+
+function groupByDate(submissions: SubmissionResult[]): [string, SubmissionResult[]][] {
+  const map = new Map<string, SubmissionResult[]>();
+  for (const sub of submissions) {
+    const day = new Date(sub.submission_date).toLocaleDateString(undefined, {
+      year: "numeric", month: "long", day: "numeric",
+    });
+    if (!map.has(day)) map.set(day, []);
+    map.get(day)!.push(sub);
+  }
+  return Array.from(map.entries());
+}
 
 export default function SolveActivityPage() {
   const params = useParams();
@@ -21,27 +51,33 @@ export default function SolveActivityPage() {
   const router = useRouter();
   const state = useAppState();
   const permissions = (state.permissions as string[]) || [];
-  const canManage = permissions.includes("activity_manage");
+  const canManage = hasPermission(permissions, "activity_manage");
 
   const [activity, setActivity] = useState<Activity | null>(null);
   const [files, setFiles] = useState<Record<string, string>>({});
+  const [filesMetadata, setFilesMetadata] = useState<FilesMetadata>({});
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [warning, setWarning] = useState("");
   const [submissions, setSubmissions] = useState<SubmissionResult[]>([]);
   const [selectedSubmission, setSelectedSubmission] = useState<SubmissionResult | null>(null);
   const [resultDialogOpen, setResultDialogOpen] = useState(false);
   const [polling, setPolling] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
     Promise.all([
       activitiesService.get(courseId, activityId),
-      activitiesService.getStartingFiles(courseId, activityId).catch(() => ({})),
       submissionsService.getAll(courseId, activityId).catch(() => []),
-    ]).then(([act, startFiles, subs]) => {
+    ]).then(([act, subs]) => {
       setActivity(act);
-      setFiles(startFiles as Record<string, string>);
       setSubmissions(subs);
+      return activitiesService.getStartingFilesForStudent(courseId, act.starting_rplfile_id);
+    }).then((raw) => {
+      const { files, filesMetadata } = activitiesService.parseStartingFiles(raw);
+      setFiles(files);
+      setFilesMetadata(filesMetadata);
     }).finally(() => setLoading(false));
   }, [courseId, activityId]);
 
@@ -63,7 +99,7 @@ export default function SolveActivityPage() {
       } catch { break; }
     }
     setPolling(false);
-    setError("Submission is taking too long. Check back later.");
+    setWarning("La entrega está tardando más de lo esperado. Revisá más tarde.");
   }, [courseId, activityId]);
 
   const handleSubmit = async () => {
@@ -71,10 +107,13 @@ export default function SolveActivityPage() {
     setError("");
     try {
       const result = await submissionsService.submit(courseId, activityId, files);
+      const subs = await submissionsService.getAll(courseId, activityId);
+      setSubmissions(subs);
+      setDrawerOpen(true);
       pollSubmission(result.id);
     } catch (err: unknown) {
-      const error = err as { err?: { detail?: string } };
-      setError(error?.err?.detail || "Error submitting solution");
+      const e = err as { err?: { detail?: string } };
+      setError(e?.err?.detail || "Error submitting solution");
     } finally {
       setSubmitting(false);
     }
@@ -93,84 +132,108 @@ export default function SolveActivityPage() {
   if (loading) return <Box sx={{ display: "flex", justifyContent: "center", mt: 8 }}><CircularProgress /></Box>;
   if (!activity) return <Typography>Activity not found</Typography>;
 
+  const grouped = groupByDate(submissions);
+
   return (
-    <Box>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-        <Box>
-          <Typography variant="h4">{activity.name}</Typography>
-          <Box sx={{ display: "flex", gap: 1, mt: 0.5 }}>
-            <Chip label={activity.language} size="small" />
-            <Chip label={`${activity.points} pts`} size="small" variant="outlined" />
-            {activity.is_io_tested && <Chip label="I/O Tested" size="small" color="info" />}
-          </Box>
+    <Box sx={{ display: "flex", flexDirection: "column", height: "calc(100vh - 64px)" }}>
+      {/* Top bar */}
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1, flexShrink: 0 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Typography variant="h6" fontWeight={700}>{activity.name}</Typography>
+          <Chip label={activity.language} size="small" />
+          <Chip label={`${activity.points} pts`} size="small" variant="outlined" />
         </Box>
-        {canManage && (
-          <Button variant="outlined" onClick={() => router.push(`/courses/${courseId}/activities/${activityId}/edit`)}>
-            Edit Activity
+        <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+          {canManage && (
+            <Button size="small" onClick={() => router.push(`/courses/${courseId}/activities/${activityId}/edit`)}>
+              Volver a modo profesor
+            </Button>
+          )}
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => setDrawerOpen(true)}
+            disabled={submissions.length === 0}
+          >
+            Mis entregas ({submissions.length})
           </Button>
-        )}
+          <Button
+            variant="contained"
+            color="error"
+            size="small"
+            onClick={handleSubmit}
+            disabled={submitting || polling}
+            startIcon={(submitting || polling) ? <CircularProgress size={14} color="inherit" /> : undefined}
+          >
+            {submitting ? "Enviando..." : polling ? "Ejecutando..." : "Entregar"}
+          </Button>
+        </Box>
       </Box>
 
-      {activity.description && (
-        <Paper sx={{ p: 2, mb: 3 }}>
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{activity.description}</ReactMarkdown>
-        </Paper>
-      )}
+      {/* Two-column body */}
+      <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2, flexGrow: 1, minHeight: 0 }}>
+        <MultipleTabsEditor
+          files={files}
+          language={activity.language}
+          onChange={setFiles}
+          filesMetadata={filesMetadata}
+        />
 
-      <Paper sx={{ p: 2, mb: 3 }}>
-        <Typography variant="h6" gutterBottom>Solution</Typography>
-        <MultipleTabsEditor files={files} language={activity.language} onChange={setFiles} />
-        <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2, gap: 2 }}>
-          {(submitting || polling) && <CircularProgress size={24} />}
-          <Button variant="contained" onClick={handleSubmit} disabled={submitting || polling}>
-            {submitting ? "Submitting..." : polling ? "Running tests..." : "Submit"}
-          </Button>
+        <Box sx={{ overflow: "auto", pr: 1 }}>
+          {activity.description
+            ? <ReactMarkdown remarkPlugins={[remarkGfm]}>{activity.description}</ReactMarkdown>
+            : <Typography color="text.secondary" fontSize={14}>No hay descripción.</Typography>}
         </Box>
-      </Paper>
+      </Box>
 
-      {submissions.length > 0 && (
-        <Paper sx={{ p: 2 }}>
-          <Typography variant="h6" gutterBottom>Submissions</Typography>
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell>#</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Date</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {submissions.map((sub, i) => (
-                <TableRow key={sub.id}>
-                  <TableCell>{submissions.length - i}</TableCell>
-                  <TableCell>
-                    <Chip
-                      icon={sub.submission_status === "SUCCESS" ? <CheckCircleIcon /> : <ErrorIcon />}
-                      label={sub.submission_status}
-                      color={sub.submission_status === "SUCCESS" ? "success" : sub.submission_status === "FAILURE" || sub.submission_status === "ERROR" ? "error" : "warning"}
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell>{new Date(sub.submission_date).toLocaleString()}</TableCell>
-                  <TableCell>
-                    <Button size="small" onClick={() => handleViewSubmission(sub)}>View</Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </Paper>
-      )}
+      {/* Submissions drawer */}
+      <Drawer anchor="right" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
+        <Box sx={{ width: 320, pt: 2 }}>
+          <Typography variant="h6" sx={{ px: 2, mb: 1 }}>Mis entregas</Typography>
+          <Divider />
+          {grouped.map(([day, subs]) => (
+            <Box key={day}>
+              <Typography variant="caption" color="text.secondary" sx={{ px: 2, py: 1, display: "block", fontWeight: 600 }}>
+                {day}
+              </Typography>
+              <List dense disablePadding>
+                {subs.map((sub) => {
+                  const color = STATUS_COLOR[sub.submission_status] ?? "default";
+                  const time = new Date(sub.submission_date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+                  return (
+                    <ListItemButton key={sub.id} onClick={() => { handleViewSubmission(sub); setDrawerOpen(false); }}>
+                      <ListItemIcon sx={{ minWidth: 36 }}>
+                        <ArticleIcon fontSize="small" color="action" />
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={<Chip label={sub.submission_status} color={color} size="small" />}
+                        secondary={time}
+                      />
+                      {sub.submission_status === "SUCCESS"
+                        ? <CheckCircleIcon color="success" fontSize="small" />
+                        : ["PENDING", "PROCESSING", "ENQUEUED"].includes(sub.submission_status)
+                          ? <ScheduleIcon color="action" fontSize="small" />
+                          : sub.submission_status === "TIME_OUT"
+                            ? <ScheduleIcon color="warning" fontSize="small" />
+                            : <ErrorIcon color="error" fontSize="small" />}
+                    </ListItemButton>
+                  );
+                })}
+              </List>
+              <Divider />
+            </Box>
+          ))}
+        </Box>
+      </Drawer>
 
-      {/* Submission Result Dialog */}
+      {/* Submission result dialog */}
       <Dialog open={resultDialogOpen} onClose={() => setResultDialogOpen(false)} maxWidth="md" fullWidth>
         <DialogTitle>
-          Submission Result
+          Resultado de entrega
           {selectedSubmission && (
             <Chip
               label={selectedSubmission.submission_status}
-              color={selectedSubmission.submission_status === "SUCCESS" ? "success" : "error"}
+              color={STATUS_COLOR[selectedSubmission.submission_status] ?? "default"}
               size="small"
               sx={{ ml: 2 }}
             />
@@ -181,18 +244,18 @@ export default function SolveActivityPage() {
             <Box>
               {selectedSubmission.stdout && (
                 <Box sx={{ mb: 2 }}>
-                  <Typography variant="subtitle2">Output:</Typography>
-                  <Paper variant="outlined" sx={{ p: 1, fontFamily: "monospace", fontSize: 13, whiteSpace: "pre-wrap", bgcolor: "grey.900", color: "grey.100" }}>
+                  <Typography variant="subtitle2">Salida:</Typography>
+                  <Box component="pre" sx={{ p: 1, fontFamily: "monospace", fontSize: 13, whiteSpace: "pre-wrap", bgcolor: "grey.900", color: "grey.100", borderRadius: 1, m: 0 }}>
                     {selectedSubmission.stdout}
-                  </Paper>
+                  </Box>
                 </Box>
               )}
               {selectedSubmission.stderr && (
                 <Box sx={{ mb: 2 }}>
-                  <Typography variant="subtitle2" color="error">Errors:</Typography>
-                  <Paper variant="outlined" sx={{ p: 1, fontFamily: "monospace", fontSize: 13, whiteSpace: "pre-wrap", bgcolor: "grey.900", color: "error.light" }}>
+                  <Typography variant="subtitle2" color="error">Errores:</Typography>
+                  <Box component="pre" sx={{ p: 1, fontFamily: "monospace", fontSize: 13, whiteSpace: "pre-wrap", bgcolor: "grey.900", color: "error.light", borderRadius: 1, m: 0 }}>
                     {selectedSubmission.stderr}
-                  </Paper>
+                  </Box>
                 </Box>
               )}
               {selectedSubmission.exit_message && (
@@ -200,16 +263,11 @@ export default function SolveActivityPage() {
               )}
               {selectedSubmission.ai_hint && (
                 <Box sx={{ mb: 3 }}>
-                  <Typography variant="subtitle2" color="primary" sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                    <span style={{ fontSize: '1.2rem' }}>💡</span> AI Debugging Hint:
+                  <Typography variant="subtitle2" color="primary" sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+                    <span style={{ fontSize: "1.2rem" }}>💡</span> Sugerencia IA:
                   </Typography>
-                  <Alert severity="warning" variant="outlined" sx={{ 
-                    borderStyle: 'dashed', 
-                    borderColor: 'primary.main', 
-                    bgcolor: 'primary.50',
-                    '& .MuiAlert-icon': { display: 'none' } 
-                  }}>
-                    <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'text.primary' }}>
+                  <Alert severity="warning" variant="outlined" sx={{ borderStyle: "dashed", borderColor: "primary.main", "& .MuiAlert-icon": { display: "none" } }}>
+                    <Typography variant="body2" sx={{ fontStyle: "italic" }}>
                       {selectedSubmission.ai_hint}
                     </Typography>
                   </Alert>
@@ -217,15 +275,15 @@ export default function SolveActivityPage() {
               )}
               {selectedSubmission.io_tests_run_results?.length > 0 && (
                 <Box sx={{ mb: 2 }}>
-                  <Typography variant="subtitle2" gutterBottom>I/O Test Results:</Typography>
+                  <Typography variant="subtitle2" gutterBottom>Resultados I/O:</Typography>
                   <Table size="small">
                     <TableHead>
                       <TableRow>
                         <TableCell>Test</TableCell>
-                        <TableCell>Input</TableCell>
-                        <TableCell>Expected</TableCell>
-                        <TableCell>Got</TableCell>
-                        <TableCell>Result</TableCell>
+                        <TableCell>Entrada</TableCell>
+                        <TableCell>Esperado</TableCell>
+                        <TableCell>Obtenido</TableCell>
+                        <TableCell></TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -248,12 +306,12 @@ export default function SolveActivityPage() {
               )}
               {selectedSubmission.unit_tests_run_results?.length > 0 && (
                 <Box>
-                  <Typography variant="subtitle2" gutterBottom>Unit Test Results:</Typography>
+                  <Typography variant="subtitle2" gutterBottom>Resultados unit tests:</Typography>
                   <Table size="small">
                     <TableHead>
                       <TableRow>
                         <TableCell>Test</TableCell>
-                        <TableCell>Result</TableCell>
+                        <TableCell>Resultado</TableCell>
                         <TableCell>Error</TableCell>
                       </TableRow>
                     </TableHead>
@@ -273,11 +331,12 @@ export default function SolveActivityPage() {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setResultDialogOpen(false)}>Close</Button>
+          <Button onClick={() => setResultDialogOpen(false)}>Cerrar</Button>
         </DialogActions>
       </Dialog>
 
       <CustomSnackbar open={!!error} message={error} severity="error" onClose={() => setError("")} />
+      <CustomSnackbar open={!!warning} message={warning} severity="warning" onClose={() => setWarning("")} />
     </Box>
   );
 }

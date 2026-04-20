@@ -6,8 +6,6 @@ Proposed improvements for the RPL-3.0-web Next.js application.
 ## 1. UI/UX Refinement
 *   **Refresh MUI Theme:** Modernize the MUI theme. Use FIUBA's colors and custom typography for a consistent brand. Implement a dark mode toggle to improve the student experience for late-night coding.
     *   **C: 2 | R: 1**
-*   **A11y Audit:** Use `axe-core` to find accessibility issues. Ensure all inputs have labels and that navigation is keyboard-friendly for students with motor/visual impairments.
-    *   **C: 2 | R: 1**
 *   **Responsive Design:** Use MUI's responsive breakpoints and Grid/Box systems to ensure the dashboard and activity pages work on mobile and tablet screens.
     *   **C: 3 | R: 1**
 *   **Mistake Highlight UI:** Implement a component that takes structured error data (line numbers, mistake types) and highlights the corresponding code blocks with student-friendly hints.

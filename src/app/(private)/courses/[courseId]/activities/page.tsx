@@ -10,6 +10,7 @@ import { useAppState } from "@/lib/state";
 import * as activitiesService from "@/services/activitiesService";
 import type { Activity, Category } from "@/types";
 import { getLanguageIcon } from "@/utils/icons";
+import { hasPermission } from "@/utils/permissions";
 
 export default function ActivitiesPage() {
   const params = useParams();
@@ -17,7 +18,7 @@ export default function ActivitiesPage() {
   const router = useRouter();
   const state = useAppState();
   const permissions = (state.permissions as string[]) || [];
-  const canManage = permissions.includes("activity_manage");
+  const canManage = hasPermission(permissions, "activity_manage");
 
   const [activities, setActivities] = useState<Activity[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);

@@ -58,6 +58,9 @@ export const languageOptions = [
   { value: "java_17", label: "Java 17" },
 ];
 
+export const toVersionedLanguage = (lang: string): string =>
+  languageOptions.find((o) => o.value.startsWith(lang + "_") || o.value === lang)?.value ?? lang;
+
 export const getTestCodeForLanguage = (lang: string): string => {
   if (lang.startsWith("c_")) return testCodeC;
   if (lang.startsWith("python")) return testCodePython;
