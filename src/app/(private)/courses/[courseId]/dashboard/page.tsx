@@ -17,10 +17,16 @@ export default function DashboardPage() {
 
   const [stats, setStats] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
+    setError(false);
     const fetchStats = isTeacher ? statsService.getTeacherStats : statsService.getStudentStats;
-    fetchStats(courseId).then(setStats).catch(() => {}).finally(() => setLoading(false));
+    fetchStats(courseId)
+      .then(setStats)
+      .catch((err) => { console.error("Failed to load dashboard stats:", err); setError(true); })
+      .finally(() => setLoading(false));
   }, [courseId, isTeacher]);
 
   if (loading) return <Box sx={{ display: "flex", justifyContent: "center", mt: 8 }}><CircularProgress /></Box>;
@@ -28,6 +34,7 @@ export default function DashboardPage() {
   return (
     <Box>
       <Typography variant="h4" gutterBottom>{course?.name || "Dashboard"}</Typography>
+      {error && <Typography color="error">Could not load dashboard stats.</Typography>}
 
       {stats && !isTeacher && (
         <Grid container spacing={3}>
