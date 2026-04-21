@@ -1,50 +1,34 @@
 import { createTheme } from "@mui/material/styles";
-
-// FIUBA Official Colors (Approximated)
-const FIUBA_BLUE = "#005BAA";
-const FIUBA_GOLD = "#FFC72C";
-const FIUBA_NAVY = "#003057";
+import { lightTokens, darkTokens } from "./tokens";
 
 const typography = {
-  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
-  h1: { fontWeight: 700 },
-  h2: { fontWeight: 700 },
-  h3: { fontWeight: 600 },
-  h4: { fontWeight: 600 },
+  fontFamily: 'var(--font-plus-jakarta), "Plus Jakarta Sans", "Inter", sans-serif',
+  h1: { fontWeight: 800 },
+  h2: { fontWeight: 800 },
+  h3: { fontWeight: 700 },
+  h4: { fontWeight: 700, letterSpacing: "-0.5px" },
   h5: { fontWeight: 600 },
   h6: { fontWeight: 600 },
-  button: { textTransform: "none", fontWeight: 500 },
+  button: { textTransform: "none" as const, fontWeight: 700 },
 };
 
-const components = {
+const baseComponents = {
   MuiButton: {
     styleOverrides: {
       root: {
-        borderRadius: 12,
-        padding: "10px 24px",
+        borderRadius: "8px",
         boxShadow: "none",
         textTransform: "none" as const,
-        fontWeight: 600,
-        transition: "all 0.2s ease-in-out",
-        "&:hover": {
-          boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.12)",
-          transform: "translateY(-1px)",
-        },
-      },
-      containedPrimary: {
-        backgroundColor: FIUBA_BLUE,
-        "&:hover": {
-          backgroundColor: FIUBA_NAVY,
-        },
+        fontWeight: 700,
+        "&:hover": { boxShadow: "none" },
       },
     },
   },
   MuiCard: {
     styleOverrides: {
       root: {
-        borderRadius: 20,
-        boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.04)",
-        border: "1px solid rgba(0, 0, 0, 0.05)",
+        borderRadius: "12px",
+        boxShadow: "none",
         overflow: "hidden",
       },
     },
@@ -52,28 +36,8 @@ const components = {
   MuiPaper: {
     styleOverrides: {
       root: {
-        borderRadius: 20,
         backgroundImage: "none",
-      },
-    },
-  },
-  MuiAppBar: {
-    styleOverrides: {
-      root: {
-        backgroundColor: "rgba(255, 255, 255, 0.8)",
-        backdropFilter: "blur(8px)",
-        color: "#1E293B",
-        boxShadow: "none",
-        borderBottom: "1px solid rgba(0, 0, 0, 0.05)",
-      },
-    },
-  },
-  MuiTextField: {
-    styleOverrides: {
-      root: {
-        "& .MuiOutlinedInput-root": {
-          borderRadius: 12,
-        },
+        borderRadius: "12px",
       },
     },
   },
@@ -82,34 +46,74 @@ const components = {
 export const lightTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: FIUBA_BLUE },
-    secondary: { main: FIUBA_GOLD },
-    background: { default: "#F8FAFC", paper: "#FFFFFF" },
-    text: { primary: "#1E293B", secondary: "#64748B" },
-    divider: "#E2E8F0",
+    primary: { main: lightTokens.blue },
+    success: { main: lightTokens.green },
+    error: { main: lightTokens.red },
+    warning: { main: lightTokens.amber },
+    background: { default: lightTokens.bg, paper: lightTokens.surface },
+    text: { primary: lightTokens.text, secondary: lightTokens.textMuted },
+    divider: lightTokens.border,
   },
   typography,
-  components,
+  components: {
+    ...baseComponents,
+    MuiAppBar: {
+      styleOverrides: {
+        root: {
+          backgroundColor: "rgba(255,255,255,0.92)",
+          backdropFilter: "blur(10px)",
+          color: lightTokens.text,
+          boxShadow: "none",
+          borderBottom: `1px solid ${lightTokens.border}`,
+        },
+      },
+    },
+    MuiCssBaseline: {
+      styleOverrides: {
+        body: {
+          WebkitFontSmoothing: "antialiased",
+          MozOsxFontSmoothing: "grayscale",
+          transition: "background-color 0.2s, color 0.2s",
+        },
+        p: { textWrap: "pretty" },
+      },
+    },
+  },
 });
 
 export const darkTheme = createTheme({
   palette: {
     mode: "dark",
-    primary: { main: "#3B82F6" },
-    secondary: { main: FIUBA_GOLD },
-    background: { default: "#0F172A", paper: "#1E293B" },
-    text: { primary: "#F8FAFC", secondary: "#94A3B8" },
-    divider: "#334155",
+    primary: { main: darkTokens.blue },
+    success: { main: darkTokens.green },
+    error: { main: darkTokens.red },
+    warning: { main: darkTokens.amber },
+    background: { default: darkTokens.bg, paper: darkTokens.surface },
+    text: { primary: darkTokens.text, secondary: darkTokens.textMuted },
+    divider: darkTokens.border,
   },
   typography,
   components: {
-    ...components,
+    ...baseComponents,
     MuiAppBar: {
       styleOverrides: {
         root: {
-          backgroundColor: "#1E293B",
-          backgroundImage: "none",
+          backgroundColor: "rgba(26,26,30,0.95)",
+          backdropFilter: "blur(10px)",
+          color: darkTokens.text,
+          boxShadow: "none",
+          borderBottom: `1px solid ${darkTokens.border}`,
         },
+      },
+    },
+    MuiCssBaseline: {
+      styleOverrides: {
+        body: {
+          WebkitFontSmoothing: "antialiased",
+          MozOsxFontSmoothing: "grayscale",
+          transition: "background-color 0.2s, color 0.2s",
+        },
+        p: { textWrap: "pretty" },
       },
     },
   },
