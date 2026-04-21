@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { Box, Typography, Paper, CircularProgress, Button } from "@mui/material";
 import { useSearchParams, useRouter } from "next/navigation";
 import * as authService from "@/services/authenticationService";
 
-export default function ValidateEmailPage() {
+function ValidateEmailContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get("token");
@@ -38,5 +38,13 @@ export default function ValidateEmailPage() {
         )}
       </Paper>
     </Box>
+  );
+}
+
+export default function ValidateEmailPage() {
+  return (
+    <Suspense fallback={<Box sx={{ display: "flex", justifyContent: "center", mt: 12 }}><CircularProgress /></Box>}>
+      <ValidateEmailContent />
+    </Suspense>
   );
 }

@@ -246,8 +246,8 @@ function calendarGrid(values: { date: string; count: number }[]): { weeks: (null
 
   const weeks: (null | { date: string; count: number })[][] = [];
   const monthLabels: { label: string; col: number }[] = [];
-  let seenMonths = new Set<string>();
-  let cursor = new Date(startDay);
+  const seenMonths = new Set<string>();
+  const cursor = new Date(startDay);
 
   for (let w = 0; w < totalWeeks; w++) {
     const week: (null | { date: string; count: number })[] = [];
