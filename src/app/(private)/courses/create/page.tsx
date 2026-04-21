@@ -1,16 +1,21 @@
 "use client";
 
 import React, { useState } from "react";
-import { Box, Typography, Paper, TextField, Button } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { useAppState } from "@/lib/state";
 import * as coursesService from "@/services/coursesService";
 import CustomSnackbar from "@/components/CustomSnackbar";
+import { useThemeMode } from "@/theme/ThemeProvider";
+import { lightTokens, darkTokens } from "@/theme/tokens";
 
 export default function CreateCoursePage() {
   const router = useRouter();
   const state = useAppState();
   const profile = state.profile as { id: number } | undefined;
+  const { isDark } = useThemeMode();
+  const t = isDark ? darkTokens : lightTokens;
+
   const [form, setForm] = useState({
     name: "", university: "FIUBA", subject_id: "", semester: "",
     semester_start_date: "", semester_end_date: "", description: "", img_uri: "",
@@ -18,8 +23,8 @@ export default function CreateCoursePage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
-    setForm((prev) => ({ ...prev, [field]: e.target.value }));
+  const set = (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    setForm((p) => ({ ...p, [field]: e.target.value }));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,32 +34,94 @@ export default function CreateCoursePage() {
       await coursesService.create({ ...form, course_admin_user_id: String(profile.id) });
       router.push("/courses");
     } catch (err: unknown) {
-      const error = err as { err?: { detail?: string } };
-      setError(error?.err?.detail || "Error creating course");
+      const e = err as { err?: { detail?: string } };
+      setError(e?.err?.detail || "Error al crear el curso");
     } finally {
       setLoading(false);
     }
   };
 
+  const labelSx = { fontSize: "11px", fontWeight: 700, color: t.textMuted, textTransform: "uppercase" as const, letterSpacing: "0.5px", mb: "5px" };
+  const inputSx = {
+    width: "100%", padding: "8px 11px", fontSize: "14px", fontFamily: "inherit",
+    color: t.text, background: t.surface2, border: `1px solid ${t.border}`,
+    borderRadius: "7px", outline: "none", boxSizing: "border-box" as const,
+    "&:focus": { borderColor: t.blue },
+  };
+
   return (
     <Box>
-      <Typography variant="h4" gutterBottom>Create Course</Typography>
-      <Paper sx={{ p: 3, maxWidth: 600 }}>
-        <form onSubmit={handleSubmit}>
-          <TextField fullWidth label="Course Name" value={form.name} onChange={handleChange("name")} margin="normal" required />
-          <TextField fullWidth label="Subject ID" value={form.subject_id} onChange={handleChange("subject_id")} margin="normal" required />
-          <TextField fullWidth label="University" value={form.university} onChange={handleChange("university")} margin="normal" />
-          <TextField fullWidth label="Semester" value={form.semester} onChange={handleChange("semester")} margin="normal" placeholder="2025-1" required />
-          <TextField fullWidth label="Start Date" type="date" value={form.semester_start_date} onChange={handleChange("semester_start_date")} margin="normal" InputLabelProps={{ shrink: true }} required />
-          <TextField fullWidth label="End Date" type="date" value={form.semester_end_date} onChange={handleChange("semester_end_date")} margin="normal" InputLabelProps={{ shrink: true }} required />
-          <TextField fullWidth label="Description" value={form.description} onChange={handleChange("description")} margin="normal" multiline rows={3} />
-          <TextField fullWidth label="Image URL" value={form.img_uri} onChange={handleChange("img_uri")} margin="normal" />
-          <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
-            <Button variant="contained" type="submit" disabled={loading}>{loading ? "Creating..." : "Create"}</Button>
-            <Button variant="outlined" onClick={() => router.back()}>Cancel</Button>
+      <Box sx={{ mb: "24px" }}>
+        <Typography sx={{ fontSize: "26px", fontWeight: 800, letterSpacing: "-0.8px", color: t.text, lineHeight: 1.1 }}>
+          Nuevo curso
+        </Typography>
+        <Typography sx={{ fontSize: "14px", color: t.textMuted, mt: "4px" }}>Completá los datos del curso</Typography>
+      </Box>
+
+      <Box
+        component="form"
+        onSubmit={handleSubmit}
+        sx={{ maxWidth: "580px", background: t.surface, border: `1px solid ${t.border}`, borderRadius: "12px", padding: "24px" }}
+      >
+        <Box sx={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" }}>
+            <Box>
+              <Box sx={labelSx}>Nombre del curso</Box>
+              <Box component="input" value={form.name} onChange={set("name")} required autoFocus sx={inputSx} />
+            </Box>
+            <Box>
+              <Box sx={labelSx}>Código de materia</Box>
+              <Box component="input" value={form.subject_id} onChange={set("subject_id")} required sx={inputSx} />
+            </Box>
+            <Box>
+              <Box sx={labelSx}>Universidad</Box>
+              <Box component="input" value={form.university} onChange={set("university")} sx={inputSx} />
+            </Box>
+            <Box>
+              <Box sx={labelSx}>Cuatrimestre</Box>
+              <Box component="input" value={form.semester} onChange={set("semester")} placeholder="2025-1" required sx={inputSx} />
+            </Box>
+            <Box>
+              <Box sx={labelSx}>Fecha de inicio</Box>
+              <Box component="input" type="date" value={form.semester_start_date} onChange={set("semester_start_date")} required sx={inputSx} />
+            </Box>
+            <Box>
+              <Box sx={labelSx}>Fecha de fin</Box>
+              <Box component="input" type="date" value={form.semester_end_date} onChange={set("semester_end_date")} required sx={inputSx} />
+            </Box>
           </Box>
-        </form>
-      </Paper>
+
+          <Box>
+            <Box sx={labelSx}>Descripción</Box>
+            <Box component="textarea" value={form.description} onChange={set("description")} rows={3} sx={{ ...inputSx, resize: "vertical", lineHeight: 1.5 }} />
+          </Box>
+
+          <Box>
+            <Box sx={labelSx}>URL de imagen (opcional)</Box>
+            <Box component="input" value={form.img_uri} onChange={set("img_uri")} placeholder="https://…" sx={inputSx} />
+          </Box>
+        </Box>
+
+        <Box sx={{ display: "flex", gap: "10px", mt: "20px" }}>
+          <Box
+            component="button"
+            type="submit"
+            disabled={loading}
+            sx={{ background: t.blue, color: "#fff", border: "none", borderRadius: "8px", padding: "9px 20px", fontSize: "14px", fontWeight: 700, fontFamily: "inherit", cursor: loading ? "default" : "pointer", opacity: loading ? 0.7 : 1 }}
+          >
+            {loading ? "Creando…" : "Crear curso"}
+          </Box>
+          <Box
+            component="button"
+            type="button"
+            onClick={() => router.back()}
+            sx={{ background: "none", border: `1px solid ${t.border}`, borderRadius: "8px", padding: "9px 20px", fontSize: "14px", fontWeight: 600, fontFamily: "inherit", color: t.textMuted, cursor: "pointer", "&:hover": { background: t.surface2 } }}
+          >
+            Cancelar
+          </Box>
+        </Box>
+      </Box>
+
       <CustomSnackbar open={!!error} message={error} severity="error" onClose={() => setError("")} />
     </Box>
   );
