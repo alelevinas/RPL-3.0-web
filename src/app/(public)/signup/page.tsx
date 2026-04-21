@@ -50,7 +50,7 @@ export default function SignupPage() {
     name: "", surname: "", student_id: "", email: "",
     username: "", password: "", university: "", degree: "",
   });
-  const [universities, setUniversities] = useState<string[]>([]);
+  const [universities, setUniversities] = useState<{ name: string }[]>([]);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -129,7 +129,7 @@ export default function SignupPage() {
                   }}
                 >
                   <option value="" disabled>Seleccioná…</option>
-                  {universities.map((u) => <option key={u} value={u}>{u}</option>)}
+                  {universities.map((u) => <option key={u.name} value={u.name}>{u.name}</option>)}
                   <option value="other">Otra</option>
                 </Box>
               </Box>
