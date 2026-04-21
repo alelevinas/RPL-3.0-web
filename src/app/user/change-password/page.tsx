@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
-import { Box, Button, TextField, Typography, Paper } from "@mui/material";
+import React, { Suspense, useState } from "react";
+import { Box, Button, TextField, Typography, Paper, CircularProgress } from "@mui/material";
 import { useSearchParams, useRouter } from "next/navigation";
 import * as authService from "@/services/authenticationService";
 import CustomSnackbar from "@/components/CustomSnackbar";
 
-export default function ChangePasswordPage() {
+function ChangePasswordForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get("token") || "";
@@ -40,5 +40,13 @@ export default function ChangePasswordPage() {
         <CustomSnackbar open={!!success} message={success} severity="success" onClose={() => setSuccess("")} />
       </Paper>
     </Box>
+  );
+}
+
+export default function ChangePasswordPage() {
+  return (
+    <Suspense fallback={<Box sx={{ display: "flex", justifyContent: "center", mt: 12 }}><CircularProgress /></Box>}>
+      <ChangePasswordForm />
+    </Suspense>
   );
 }

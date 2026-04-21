@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { Box, Typography, Alert, Button } from "@mui/material";
+import React, { Suspense, useState, useEffect } from "react";
+import { Box, Typography, Alert, Button, CircularProgress } from "@mui/material";
 import NextLink from "next/link";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -70,7 +70,7 @@ function StyledInput({ type = "text", value, onChange, placeholder, required, au
   );
 }
 
-export default function LoginPage() {
+function LoginContent() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -255,5 +255,13 @@ export default function LoginPage() {
         Facultad de Ingeniería · Universidad de Buenos Aires
       </Typography>
     </Box>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<Box sx={{ display: "flex", justifyContent: "center", pt: 8 }}><CircularProgress /></Box>}>
+      <LoginContent />
+    </Suspense>
   );
 }
