@@ -22,7 +22,8 @@ export default function MultipleTabsEditor({ files, language, readOnly = false, 
   const [newFileName, setNewFileName] = useState("");
   const [showNewFile, setShowNewFile] = useState(false);
 
-  const currentFile = fileNames[activeTab] || "";
+  const safeTab = Math.min(activeTab, Math.max(0, fileNames.length - 1));
+  const currentFile = fileNames[safeTab] || "";
   const currentContent = files[currentFile] || "";
   const monacoLang = getMonacoLanguage(language);
 
@@ -66,7 +67,7 @@ export default function MultipleTabsEditor({ files, language, readOnly = false, 
   return (
     <Box>
       <Box sx={{ display: "flex", alignItems: "center", borderBottom: 1, borderColor: "divider" }}>
-        <Tabs value={activeTab} onChange={(_, v) => setActiveTab(v)} variant="scrollable" scrollButtons="auto">
+        <Tabs value={safeTab} onChange={(_, v) => setActiveTab(v)} variant="scrollable" scrollButtons="auto">
           {fileNames.map((name) => (
             <Tab
               key={name}
