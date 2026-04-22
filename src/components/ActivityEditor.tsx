@@ -285,7 +285,6 @@ export default function ActivityEditor({ courseId, activityId: initialActivityId
   const [files, setFiles] = useState<Record<string, string>>({ [`main${getFileExtension("c_std11")}`]: "" });
   const [startingFilesRaw, setStartingFilesRaw] = useState<Record<string, string>>({});
   const [permissions, setPermissions] = useState<Record<string, FileDisplayMode>>({});
-  const [showPermsPanel, setShowPermsPanel] = useState(false);
 
   // Tests
   const [testMode, setTestMode] = useState<"io" | "unit">("io");
@@ -448,18 +447,12 @@ export default function ActivityEditor({ courseId, activityId: initialActivityId
     );
   }
 
-  const PERM_LABELS: Record<FileDisplayMode, string> = {
-    [FILE_DISPLAY_MODE.READ_WRITE]: "Editable",
-    [FILE_DISPLAY_MODE.READ]: "Solo lectura",
-    [FILE_DISPLAY_MODE.HIDDEN]: "Oculto",
-    [FILE_DISPLAY_MODE.WRITE_CANT_DELETE]: "Editable fijo",
-  };
-  const PERM_OPTIONS = [
-    FILE_DISPLAY_MODE.READ_WRITE,
-    FILE_DISPLAY_MODE.READ,
-    FILE_DISPLAY_MODE.WRITE_CANT_DELETE,
-    FILE_DISPLAY_MODE.HIDDEN,
-  ] as FileDisplayMode[];
+  const FILE_MODES: { value: FileDisplayMode; label: string; desc: string }[] = [
+    { value: FILE_DISPLAY_MODE.READ_WRITE, label: "Editable", desc: "El alumno puede ver y editar" },
+    { value: FILE_DISPLAY_MODE.READ, label: "Solo lectura", desc: "El alumno puede ver pero no editar" },
+    { value: FILE_DISPLAY_MODE.WRITE_CANT_DELETE, label: "Editable (fijo)", desc: "El alumno puede editar, no borrar" },
+    { value: FILE_DISPLAY_MODE.HIDDEN, label: "Oculto", desc: "El alumno no puede ver este archivo" },
+  ];
 
   const inputSx = {
     fontSize: "13px", color: t.text, background: t.surface2,
@@ -726,50 +719,30 @@ export default function ActivityEditor({ courseId, activityId: initialActivityId
 
             {!isCreateMode && (
               <>
-                <Box
-                  component="button"
-                  onClick={() => setShowPermsPanel((p) => !p)}
-                  sx={{
-                    position: "absolute", right: showPermsPanel ? "220px" : "0px",
-                    top: "50%", transform: "translateY(-50%)",
-                    background: t.surface, border: `1px solid ${t.border}`,
-                    borderRight: "none", borderRadius: "8px 0 0 8px",
-                    padding: "8px 4px", cursor: "pointer", color: t.textMuted,
-                    fontSize: "11px", fontWeight: 600, fontFamily: "inherit",
-                    writingMode: "vertical-rl",
-                    transition: "right 0.22s cubic-bezier(0.4,0,0.2,1)",
-                    zIndex: 10,
-                  }}
-                >
-                  Permisos
-                </Box>
-
                 <Box sx={{
-                  width: showPermsPanel ? "220px" : "0px",
-                  overflow: "hidden",
-                  borderLeft: showPermsPanel ? `1px solid ${t.border}` : "none",
+                  width: "220px",
+                  borderLeft: `1px solid ${t.border}`,
                   background: t.surface,
-                  transition: "width 0.22s cubic-bezier(0.4,0,0.2,1)",
                   display: "flex", flexDirection: "column", flexShrink: 0,
+                  overflowY: "auto",
                 }}>
-                  <Box sx={{ width: "220px" }}>
-                    <Box sx={{ padding: "14px 16px", borderBottom: `1px solid ${t.border}` }}>
+                  <Box sx={{ padding: "14px 16px", borderBottom: `1px solid ${t.border}` }}>
                       <Typography sx={{ fontSize: "12px", fontWeight: 700, color: t.text }}>Permisos de archivos</Typography>
                       <Typography sx={{ fontSize: "11px", color: t.textMuted, mt: "2px" }}>Qué puede ver/editar el alumno</Typography>
                     </Box>
-                    {Object.keys(startingFilesRaw).map((fname) => (
+                    {Object.keys(files).map((fname) => (
                       <Box key={fname} sx={{ padding: "12px 16px", borderBottom: `1px solid ${t.border}` }}>
                         <Typography sx={{ fontSize: "12px", fontWeight: 600, color: t.text, fontFamily: "var(--font-jetbrains-mono, monospace)", mb: "8px" }}>
                           {fname}
                         </Typography>
-                        <Box sx={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                          {PERM_OPTIONS.map((mode) => {
+                        <Box sx={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                          {FILE_MODES.map(({ value: mode, label, desc }) => {
                             const active = (permissions[fname] ?? FILE_DISPLAY_MODE.READ_WRITE) === mode;
                             return (
                               <Box
                                 key={mode}
                                 component="label"
-                                sx={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}
+                                sx={{ display: "flex", alignItems: "flex-start", gap: "8px", cursor: "pointer" }}
                               >
                                 <Box
                                   component="input"
@@ -777,18 +750,22 @@ export default function ActivityEditor({ courseId, activityId: initialActivityId
                                   name={`perm-${fname}`}
                                   checked={active}
                                   onChange={() => setPermissions((p) => ({ ...p, [fname]: mode }))}
-                                  sx={{ accentColor: t.blue }}
+                                  sx={{ accentColor: t.blue, mt: "2px" }}
                                 />
-                                <Typography sx={{ fontSize: "12px", color: active ? t.text : t.textMuted, fontWeight: active ? 600 : 400 }}>
-                                  {PERM_LABELS[mode]}
-                                </Typography>
+                                <Box>
+                                  <Typography sx={{ fontSize: "12px", color: active ? t.text : t.textMuted, fontWeight: active ? 600 : 400 }}>
+                                    {label}
+                                  </Typography>
+                                  <Typography sx={{ fontSize: "11px", color: t.textMuted }}>
+                                    {desc}
+                                  </Typography>
+                                </Box>
                               </Box>
                             );
                           })}
                         </Box>
                       </Box>
                     ))}
-                  </Box>
                 </Box>
               </>
             )}
@@ -827,7 +804,7 @@ export default function ActivityEditor({ courseId, activityId: initialActivityId
                   <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
                     <Box
                       component="button"
-                      onClick={() => setUnitTestCode(getTestCodeForLanguage(activity.language))}
+                      onClick={() => setUnitTestCode(getTestCodeForLanguage(form.language))}
                       sx={{
                         background: "none", border: `1px solid ${t.border}`, borderRadius: "7px",
                         padding: "5px 12px", fontSize: "12px", fontWeight: 600, fontFamily: "inherit",
@@ -841,7 +818,7 @@ export default function ActivityEditor({ courseId, activityId: initialActivityId
                   <Box sx={{ borderRadius: "8px", overflow: "hidden", border: `1px solid ${t.border}` }}>
                     <MonacoEditor
                       value={unitTestCode}
-                      language={getMonacoLanguage(activity.language)}
+                      language={getMonacoLanguage(form.language)}
                       onChange={(v) => setUnitTestCode(v || "")}
                       height="420px"
                     />
