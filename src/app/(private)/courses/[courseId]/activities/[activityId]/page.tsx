@@ -253,7 +253,11 @@ export default function SolveActivityPage() {
   const [activeTab, setActiveTab] = useState<RightTab>("problema");
   const [error, setError] = useState("");
   const [warning, setWarning] = useState("");
-  const pollingRef = useRef(false);
+  const sseRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    return () => { sseRef.current?.abort(); sseRef.current = null; };
+  }, []);
 
   useEffect(() => {
     Promise.all([
@@ -271,28 +275,27 @@ export default function SolveActivityPage() {
     }).finally(() => setLoading(false));
   }, [courseId, activityId]);
 
-  const pollSubmission = useCallback(async (submissionId: number) => {
-    pollingRef.current = true;
-    const maxAttempts = 30;
-    for (let i = 0; i < maxAttempts; i++) {
-      await new Promise((r) => setTimeout(r, 2000));
-      if (!pollingRef.current) break;
-      try {
-        const sub = await submissionsService.get(courseId, activityId, submissionId);
-        setLiveStatus(sub.submission_status);
-        if (sub.submission_status !== "PENDING" && sub.submission_status !== "PROCESSING" && sub.submission_status !== "ENQUEUED") {
-          pollingRef.current = false;
-          setSelectedSub(sub);
-          setActiveTab("resultados");
-          const subs = await submissionsService.getAll(courseId, activityId);
-          setSubmissions(subs);
-          return;
-        }
-      } catch { break; }
-    }
-    pollingRef.current = false;
-    setLiveStatus(null);
-    setWarning("La entrega está tardando más de lo esperado. Revisá más tarde.");
+  const startWatchingSubmission = useCallback((submissionId: number) => {
+    sseRef.current?.abort();
+    const controller = submissionsService.watchStatus(
+      courseId,
+      submissionId,
+      (s) => setLiveStatus(s as SubmissionStatus),
+      async (result) => {
+        sseRef.current = null;
+        setLiveStatus(result.submission_status as SubmissionStatus);
+        setSelectedSub(result);
+        setActiveTab("resultados");
+        const subs = await submissionsService.getAll(courseId, activityId);
+        setSubmissions(subs);
+      },
+      () => {
+        sseRef.current = null;
+        setLiveStatus(null);
+        setWarning("La entrega está tardando más de lo esperado. Revisá más tarde.");
+      },
+    );
+    sseRef.current = controller;
   }, [courseId, activityId]);
 
   const handleSubmit = async () => {
@@ -303,7 +306,7 @@ export default function SolveActivityPage() {
       const result = await submissionsService.submit(courseId, activityId, files);
       const subs = await submissionsService.getAll(courseId, activityId);
       setSubmissions(subs);
-      pollSubmission(result.id);
+      startWatchingSubmission(result.id);
     } catch (err: unknown) {
       const e = err as { err?: { detail?: string } };
       setError(e?.err?.detail || "Error al enviar la solución");
@@ -323,7 +326,7 @@ export default function SolveActivityPage() {
     }
   };
 
-  const isProcessing = pollingRef.current || submitting;
+  const isProcessing = sseRef.current !== null || submitting;
 
   if (loading) {
     return (
